@@ -1,4 +1,24 @@
-# Kling AI API SDK for RunAPI
+<p align="center">
+  <a href="https://runapi.ai"><img src="https://runapi.ai/icon.svg" height="56" alt="RunAPI"></a>
+</p>
+
+<h3 align="center">
+  <a href="https://github.com/runapi-ai/kling-sdk">Kling API SDK for RunAPI</a>
+</h3>
+
+<p align="center">
+  Kling API SDKs for JavaScript, Ruby, and Go on RunAPI.
+</p>
+
+<div align="center">
+
+[![npm](https://img.shields.io/npm/v/@runapi.ai/kling)](https://www.npmjs.com/package/@runapi.ai/kling)
+[![RubyGems](https://img.shields.io/gem/v/runapi-kling)](https://rubygems.org/gems/runapi-kling)
+[![Go Reference](https://pkg.go.dev/badge/github.com/runapi-ai/kling-sdk/go.svg)](https://pkg.go.dev/github.com/runapi-ai/kling-sdk/go)
+[![License](https://img.shields.io/github/license/runapi-ai/kling-sdk)](https://github.com/runapi-ai/kling-sdk/blob/main/LICENSE)
+
+</div>
+<br/>
 
 The kling ai api SDK packages JavaScript, Ruby, and Go clients for Kling on RunAPI. Use this kling ai api SDK for text-to-video, image-to-video, video-to-video, animation, and editing workflows that need typed installs, JSON request bodies, task polling, and consistent RunAPI errors across services.
 
