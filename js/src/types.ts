@@ -1,15 +1,22 @@
 import type { AsyncTaskStatus } from '@runapi.ai/core';
 
-export type KlingTextToVideoModel = 'kling-3.0' | 'kling-v2.5-turbo-text-to-video-pro';
-export type KlingImageToVideoModel = 'kling-v2.5-turbo-image-to-video-pro';
-export type KlingMode = 'std' | 'pro';
+export type KlingTextToVideoModel =
+  | 'kling-3.0'
+  | 'kling-v2.5-turbo-text-to-video-pro'
+  | 'kling-v2.1-master-text-to-video';
+export type KlingImageToVideoModel =
+  | 'kling-v2.5-turbo-image-to-video-pro'
+  | 'kling-v2.1-pro'
+  | 'kling-v2.1-standard'
+  | 'kling-v2.1-master-image-to-video';
+export type KlingTextToVideoOutputResolution = '720p' | '1080p' | '4k';
 export type KlingAspectRatio = '16:9' | '9:16' | '1:1';
-export type KlingDuration = string;
+export type KlingDuration = number;
 
 /** A single shot in a multi-shot text-to-video sequence. */
 export interface MultiPromptItem {
   prompt: string;
-  duration: number;
+  duration_seconds: number;
 }
 
 /** Element reference for subject/style guidance. */
@@ -22,30 +29,41 @@ export interface KlingElement {
 
 interface Kling3TextToVideoCommonParams {
   model: 'kling-3.0';
-  duration?: KlingDuration;
+  duration_seconds?: KlingDuration;
   aspect_ratio?: KlingAspectRatio;
-  mode?: KlingMode;
+  output_resolution?: KlingTextToVideoOutputResolution;
   kling_elements?: KlingElement[];
   callback_url?: string;
 }
 
 export interface Kling3TextToVideoSingleShotParams extends Kling3TextToVideoCommonParams {
   prompt: string;
-  sound?: boolean;
-  image_urls?: string[];
+  enable_sound?: boolean;
+  first_frame_image_url?: string;
+  last_frame_image_url?: string;
 }
 
 export interface Kling3TextToVideoMultiShotParams extends Kling3TextToVideoCommonParams {
   multi_shots: true;
-  sound: true;
+  enable_sound: true;
   multi_prompt: MultiPromptItem[];
-  image_urls?: string[];
+  first_frame_image_url?: string;
 }
 
 export interface V25TurboTextToVideoParams {
   model: 'kling-v2.5-turbo-text-to-video-pro';
   prompt: string;
-  duration?: '5' | '10';
+  duration_seconds?: 5 | 10;
+  aspect_ratio?: KlingAspectRatio;
+  negative_prompt?: string;
+  cfg_scale?: number;
+  callback_url?: string;
+}
+
+export interface V21MasterTextToVideoParams {
+  model: 'kling-v2.1-master-text-to-video';
+  prompt: string;
+  duration_seconds?: 5 | 10;
   aspect_ratio?: KlingAspectRatio;
   negative_prompt?: string;
   cfg_scale?: number;
@@ -53,19 +71,21 @@ export interface V25TurboTextToVideoParams {
 }
 
 export interface ImageToVideoParams {
-  model: 'kling-v2.5-turbo-image-to-video-pro';
+  model: KlingImageToVideoModel;
   prompt: string;
-  image_url: string;
-  duration?: '5' | '10';
+  first_frame_image_url: string;
+  duration_seconds?: 5 | 10;
   negative_prompt?: string;
   cfg_scale?: number;
+  last_frame_image_url?: string;
   callback_url?: string;
 }
 
 export type TextToVideoParams =
   | Kling3TextToVideoSingleShotParams
   | Kling3TextToVideoMultiShotParams
-  | V25TurboTextToVideoParams;
+  | V25TurboTextToVideoParams
+  | V21MasterTextToVideoParams;
 
 export interface AsyncTaskResponse {
   id: string;
@@ -92,12 +112,16 @@ export interface ImageToVideoResponse extends AsyncTaskResponse {
   [key: string]: unknown;
 }
 
-export type AiAvatarModel = 'kling-ai-avatar-pro' | 'kling-ai-avatar-standard';
+export type AiAvatarModel =
+  | 'kling-ai-avatar-pro'
+  | 'kling-ai-avatar-standard'
+  | 'kling-ai-avatar-v1-pro'
+  | 'kling-v1-avatar-standard';
 
 export interface AiAvatarParams {
   model: AiAvatarModel;
-  image_url: string;
-  audio_url: string;
+  source_image_url: string;
+  source_audio_url: string;
   prompt: string;
   callback_url?: string;
 }
@@ -110,12 +134,12 @@ export interface AiAvatarResponse extends AsyncTaskResponse {
 
 export interface MotionControlParams {
   model: 'kling-3.0';
-  input_urls: string[];
-  video_urls: string[];
+  source_image_url: string;
+  reference_video_url: string;
   prompt?: string;
-  mode?: '720p' | '1080p';
+  output_resolution?: '720p' | '1080p';
   character_orientation?: 'video' | 'image';
-  background_source?: 'input_video' | 'input_image';
+  background_source?: 'video' | 'image';
   callback_url?: string;
 }
 

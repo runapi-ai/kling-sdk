@@ -1,6 +1,6 @@
 # Kling AI API Ruby SDK for RunAPI
 
-The kling ai api Ruby SDK is the language-specific package for Kling on RunAPI. Use this kling ai api package for text-to-video, image-to-video, video-to-video, animation, and edit flows when your application needs JSON request bodies, task status lookup, and consistent RunAPI errors in Ruby.
+The kling ai api Ruby SDK is the language-specific package for Kling on RunAPI. Use this kling ai api package for text-to-video, image-to-video, video editing, and animation flows when your application needs JSON request bodies, task status lookup, and consistent RunAPI errors in Ruby.
 
 This kling ai api README is the Ruby package guide inside the public `kling-sdk` repository. For the repository overview, start at `../README.md`; for model details, use https://runapi.ai/models/kling; for API reference, use https://runapi.ai/docs#kling; for SDK docs, use https://runapi.ai/docs#sdk-kling.
 
@@ -26,7 +26,7 @@ Use `create` when you want to submit a task and return quickly, `get` when you n
 
 ## Language notes
 
-Use Ruby keyword arguments and the `RunApi::Kling` error classes when building video jobs, Rails workers, or scripts. The available resources include generations, ai avatars, v25 turbo generations, and motion controls. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
+Use Ruby keyword arguments and the `RunApi::Kling` error classes when building video jobs, Rails workers, or scripts. The available resources include text-to-video, image-to-video, AI avatars, V2.1/V2.5 video variants, and motion controls. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
 
 ## Links
 

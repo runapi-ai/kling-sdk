@@ -21,8 +21,9 @@ describe('ImageToVideo', () => {
       await imageToVideo.create({
         model: 'kling-v2.5-turbo-image-to-video-pro',
         prompt: 'A flower blooming',
-        image_url: 'https://example.com/flower.jpg',
-        duration: '10',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/flower.jpg',
+        last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+        duration_seconds: 10,
       });
 
       expect(mockHttp.request).toHaveBeenCalledWith(
@@ -32,8 +33,37 @@ describe('ImageToVideo', () => {
           body: {
             model: 'kling-v2.5-turbo-image-to-video-pro',
             prompt: 'A flower blooming',
-            image_url: 'https://example.com/flower.jpg',
-            duration: '10',
+            first_frame_image_url: 'https://cdn.runapi.ai/public/samples/flower.jpg',
+            last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+            duration_seconds: 10,
+          },
+        }
+      );
+    });
+
+    it('should send correct request for V2.1 Pro image-to-video', async () => {
+      const mockResponse: TaskCreateResponse = { id: 'task-v21' };
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
+
+      const imageToVideo = new ImageToVideo(mockHttp);
+      await imageToVideo.create({
+        model: 'kling-v2.1-pro',
+        prompt: 'Animate this frame',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/first-frame.png',
+        last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.png',
+        duration_seconds: 10,
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/kling/image_to_video',
+        {
+          body: {
+            model: 'kling-v2.1-pro',
+            prompt: 'Animate this frame',
+            first_frame_image_url: 'https://cdn.runapi.ai/public/samples/first-frame.png',
+            last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.png',
+            duration_seconds: 10,
           },
         }
       );
@@ -66,7 +96,7 @@ describe('ImageToVideo', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-v2.5-turbo-image-to-video-pro',
-        videos: [{ url: 'https://example.com/video.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/source.mp4' }],
       };
       vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
 
@@ -75,7 +105,7 @@ describe('ImageToVideo', () => {
 
       expect(result.status).toBe('completed');
       expect(result.videos).toHaveLength(1);
-      expect(result.videos?.[0].url).toBe('https://example.com/video.mp4');
+      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/source.mp4');
     });
 
     it('should return failed status with error', async () => {
@@ -107,7 +137,7 @@ describe('ImageToVideo', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-v2.5-turbo-image-to-video-pro',
-        videos: [{ url: 'https://example.com/video.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/source.mp4' }],
       };
 
       vi.mocked(mockHttp.request)
@@ -119,7 +149,7 @@ describe('ImageToVideo', () => {
       const result = await imageToVideo.run({
         model: 'kling-v2.5-turbo-image-to-video-pro',
         prompt: 'A flower blooming',
-        image_url: 'https://example.com/flower.jpg',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/flower.jpg',
       });
 
       expect(result.status).toBe('completed');

@@ -20,8 +20,8 @@ describe('AiAvatar', () => {
       const aiAvatar = new AiAvatar(mockHttp);
       const result = await aiAvatar.create({
         model: 'kling-ai-avatar-pro',
-        image_url: 'https://example.com/face.jpg',
-        audio_url: 'https://example.com/audio.mp3',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+        source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
         prompt: 'A person speaking naturally',
       });
 
@@ -31,8 +31,8 @@ describe('AiAvatar', () => {
         {
           body: {
             model: 'kling-ai-avatar-pro',
-            image_url: 'https://example.com/face.jpg',
-            audio_url: 'https://example.com/audio.mp3',
+            source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+            source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
             prompt: 'A person speaking naturally',
           },
         }
@@ -47,8 +47,8 @@ describe('AiAvatar', () => {
       const aiAvatar = new AiAvatar(mockHttp);
       await aiAvatar.create({
         model: 'kling-ai-avatar-standard',
-        image_url: 'https://example.com/face.jpg',
-        audio_url: 'https://example.com/audio.mp3',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+        source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
         prompt: 'A person speaking',
         callback_url: 'https://example.com/webhook',
       });
@@ -59,10 +59,36 @@ describe('AiAvatar', () => {
         {
           body: {
             model: 'kling-ai-avatar-standard',
-            image_url: 'https://example.com/face.jpg',
-            audio_url: 'https://example.com/audio.mp3',
+            source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+            source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
             prompt: 'A person speaking',
             callback_url: 'https://example.com/webhook',
+          },
+        }
+      );
+    });
+
+    it('should send correct request for v1 avatar model', async () => {
+      const mockResponse: TaskCreateResponse = { id: 'task-v1-avatar' };
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
+
+      const aiAvatar = new AiAvatar(mockHttp);
+      await aiAvatar.create({
+        model: 'kling-ai-avatar-v1-pro',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+        source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
+        prompt: 'A person speaking',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/kling/ai_avatar',
+        {
+          body: {
+            model: 'kling-ai-avatar-v1-pro',
+            source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+            source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
+            prompt: 'A person speaking',
           },
         }
       );
@@ -94,7 +120,7 @@ describe('AiAvatar', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-ai-avatar-pro',
-        videos: [{ url: 'https://example.com/avatar.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/result.mp4' }],
       };
       vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
 
@@ -103,7 +129,7 @@ describe('AiAvatar', () => {
 
       expect(result.status).toBe('completed');
       expect(result.videos).toHaveLength(1);
-      expect(result.videos?.[0].url).toBe('https://example.com/avatar.mp4');
+      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/result.mp4');
     });
 
     it('should return failed status with error', async () => {
@@ -135,7 +161,7 @@ describe('AiAvatar', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-ai-avatar-pro',
-        videos: [{ url: 'https://example.com/avatar.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/result.mp4' }],
       };
 
       vi.mocked(mockHttp.request)
@@ -146,8 +172,8 @@ describe('AiAvatar', () => {
       const aiAvatar = new AiAvatar(mockHttp);
       const result = await aiAvatar.run({
         model: 'kling-ai-avatar-pro',
-        image_url: 'https://example.com/face.jpg',
-        audio_url: 'https://example.com/audio.mp3',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/face.jpg',
+        source_audio_url: 'https://cdn.runapi.ai/public/samples/audio.mp3',
         prompt: 'A person speaking naturally',
       });
 

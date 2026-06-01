@@ -53,6 +53,7 @@ const client = new KlingClient();
 const result = await client.textToVideo.run({
   model: 'kling-3.0',
   prompt: 'A cat walking through a sunlit garden',
+  output_resolution: '4k',
 });
 const url = result.videos[0].url;
 ```
@@ -72,6 +73,12 @@ const url = result.videos[0].url;
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard)
+- [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro)
+- [V1 avatar standard](https://runapi.ai/models/kling/v1-avatar-standard)
+- [V2.1 pro](https://runapi.ai/models/kling/v2.1-pro)
+- [V2.1 standard](https://runapi.ai/models/kling/v2.1-standard)
+- [V2.1 master text to video](https://runapi.ai/models/kling/v2.1-master-text-to-video)
+- [V2.1 master image to video](https://runapi.ai/models/kling/v2.1-master-image-to-video)
 - [V2.5 turbo text to video pro](https://runapi.ai/models/kling/v2.5-turbo-text-to-video-pro)
 - [V2.5 turbo image to video pro](https://runapi.ai/models/kling/v2.5-turbo-image-to-video-pro)
 

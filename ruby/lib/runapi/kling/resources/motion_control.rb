@@ -49,15 +49,18 @@ module RunApi
         def validate_params!(params)
           model = param(params, :model)
           raise Core::ValidationError, "model is required" unless model
-          unless Types::MODELS.include?(model)
-            raise Core::ValidationError, "Invalid model: #{model}. Must be one of: #{Types::MODELS.join(", ")}"
+          unless Types::MOTION_CONTROL_MODELS.include?(model)
+            raise Core::ValidationError, "Invalid model: #{model}. Must be one of: #{Types::MOTION_CONTROL_MODELS.join(", ")}"
           end
+          validate_optional!(params, :output_resolution, Types::MOTION_CONTROL_OUTPUT_RESOLUTIONS)
+          validate_optional!(params, :character_orientation, Types::MOTION_CONTROL_CHARACTER_ORIENTATIONS)
+          validate_optional!(params, :background_source, Types::MOTION_CONTROL_BACKGROUND_SOURCES)
 
-          input_urls = param(params, :input_urls)
-          raise Core::ValidationError, "input_urls is required" unless input_urls.is_a?(Array) && input_urls.any?
+          source_image_url = param(params, :source_image_url)
+          raise Core::ValidationError, "source_image_url is required" unless source_image_url
 
-          video_urls = param(params, :video_urls)
-          raise Core::ValidationError, "video_urls is required" unless video_urls.is_a?(Array) && video_urls.any?
+          reference_video_url = param(params, :reference_video_url)
+          raise Core::ValidationError, "reference_video_url is required" unless reference_video_url
         end
       end
     end

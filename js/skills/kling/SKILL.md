@@ -34,7 +34,7 @@ Generate and edit video with Kling through RunAPI. The default path for one-off 
 
 The `runapi` binary is the runtime dependency. Run `runapi auth status` first. For agents and headless runs, prefer `RUNAPI_API_KEY` or import it into saved config with `printf '%s' "$RUNAPI_API_KEY" | runapi auth import-token --token -`. Use `runapi login` only when the user explicitly wants interactive browser auth.
 
-Inspect the available actions and request fields with CLI help:
+Inspect the available commands and request fields with CLI help:
 
 ```shell
 runapi kling --help
@@ -54,7 +54,9 @@ runapi kling text-to-video --async --input-file request.json
 runapi wait <task-id> --service kling --action text-to-video
 ```
 
-Available actions: `text-to-video`, `avatar`, `image-to-video`, `motion-control`.
+Available commands: `text-to-video`, `avatar`, `image-to-video`, `motion-control`.
+
+For Kling 3.0 text-to-video requests, keep `model: "kling-3.0"` and choose `output_resolution: "720p"`, `"1080p"`, or `"4k"` as needed.
 
 ## SDK integration path
 
@@ -75,6 +77,11 @@ When integrating Kling into an app, backend, worker, or library — not for one-
 - [Kling 3.0](https://runapi.ai/models/kling/3.0.md)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro.md)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard.md)
+- [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro.md)
+- [V1 avatar standard](https://runapi.ai/models/kling/v1-avatar-standard.md)
+- [V2.1 pro](https://runapi.ai/models/kling/v2.1-pro.md)
+- [V2.1 standard](https://runapi.ai/models/kling/v2.1-standard.md)
+- [V2.1 master text to video](https://runapi.ai/models/kling/v2.1-master-text-to-video.md)
+- [V2.1 master image to video](https://runapi.ai/models/kling/v2.1-master-image-to-video.md)
 - [V2.5 turbo text to video pro](https://runapi.ai/models/kling/v2.5-turbo-text-to-video-pro.md)
 - [V2.5 turbo image to video pro](https://runapi.ai/models/kling/v2.5-turbo-image-to-video-pro.md)
-

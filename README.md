@@ -20,7 +20,7 @@
 </div>
 <br/>
 
-The kling ai api SDK packages JavaScript, Ruby, and Go clients for Kling on RunAPI. Use this kling ai api SDK for text-to-video, image-to-video, video-to-video, animation, and editing workflows that need typed installs, JSON request bodies, task polling, and consistent RunAPI errors across services.
+The kling ai api SDK packages JavaScript, Ruby, and Go clients for Kling on RunAPI. Use this kling ai api SDK for text-to-video, image-to-video, animation, avatar, and motion-control workflows that need typed installs, JSON request bodies, task polling, and consistent RunAPI errors across services.
 
 Kling belongs to the Kuaishou catalog on RunAPI. The public model page is https://runapi.ai/models/kling; variant pages below carry pricing, rate-limit, and commercial-usage details. The public `kling-sdk` repository groups the JavaScript, Ruby, and Go packages for this model.
 
@@ -39,7 +39,9 @@ go get github.com/runapi-ai/kling-sdk/go@latest
 - Use `create` for submit-only jobs, `get` for status lookup, and `run` for submit-and-poll scripts.
 - Handle authentication, validation, rate limits, insufficient credits, task failures, and polling timeouts through RunAPI SDK errors.
 
-The JavaScript client exposes generations, ai avatars, v25 turbo generations, motion controls resources, and the Ruby and Go packages mirror the same RunAPI task lifecycle.
+The JavaScript client exposes text-to-video, image-to-video, AI avatar, V2.1/V2.5 video, and motion-control resources, and the Ruby and Go packages mirror the same RunAPI task lifecycle.
+
+For Kling 3.0 text-to-video, keep the public model id as `kling-3.0`; set `output_resolution` to `720p`, `1080p`, or `4k` when you need to choose the output resolution.
 
 ## JavaScript quick start
 
@@ -79,6 +81,12 @@ Use the most specific kling ai api variant page for pricing, rate limits, and co
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard)
+- [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro)
+- [V1 avatar standard](https://runapi.ai/models/kling/v1-avatar-standard)
+- [V2.1 pro](https://runapi.ai/models/kling/v2.1-pro)
+- [V2.1 standard](https://runapi.ai/models/kling/v2.1-standard)
+- [V2.1 master text to video](https://runapi.ai/models/kling/v2.1-master-text-to-video)
+- [V2.1 master image to video](https://runapi.ai/models/kling/v2.1-master-image-to-video)
 - [V2.5 turbo text to video pro](https://runapi.ai/models/kling/v2.5-turbo-text-to-video-pro)
 - [V2.5 turbo image to video pro](https://runapi.ai/models/kling/v2.5-turbo-image-to-video-pro)
 

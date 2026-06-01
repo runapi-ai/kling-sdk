@@ -27,11 +27,11 @@ func TestTextToVideoCreateSingleShot(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
-		Model:       ModelKling30,
-		Prompt:      "a cat playing piano",
-		Duration:    "5",
-		AspectRatio: "16:9",
-		Mode:        ModePro,
+		Model:            ModelKling30,
+		Prompt:           "a cat playing piano",
+		DurationSeconds:  5,
+		AspectRatio:      "16:9",
+		OutputResolution: TextToVideoOutputResolution1080p,
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -46,11 +46,33 @@ func TestTextToVideoCreateSingleShot(t *testing.T) {
 	if body["prompt"] != "a cat playing piano" {
 		t.Fatalf("unexpected prompt: %v", body["prompt"])
 	}
-	if body["duration"] != "5" {
-		t.Fatalf("expected duration '5', got: %v", body["duration"])
+	if body["duration_seconds"] != float64(5) {
+		t.Fatalf("expected duration_seconds 5, got: %v", body["duration_seconds"])
 	}
-	if body["mode"] != "pro" {
-		t.Fatalf("expected mode 'pro', got: %v", body["mode"])
+	if body["output_resolution"] != "1080p" {
+		t.Fatalf("expected output_resolution '1080p', got: %v", body["output_resolution"])
+	}
+}
+
+func TestTextToVideoCreate4KOutputResolution(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:            ModelKling30,
+		Prompt:           "a 4K establishing shot of a glass observatory above clouds",
+		DurationSeconds:  5,
+		AspectRatio:      "16:9",
+		OutputResolution: TextToVideoOutputResolution4K,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-3.0" {
+		t.Fatalf("unexpected model: %v", body["model"])
+	}
+	if body["output_resolution"] != "4k" {
+		t.Fatalf("expected output_resolution '4k', got: %v", body["output_resolution"])
 	}
 }
 
@@ -59,14 +81,14 @@ func TestTextToVideoCreateMultiShot(t *testing.T) {
 	client := NewClientWithHTTP(stub)
 	trueVal := true
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
-		Model:      ModelKling30,
-		MultiShots: &trueVal,
-		Sound:      &trueVal,
-		Duration:   "6",
-		Mode:       ModePro,
+		Model:            ModelKling30,
+		MultiShots:       &trueVal,
+		EnableSound:      &trueVal,
+		DurationSeconds:  6,
+		OutputResolution: TextToVideoOutputResolution1080p,
 		MultiPrompt: []MultiPromptItem{
-			{Prompt: "a cat exploring an attic", Duration: 3},
-			{Prompt: "the cat finds a treasure", Duration: 3},
+			{Prompt: "a cat exploring an attic", DurationSeconds: 3},
+			{Prompt: "the cat finds a treasure", DurationSeconds: 3},
 		},
 	})
 	if err != nil {
@@ -85,8 +107,8 @@ func TestTextToVideoCreateMultiShot(t *testing.T) {
 		t.Fatalf("unexpected first shot prompt: %v", firstShot["prompt"])
 	}
 	// JSON numbers decode as float64 for any
-	if firstShot["duration"].(float64) != 3 {
-		t.Fatalf("unexpected first shot duration: %v", firstShot["duration"])
+	if firstShot["duration_seconds"].(float64) != 3 {
+		t.Fatalf("unexpected first shot duration_seconds: %v", firstShot["duration_seconds"])
 	}
 }
 
@@ -110,8 +132,11 @@ func TestTextToVideoCreateCompactsEmptyFields(t *testing.T) {
 	if _, ok := body["kling_elements"]; ok {
 		t.Fatal("expected empty kling_elements to be compacted away")
 	}
-	if _, ok := body["image_urls"]; ok {
-		t.Fatal("expected empty image_urls to be compacted away")
+	if _, ok := body["first_frame_image_url"]; ok {
+		t.Fatal("expected empty first_frame_image_url to be compacted away")
+	}
+	if _, ok := body["last_frame_image_url"]; ok {
+		t.Fatal("expected empty last_frame_image_url to be compacted away")
 	}
 }
 
@@ -125,7 +150,7 @@ func TestTextToVideoCreateWithElements(t *testing.T) {
 			{
 				Name:             "element_dog",
 				Description:      "dog",
-				ElementInputURLs: []string{"https://example.com/dog1.jpg", "https://example.com/dog2.jpg"},
+				ElementInputURLs: []string{"https://cdn.runapi.ai/public/samples/dog-1.jpg", "https://cdn.runapi.ai/public/samples/dog-2.jpg"},
 			},
 		},
 	})
@@ -165,10 +190,10 @@ func TestAiAvatarCreate(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.AiAvatar.Create(context.Background(), AiAvatarParams{
-		Model:    ModelAiAvatarPro,
-		ImageURL: "https://example.com/face.jpg",
-		AudioURL: "https://example.com/audio.mp3",
-		Prompt:   "a person speaking naturally",
+		Model:          ModelAiAvatarPro,
+		SourceImageURL: "https://cdn.runapi.ai/public/samples/face.jpg",
+		SourceAudioURL: "https://cdn.runapi.ai/public/samples/audio.mp3",
+		Prompt:         "a person speaking naturally",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -180,11 +205,11 @@ func TestAiAvatarCreate(t *testing.T) {
 	if body["model"] != "kling-ai-avatar-pro" {
 		t.Fatalf("unexpected model: %v", body["model"])
 	}
-	if body["image_url"] != "https://example.com/face.jpg" {
-		t.Fatalf("unexpected image_url: %v", body["image_url"])
+	if body["source_image_url"] != "https://cdn.runapi.ai/public/samples/face.jpg" {
+		t.Fatalf("unexpected source_image_url: %v", body["source_image_url"])
 	}
-	if body["audio_url"] != "https://example.com/audio.mp3" {
-		t.Fatalf("unexpected audio_url: %v", body["audio_url"])
+	if body["source_audio_url"] != "https://cdn.runapi.ai/public/samples/audio.mp3" {
+		t.Fatalf("unexpected source_audio_url: %v", body["source_audio_url"])
 	}
 	if body["prompt"] != "a person speaking naturally" {
 		t.Fatalf("unexpected prompt: %v", body["prompt"])
@@ -195,10 +220,10 @@ func TestAiAvatarCreateCompactsEmptyFields(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.AiAvatar.Create(context.Background(), AiAvatarParams{
-		Model:    ModelAiAvatarStandard,
-		ImageURL: "https://example.com/face.jpg",
-		AudioURL: "https://example.com/audio.mp3",
-		Prompt:   "test",
+		Model:          ModelAiAvatarStandard,
+		SourceImageURL: "https://cdn.runapi.ai/public/samples/face.jpg",
+		SourceAudioURL: "https://cdn.runapi.ai/public/samples/audio.mp3",
+		Prompt:         "test",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -206,6 +231,24 @@ func TestAiAvatarCreateCompactsEmptyFields(t *testing.T) {
 	body := stub.body.(map[string]any)
 	if _, ok := body["callback_url"]; ok {
 		t.Fatal("expected empty callback_url to be compacted away")
+	}
+}
+
+func TestAiAvatarCreateV1ProModel(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.AiAvatar.Create(context.Background(), AiAvatarParams{
+		Model:          ModelAiAvatarV1Pro,
+		SourceImageURL: "https://cdn.runapi.ai/public/samples/face.jpg",
+		SourceAudioURL: "https://cdn.runapi.ai/public/samples/audio.mp3",
+		Prompt:         "a person speaking naturally",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-ai-avatar-v1-pro" {
+		t.Fatalf("unexpected model: %v", body["model"])
 	}
 }
 
@@ -227,10 +270,10 @@ func TestImageToVideoCreateT2V(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
-		Model:       ModelV25TurboT2VPro,
-		Prompt:      "a sunset over the ocean",
-		Duration:    "5",
-		AspectRatio: "16:9",
+		Model:           ModelV25TurboT2VPro,
+		Prompt:          "a sunset over the ocean",
+		DurationSeconds: 5,
+		AspectRatio:     "16:9",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -245,8 +288,33 @@ func TestImageToVideoCreateT2V(t *testing.T) {
 	if body["prompt"] != "a sunset over the ocean" {
 		t.Fatalf("unexpected prompt: %v", body["prompt"])
 	}
-	if body["duration"] != "5" {
-		t.Fatalf("expected duration '5', got: %v", body["duration"])
+	if body["duration_seconds"] != float64(5) {
+		t.Fatalf("expected duration_seconds 5, got: %v", body["duration_seconds"])
+	}
+}
+
+func TestTextToVideoCreateV21Master(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:           ModelV21MasterT2V,
+		Prompt:          "a cinematic paratrooper scene",
+		DurationSeconds: 10,
+		AspectRatio:     "16:9",
+		NegativePrompt:  "blur",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v2.1-master-text-to-video" {
+		t.Fatalf("unexpected model: %v", body["model"])
+	}
+	if body["duration_seconds"] != float64(10) {
+		t.Fatalf("expected duration_seconds 10, got: %v", body["duration_seconds"])
+	}
+	if _, ok := body["enable_sound"]; ok {
+		t.Fatal("expected enable_sound to be compacted away")
 	}
 }
 
@@ -254,9 +322,10 @@ func TestImageToVideoCreateI2V(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
-		Model:    ModelV25TurboI2VPro,
-		Prompt:   "a flower blooming",
-		ImageURL: "https://example.com/flower.jpg",
+		Model:              ModelV25TurboI2VPro,
+		Prompt:             "a flower blooming",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/flower.jpg",
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -265,8 +334,33 @@ func TestImageToVideoCreateI2V(t *testing.T) {
 	if body["model"] != "kling-v2.5-turbo-image-to-video-pro" {
 		t.Fatalf("unexpected model: %v", body["model"])
 	}
-	if body["image_url"] != "https://example.com/flower.jpg" {
-		t.Fatalf("unexpected image_url: %v", body["image_url"])
+	if body["first_frame_image_url"] != "https://cdn.runapi.ai/public/samples/flower.jpg" {
+		t.Fatalf("unexpected first_frame_image_url: %v", body["first_frame_image_url"])
+	}
+	if body["last_frame_image_url"] != "https://cdn.runapi.ai/public/samples/last-frame.jpg" {
+		t.Fatalf("unexpected last_frame_image_url: %v", body["last_frame_image_url"])
+	}
+}
+
+func TestImageToVideoCreateV21Pro(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
+		Model:              ModelV21Pro,
+		Prompt:             "animate this frame",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/first-frame.png",
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.png",
+		DurationSeconds:    10,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v2.1-pro" {
+		t.Fatalf("unexpected model: %v", body["model"])
+	}
+	if body["last_frame_image_url"] != "https://cdn.runapi.ai/public/samples/last-frame.png" {
+		t.Fatalf("unexpected last_frame_image_url: %v", body["last_frame_image_url"])
 	}
 }
 
@@ -287,8 +381,8 @@ func TestImageToVideoCreateCompactsEmptyFields(t *testing.T) {
 	if _, ok := body["negative_prompt"]; ok {
 		t.Fatal("expected empty negative_prompt to be compacted away")
 	}
-	if _, ok := body["image_url"]; ok {
-		t.Fatal("expected empty image_url to be compacted away")
+	if _, ok := body["first_frame_image_url"]; ok {
+		t.Fatal("expected empty first_frame_image_url to be compacted away")
 	}
 }
 
@@ -310,11 +404,11 @@ func TestMotionControlCreate(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
-		Model:     ModelKling30,
-		InputURLs: []string{"https://example.com/person.jpg"},
-		VideoURLs: []string{"https://example.com/dance.mp4"},
-		Prompt:    "a person dancing",
-		Mode:      "1080p",
+		Model:             ModelKling30,
+		SourceImageURL:    "https://cdn.runapi.ai/public/samples/person.jpg",
+		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/result.mp4",
+		Prompt:            "a person dancing",
+		OutputResolution:  "1080p",
 	})
 	if err != nil {
 		t.Fatal(err)
@@ -326,13 +420,17 @@ func TestMotionControlCreate(t *testing.T) {
 	if body["model"] != "kling-3.0" {
 		t.Fatalf("unexpected model: %v", body["model"])
 	}
-	inputURLs, ok := body["input_urls"].([]any)
-	if !ok || len(inputURLs) != 1 {
-		t.Fatalf("expected input_urls with 1 item, got: %v", body["input_urls"])
+	if body["source_image_url"] != "https://cdn.runapi.ai/public/samples/person.jpg" {
+		t.Fatalf("unexpected source_image_url: %v", body["source_image_url"])
 	}
-	videoURLs, ok := body["video_urls"].([]any)
-	if !ok || len(videoURLs) != 1 {
-		t.Fatalf("expected video_urls with 1 item, got: %v", body["video_urls"])
+	if body["reference_video_url"] != "https://cdn.runapi.ai/public/samples/result.mp4" {
+		t.Fatalf("unexpected reference_video_url: %v", body["reference_video_url"])
+	}
+	if _, ok := body["input_urls"]; ok {
+		t.Fatalf("unexpected provider input_urls key: %v", body["input_urls"])
+	}
+	if _, ok := body["video_urls"]; ok {
+		t.Fatalf("unexpected provider video_urls key: %v", body["video_urls"])
 	}
 }
 
@@ -341,12 +439,12 @@ func TestMotionControlCreateWithAllOptions(t *testing.T) {
 	client := NewClientWithHTTP(stub)
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
 		Model:                ModelKling30,
-		InputURLs:            []string{"https://example.com/person.jpg"},
-		VideoURLs:            []string{"https://example.com/dance.mp4"},
+		SourceImageURL:       "https://cdn.runapi.ai/public/samples/person.jpg",
+		ReferenceVideoURL:    "https://cdn.runapi.ai/public/samples/result.mp4",
 		Prompt:               "a person dancing",
-		Mode:                 "720p",
+		OutputResolution:     "720p",
 		CharacterOrientation: "video",
-		BackgroundSource:     "input_video",
+		BackgroundSource:     "video",
 		CallbackURL:          "https://example.com/webhook",
 	})
 	if err != nil {
@@ -356,8 +454,14 @@ func TestMotionControlCreateWithAllOptions(t *testing.T) {
 	if body["character_orientation"] != "video" {
 		t.Fatalf("unexpected character_orientation: %v", body["character_orientation"])
 	}
-	if body["background_source"] != "input_video" {
+	if body["background_source"] != "video" {
 		t.Fatalf("unexpected background_source: %v", body["background_source"])
+	}
+	if body["output_resolution"] != "720p" {
+		t.Fatalf("unexpected output_resolution: %v", body["output_resolution"])
+	}
+	if _, ok := body["mode"]; ok {
+		t.Fatalf("unexpected provider mode key: %v", body["mode"])
 	}
 	if body["callback_url"] != "https://example.com/webhook" {
 		t.Fatalf("unexpected callback_url: %v", body["callback_url"])
@@ -368,9 +472,9 @@ func TestMotionControlCreateCompactsEmptyFields(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
-		Model:     ModelKling30,
-		InputURLs: []string{"https://example.com/person.jpg"},
-		VideoURLs: []string{"https://example.com/dance.mp4"},
+		Model:             ModelKling30,
+		SourceImageURL:    "https://cdn.runapi.ai/public/samples/person.jpg",
+		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/result.mp4",
 	})
 	if err != nil {
 		t.Fatal(err)

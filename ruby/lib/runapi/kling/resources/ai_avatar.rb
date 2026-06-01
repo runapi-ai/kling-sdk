@@ -53,8 +53,8 @@ module RunApi
             raise Core::ValidationError, "Invalid model: #{model}. Must be one of: #{Types::AI_AVATAR_MODELS.join(", ")}"
           end
 
-          raise Core::ValidationError, "image_url is required" unless param(params, :image_url)
-          raise Core::ValidationError, "audio_url is required" unless param(params, :audio_url)
+          raise Core::ValidationError, "source_image_url is required" unless param(params, :source_image_url)
+          raise Core::ValidationError, "source_audio_url is required" unless param(params, :source_audio_url)
           raise Core::ValidationError, "prompt is required" unless param(params, :prompt)
         end
       end

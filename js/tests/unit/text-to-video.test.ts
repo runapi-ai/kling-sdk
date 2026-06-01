@@ -21,10 +21,10 @@ describe('TextToVideo', () => {
       const result = await textToVideo.create({
         model: 'kling-3.0',
         prompt: 'A cat playing piano',
-        sound: true,
-        duration: '5',
+        enable_sound: true,
+        duration_seconds: 5,
         aspect_ratio: '16:9',
-        mode: 'pro',
+        output_resolution: '1080p',
       });
 
       expect(mockHttp.request).toHaveBeenCalledWith(
@@ -34,10 +34,10 @@ describe('TextToVideo', () => {
           body: {
             model: 'kling-3.0',
             prompt: 'A cat playing piano',
-            sound: true,
-            duration: '5',
+            enable_sound: true,
+            duration_seconds: 5,
             aspect_ratio: '16:9',
-            mode: 'pro',
+            output_resolution: '1080p',
           },
         }
       );
@@ -52,12 +52,12 @@ describe('TextToVideo', () => {
       await textToVideo.create({
         model: 'kling-3.0',
         multi_shots: true,
-        sound: true,
-        duration: '6',
-        mode: 'pro',
+        enable_sound: true,
+        duration_seconds: 6,
+        output_resolution: '1080p',
         multi_prompt: [
-          { prompt: 'A dog running on the beach', duration: 3 },
-          { prompt: 'The dog catches a frisbee', duration: 3 },
+          { prompt: 'A dog running on the beach', duration_seconds: 3 },
+          { prompt: 'The dog catches a frisbee', duration_seconds: 3 },
         ],
       });
 
@@ -68,13 +68,41 @@ describe('TextToVideo', () => {
           body: {
             model: 'kling-3.0',
             multi_shots: true,
-            sound: true,
-            duration: '6',
-            mode: 'pro',
+            enable_sound: true,
+            duration_seconds: 6,
+            output_resolution: '1080p',
             multi_prompt: [
-              { prompt: 'A dog running on the beach', duration: 3 },
-              { prompt: 'The dog catches a frisbee', duration: 3 },
+              { prompt: 'A dog running on the beach', duration_seconds: 3 },
+              { prompt: 'The dog catches a frisbee', duration_seconds: 3 },
             ],
+          },
+        }
+      );
+    });
+
+    it('should send correct request for 4k output resolution', async () => {
+      const mockResponse: TaskCreateResponse = { id: 'task-4k' };
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
+
+      const textToVideo = new TextToVideo(mockHttp);
+      await textToVideo.create({
+        model: 'kling-3.0',
+        prompt: 'A 4K establishing shot of a glass observatory above clouds',
+        duration_seconds: 5,
+        aspect_ratio: '16:9',
+        output_resolution: '4k',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/kling/text_to_video',
+        {
+          body: {
+            model: 'kling-3.0',
+            prompt: 'A 4K establishing shot of a glass observatory above clouds',
+            duration_seconds: 5,
+            aspect_ratio: '16:9',
+            output_resolution: '4k',
           },
         }
       );
@@ -88,14 +116,14 @@ describe('TextToVideo', () => {
       await textToVideo.create({
         model: 'kling-3.0',
         prompt: 'A bright room @element_dog',
-        image_urls: ['https://example.com/frame.png'],
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/first-frame.png',
         kling_elements: [
           {
             name: 'element_dog',
             description: 'dog',
             element_input_urls: [
-              'https://example.com/dog1.jpg',
-              'https://example.com/dog2.jpg',
+              'https://cdn.runapi.ai/public/samples/dog-1.jpg',
+              'https://cdn.runapi.ai/public/samples/dog-2.jpg',
             ],
           },
         ],
@@ -108,14 +136,14 @@ describe('TextToVideo', () => {
           body: {
             model: 'kling-3.0',
             prompt: 'A bright room @element_dog',
-            image_urls: ['https://example.com/frame.png'],
+            first_frame_image_url: 'https://cdn.runapi.ai/public/samples/first-frame.png',
             kling_elements: [
               {
                 name: 'element_dog',
                 description: 'dog',
                 element_input_urls: [
-                  'https://example.com/dog1.jpg',
-                  'https://example.com/dog2.jpg',
+                  'https://cdn.runapi.ai/public/samples/dog-1.jpg',
+                  'https://cdn.runapi.ai/public/samples/dog-2.jpg',
                 ],
               },
             ],
@@ -134,7 +162,7 @@ describe('TextToVideo', () => {
       await textToVideo.create({
         model: 'kling-v2.5-turbo-text-to-video-pro',
         prompt: 'A sunset over the ocean',
-        duration: '5',
+        duration_seconds: 5,
         aspect_ratio: '16:9',
       });
 
@@ -145,8 +173,38 @@ describe('TextToVideo', () => {
           body: {
             model: 'kling-v2.5-turbo-text-to-video-pro',
             prompt: 'A sunset over the ocean',
-            duration: '5',
+            duration_seconds: 5,
             aspect_ratio: '16:9',
+          },
+        }
+      );
+    });
+
+    it('should send correct request for V2.1 Master text-to-video', async () => {
+      const mockResponse: TaskCreateResponse = { id: 'task-v21-master' };
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
+
+      const textToVideo = new TextToVideo(mockHttp);
+      await textToVideo.create({
+        model: 'kling-v2.1-master-text-to-video',
+        prompt: 'A cinematic paratrooper scene',
+        duration_seconds: 10,
+        aspect_ratio: '16:9',
+        negative_prompt: 'blur',
+        cfg_scale: 0.5,
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/kling/text_to_video',
+        {
+          body: {
+            model: 'kling-v2.1-master-text-to-video',
+            prompt: 'A cinematic paratrooper scene',
+            duration_seconds: 10,
+            aspect_ratio: '16:9',
+            negative_prompt: 'blur',
+            cfg_scale: 0.5,
           },
         }
       );
@@ -177,7 +235,7 @@ describe('TextToVideo', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-3.0',
-        videos: [{ url: 'https://example.com/video.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/source.mp4' }],
       };
       vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
 
@@ -186,7 +244,7 @@ describe('TextToVideo', () => {
 
       expect(result.status).toBe('completed');
       expect(result.videos).toHaveLength(1);
-      expect(result.videos?.[0].url).toBe('https://example.com/video.mp4');
+      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/source.mp4');
     });
 
     it('should return failed status with error', async () => {
@@ -218,7 +276,7 @@ describe('TextToVideo', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-3.0',
-        videos: [{ url: 'https://example.com/video.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/source.mp4' }],
       };
 
       vi.mocked(mockHttp.request)
