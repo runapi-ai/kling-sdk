@@ -505,3 +505,13 @@ func TestMotionControlGet(t *testing.T) {
 		t.Fatalf("unexpected request: %s %s", stub.method, stub.path)
 	}
 }
+
+func TestClientExposesUniversalResources(t *testing.T) {
+	client := NewClientWithHTTP(&stubHTTPClient{})
+	if client.Files == nil {
+		t.Fatal("expected Files to be wired via base.Base")
+	}
+	if client.Account == nil {
+		t.Fatal("expected Account to be wired via base.Base")
+	}
+}

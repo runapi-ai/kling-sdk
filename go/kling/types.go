@@ -3,34 +3,52 @@ package kling
 // TextToVideoModel identifies a Kling text-to-video model variant.
 type TextToVideoModel string
 
+// ImageToVideoModel selects a Kling image-to-video model variant.
 type ImageToVideoModel string
 
+// KlingTextToVideoOutputResolution controls the output resolution for text-to-video tasks.
 type KlingTextToVideoOutputResolution string
 
+// MotionControlOutputResolution controls the output resolution for motion control tasks.
 type MotionControlOutputResolution string
 
+// TaskStatus is the async task lifecycle state (e.g. "processing", "completed", "failed").
 type TaskStatus string
 
 const (
-	ModelKling30        TextToVideoModel = "kling-3.0"
+	// ModelKling30 is the latest-generation model with multi-shot, first/last frame images, sound generation, and Kling elements.
+	ModelKling30 TextToVideoModel = "kling-3.0"
+	// ModelV25TurboT2VPro is a fast, high-quality V2.5 model. Supports negative prompts and cfg_scale.
 	ModelV25TurboT2VPro TextToVideoModel = "kling-v2.5-turbo-text-to-video-pro"
-	ModelV21MasterT2V   TextToVideoModel = "kling-v2.1-master-text-to-video"
+	// ModelV21MasterT2V is the V2.1 master model. Supports negative prompts and cfg_scale.
+	ModelV21MasterT2V TextToVideoModel = "kling-v2.1-master-text-to-video"
 
+	// ModelV25TurboI2VPro is the fast V2.5 image-to-video model with last-frame support.
 	ModelV25TurboI2VPro ImageToVideoModel = "kling-v2.5-turbo-image-to-video-pro"
-	ModelV21Pro         ImageToVideoModel = "kling-v2.1-pro"
-	ModelV21Standard    ImageToVideoModel = "kling-v2.1-standard"
-	ModelV21MasterI2V   ImageToVideoModel = "kling-v2.1-master-image-to-video"
+	// ModelV21Pro balances quality and speed for image-to-video.
+	ModelV21Pro ImageToVideoModel = "kling-v2.1-pro"
+	// ModelV21Standard is the fastest V2.1 image-to-video variant.
+	ModelV21Standard ImageToVideoModel = "kling-v2.1-standard"
+	// ModelV21MasterI2V is the highest-quality V2.1 image-to-video variant.
+	ModelV21MasterI2V ImageToVideoModel = "kling-v2.1-master-image-to-video"
 
-	TextToVideoOutputResolution720p  KlingTextToVideoOutputResolution = "720p"
+	// TextToVideoOutputResolution720p produces 720p output (fastest).
+	TextToVideoOutputResolution720p KlingTextToVideoOutputResolution = "720p"
+	// TextToVideoOutputResolution1080p produces 1080p output.
 	TextToVideoOutputResolution1080p KlingTextToVideoOutputResolution = "1080p"
-	TextToVideoOutputResolution4K    KlingTextToVideoOutputResolution = "4k"
+	// TextToVideoOutputResolution4K produces 4K output (highest quality, slowest).
+	TextToVideoOutputResolution4K KlingTextToVideoOutputResolution = "4k"
 )
 
+// MultiPromptItem defines a single shot in multi-shot generation mode ([ModelKling30] only).
+// Each shot has its own prompt and duration.
 type MultiPromptItem struct {
 	Prompt          string `json:"prompt" help:"required; text prompt for this shot"`
 	DurationSeconds int    `json:"duration_seconds" help:"required; shot duration in seconds"`
 }
 
+// KlingElement is a named visual element (character, object, style) with reference images or videos,
+// used in [ModelKling30] generation to maintain consistency.
 type KlingElement struct {
 	Name                  string   `json:"name" help:"required; element name"`
 	Description           string   `json:"description,omitempty" help:"optional; element description"`
@@ -38,6 +56,9 @@ type KlingElement struct {
 	ElementInputVideoURLs []string `json:"element_input_video_urls,omitempty" help:"optional; video URLs for the element"`
 }
 
+// TextToVideoParams configures Kling text-to-video generation.
+// Feature availability varies by model: [ModelKling30] supports multi-shot, first/last frame images,
+// sound generation, and Kling elements. V2.x models support NegativePrompt and CfgScale instead.
 type TextToVideoParams struct {
 	Model       TextToVideoModel `json:"model" help:"required; model slug"`
 	Prompt      string           `json:"prompt,omitempty" help:"required unless multi_shots; video description"`
@@ -59,6 +80,8 @@ type TextToVideoParams struct {
 	KlingElements []KlingElement `json:"kling_elements,omitempty" help:"optional; element references for generation"`
 }
 
+// ImageToVideoParams configures Kling image-to-video generation.
+// A first-frame image is required. LastFrameImageURL is supported by select models.
 type ImageToVideoParams struct {
 	Model              ImageToVideoModel `json:"model" help:"required; model slug"`
 	Prompt             string            `json:"prompt" help:"required; video description"`
@@ -70,6 +93,7 @@ type ImageToVideoParams struct {
 	LastFrameImageURL  string            `json:"last_frame_image_url,omitempty" help:"optional; final frame image URL for supported image-to-video models"`
 }
 
+// AsyncTaskResponse carries the task ID, lifecycle status, and error for all Kling async operations.
 type AsyncTaskResponse struct {
 	ID     string     `json:"id"`
 	Status TaskStatus `json:"status"`
@@ -80,29 +104,39 @@ func (r AsyncTaskResponse) GetID() string     { return r.ID }
 func (r AsyncTaskResponse) GetStatus() string { return string(r.Status) }
 func (r AsyncTaskResponse) GetError() string  { return r.Error }
 
+// VideoMetadata holds a URL to a generated video file.
 type VideoMetadata struct {
 	URL string `json:"url"`
 }
 
+// TextToVideoResponse is the completed result of a text-to-video task.
 type TextToVideoResponse struct {
 	AsyncTaskResponse
 	Videos []VideoMetadata `json:"videos,omitempty"`
 }
 
+// ImageToVideoResponse is the completed result of an image-to-video task.
 type ImageToVideoResponse struct {
 	AsyncTaskResponse
 	Videos []VideoMetadata `json:"videos,omitempty"`
 }
 
+// AiAvatarModel selects the AI avatar lip-sync quality tier.
 type AiAvatarModel string
 
 const (
-	ModelAiAvatarPro      AiAvatarModel = "kling-ai-avatar-pro"
+	// ModelAiAvatarPro is the highest-quality avatar model with the most natural lip movements.
+	ModelAiAvatarPro AiAvatarModel = "kling-ai-avatar-pro"
+	// ModelAiAvatarStandard is faster with slightly less refined lip sync than Pro.
 	ModelAiAvatarStandard AiAvatarModel = "kling-ai-avatar-standard"
-	ModelAiAvatarV1Pro    AiAvatarModel = "kling-ai-avatar-v1-pro"
+	// ModelAiAvatarV1Pro is the V1-generation pro avatar model.
+	ModelAiAvatarV1Pro AiAvatarModel = "kling-ai-avatar-v1-pro"
+	// ModelV1AvatarStandard is the V1-generation standard avatar model.
 	ModelV1AvatarStandard AiAvatarModel = "kling-v1-avatar-standard"
 )
 
+// AiAvatarParams configures AI avatar generation, which lip-syncs a face image to an audio track.
+// The face in SourceImageURL is animated to match the speech in SourceAudioURL.
 type AiAvatarParams struct {
 	Model          AiAvatarModel `json:"model" help:"required; model slug"`
 	SourceImageURL string        `json:"source_image_url" help:"required; face image URL"`
@@ -111,11 +145,14 @@ type AiAvatarParams struct {
 	CallbackURL    string        `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 }
 
+// AiAvatarResponse is the completed result of an AI avatar task.
 type AiAvatarResponse struct {
 	AsyncTaskResponse
 	Videos []VideoMetadata `json:"videos,omitempty"`
 }
 
+// MotionControlParams configures motion transfer from a reference video onto a subject image.
+// The subject in SourceImageURL adopts the motion patterns from ReferenceVideoURL.
 type MotionControlParams struct {
 	Model                TextToVideoModel              `json:"model" help:"required; model slug"`
 	SourceImageURL       string                        `json:"source_image_url" help:"required; subject image URL"`
@@ -127,6 +164,7 @@ type MotionControlParams struct {
 	CallbackURL          string                        `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 }
 
+// MotionControlResponse is the completed result of a motion control task.
 type MotionControlResponse struct {
 	AsyncTaskResponse
 	Videos []VideoMetadata `json:"videos,omitempty"`

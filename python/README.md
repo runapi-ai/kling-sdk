@@ -1,0 +1,64 @@
+# Kling Python SDK for RunAPI
+
+The Kling Python SDK is the language-specific package for Kling on RunAPI. Use this kling package for text-to-video, image-to-video, AI avatar, and motion control flows when your application needs JSON request bodies, task status lookup, and consistent RunAPI errors in Python.
+
+This kling README is the Python package guide inside the public `kling-sdk` repository. For the repository overview, start at `../README.md`; for model details, use https://runapi.ai/models/kling; for API reference, use https://runapi.ai/docs#kling; for SDK docs, use https://runapi.ai/docs#sdk-kling.
+
+## Install
+
+```bash
+pip install runapi-kling
+```
+
+## Quick start
+
+```python
+from runapi.kling import KlingClient
+
+client = KlingClient()  # reads RUNAPI_API_KEY, or pass api_key="sk-..."
+
+task = client.text_to_video.create(
+    model="kling-3.0",
+    prompt="A cat walking through a garden",
+)
+status = client.text_to_video.get(task.id)
+
+avatar = client.ai_avatar.create(
+    model="kling-ai-avatar-pro",
+    prompt="A friendly host greeting the audience",
+    source_image_url="https://example.com/portrait.jpg",
+    source_audio_url="https://example.com/voice.mp3",
+)
+```
+
+Use `create` when you want to submit a task and return quickly, `get` when you need the latest task state, and `run` when a script should create and poll until completion:
+
+```python
+result = client.text_to_video.run(
+    model="kling-3.0",
+    prompt="A serene drone shot over a misty forest",
+)
+print(result.videos[0].url)
+```
+
+In web request handlers, prefer `create` plus webhook or later `get` polling so a worker is not held open.
+
+RunAPI-generated file URLs are temporary. Download and store generated images, videos, audio, or other files in your own durable storage within 7 days; do not treat returned URLs as long-term assets.
+
+## Language notes
+
+Pass parameters as keyword arguments and catch the `runapi.kling` error classes when building video jobs, workers, or scripts. The available resources are `text_to_video`, `ai_avatar`, `image_to_video`, and `motion_control`. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
+
+## Links
+
+- Model page: https://runapi.ai/models/kling
+- SDK docs: https://runapi.ai/docs#sdk-kling
+- Product docs: https://runapi.ai/docs#kling
+- Pricing and rate limits: https://runapi.ai/models/kling/3.0
+- Provider comparison: https://runapi.ai/providers/kuaishou
+- Full catalog: https://runapi.ai/models
+- Repository: https://github.com/runapi-ai/kling-sdk
+
+## License
+
+Licensed under the Apache License, Version 2.0.
