@@ -47,20 +47,11 @@ module RunApi
         private
 
         def validate_params!(params)
+          validate_contract!(CONTRACT["image-to-video"], params)
+
+          # Bespoke: last_frame_image_url is only allowed for select models
+          # (model-gating, not expressible as a contract enum/required rule).
           model = param(params, :model)
-          raise Core::ValidationError, "model is required" unless model
-          unless Types::IMAGE_TO_VIDEO_MODELS.include?(model)
-            raise Core::ValidationError, "Invalid model: #{model}. Must be one of: #{Types::IMAGE_TO_VIDEO_MODELS.join(", ")}"
-          end
-
-          raise Core::ValidationError, "prompt is required" unless param(params, :prompt)
-          raise Core::ValidationError, "first_frame_image_url is required" unless param(params, :first_frame_image_url)
-
-          duration_seconds = param(params, :duration_seconds)
-          if duration_seconds && !Types::FIXED_DURATIONS.include?(duration_seconds)
-            raise Core::ValidationError, "Invalid duration_seconds: #{duration_seconds}. Must be one of: #{Types::FIXED_DURATIONS.join(", ")}"
-          end
-
           last_frame_image_url = param(params, :last_frame_image_url)
           if last_frame_image_url && !%w[kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
             raise Core::ValidationError, "last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"

@@ -47,15 +47,7 @@ module RunApi
         private
 
         def validate_params!(params)
-          model = param(params, :model)
-          raise Core::ValidationError, "model is required" unless model
-          unless Types::AI_AVATAR_MODELS.include?(model)
-            raise Core::ValidationError, "Invalid model: #{model}. Must be one of: #{Types::AI_AVATAR_MODELS.join(", ")}"
-          end
-
-          raise Core::ValidationError, "source_image_url is required" unless param(params, :source_image_url)
-          raise Core::ValidationError, "source_audio_url is required" unless param(params, :source_audio_url)
-          raise Core::ValidationError, "prompt is required" unless param(params, :prompt)
+          validate_contract!(CONTRACT["avatar"], params)
         end
       end
     end

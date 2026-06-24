@@ -2,11 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
-from runapi.core import Resource, ValidationError
+from runapi.core import Resource
 
-from ..types import AI_AVATAR_MODELS, AiAvatarResponse, CompletedAiAvatarResponse
+from ..contract_gen import CONTRACT
+from ..types import AiAvatarResponse, CompletedAiAvatarResponse
 
 
 class AiAvatar(Resource):
@@ -39,7 +40,7 @@ class AiAvatar(Resource):
             The task creation result with an id.
         """
         compacted = self._compact_params(params)
-        self._validate_params(compacted)
+        self._validate_contract(CONTRACT["avatar"], compacted)
         return self._request("post", self.ENDPOINT, body=compacted)
 
     def get(self, id: str) -> Any:
@@ -52,19 +53,3 @@ class AiAvatar(Resource):
             The current task status.
         """
         return self._request("get", f"{self.ENDPOINT}/{id}")
-
-    def _validate_params(self, params: Dict[str, Any]) -> None:
-        model = params.get("model")
-        if not model:
-            raise ValidationError("model is required")
-        if model not in AI_AVATAR_MODELS:
-            raise ValidationError(
-                f"Invalid model: {model}. Must be one of: {', '.join(AI_AVATAR_MODELS)}"
-            )
-
-        if not params.get("source_image_url"):
-            raise ValidationError("source_image_url is required")
-        if not params.get("source_audio_url"):
-            raise ValidationError("source_audio_url is required")
-        if not params.get("prompt"):
-            raise ValidationError("prompt is required")

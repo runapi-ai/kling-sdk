@@ -4,43 +4,9 @@ from __future__ import annotations
 
 from runapi.core import BaseModel, TaskResponse, optional, required
 
-TEXT_TO_VIDEO_MODELS = [
-    "kling-3.0",
-    "kling-v2.5-turbo-text-to-video-pro",
-    "kling-v2.1-master-text-to-video",
-]
-
-AI_AVATAR_MODELS = [
-    "kling-ai-avatar-pro",
-    "kling-ai-avatar-standard",
-    "kling-ai-avatar-v1-pro",
-    "kling-v1-avatar-standard",
-]
-
-IMAGE_TO_VIDEO_MODELS = [
-    "kling-v2.5-turbo-image-to-video-pro",
-    "kling-v2.1-pro",
-    "kling-v2.1-standard",
-    "kling-v2.1-master-image-to-video",
-]
-
-TEXT_TO_VIDEO_OUTPUT_RESOLUTIONS = ["720p", "1080p", "4k"]
-
-MOTION_CONTROL_MODELS = ["kling-3.0"]
-
-MOTION_CONTROL_OUTPUT_RESOLUTIONS = ["720p", "1080p"]
-
-MOTION_CONTROL_CHARACTER_ORIENTATIONS = ["video", "image"]
-
-MOTION_CONTROL_BACKGROUND_SOURCES = ["video", "image"]
-
-ASPECT_RATIOS = ["16:9", "9:16", "1:1"]
-
-DURATION_RANGE = range(3, 16)
-
+# Bespoke constants for the multi_prompt[] nested-array validation, which the
+# generated contract cannot express.
 MULTI_PROMPT_DURATION_RANGE = range(1, 13)
-
-FIXED_DURATIONS = [5, 10]
 
 MULTI_PROMPT_MAX_LENGTH = 500
 

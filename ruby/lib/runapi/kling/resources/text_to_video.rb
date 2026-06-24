@@ -47,12 +47,9 @@ module RunApi
         private
 
         def validate_params!(params)
-          model = param(params, :model)
-          raise Core::ValidationError, "model is required" unless model
-          unless Types::TEXT_TO_VIDEO_MODELS.include?(model)
-            raise Core::ValidationError, "Invalid model: #{model}. Must be one of: #{Types::TEXT_TO_VIDEO_MODELS.join(", ")}"
-          end
+          validate_contract!(CONTRACT["text-to-video"], params)
 
+          # Bespoke cross-field rules the contract cannot express.
           multi_shots = param(params, :multi_shots) == true
 
           if multi_shots
@@ -63,21 +60,6 @@ module RunApi
             validate_multi_prompt!(multi_prompt)
           else
             raise Core::ValidationError, "prompt is required" unless param(params, :prompt)
-          end
-
-          validate_optional!(params, :output_resolution, Types::TEXT_TO_VIDEO_OUTPUT_RESOLUTIONS)
-          validate_optional!(params, :aspect_ratio, Types::ASPECT_RATIOS)
-
-          duration_seconds = param(params, :duration_seconds)
-          if duration_seconds
-            dur_int = duration_seconds.to_i
-            if model == "kling-v2.1-master-text-to-video" || model == "kling-v2.5-turbo-text-to-video-pro"
-              unless Types::FIXED_DURATIONS.include?(duration_seconds)
-                raise Core::ValidationError, "Invalid duration_seconds: #{duration_seconds}. Must be one of: #{Types::FIXED_DURATIONS.join(", ")}"
-              end
-            elsif !Types::DURATION_RANGE.cover?(dur_int)
-              raise Core::ValidationError, "Invalid duration_seconds: #{duration_seconds}. Must be an integer between #{Types::DURATION_RANGE.min} and #{Types::DURATION_RANGE.max}"
-            end
           end
         end
 

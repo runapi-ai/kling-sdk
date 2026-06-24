@@ -2,15 +2,12 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any
 
-from runapi.core import Resource, ValidationError
+from runapi.core import Resource
 
+from ..contract_gen import CONTRACT
 from ..types import (
-    MOTION_CONTROL_BACKGROUND_SOURCES,
-    MOTION_CONTROL_CHARACTER_ORIENTATIONS,
-    MOTION_CONTROL_MODELS,
-    MOTION_CONTROL_OUTPUT_RESOLUTIONS,
     CompletedMotionControlResponse,
     MotionControlResponse,
 )
@@ -46,7 +43,7 @@ class MotionControl(Resource):
             The task creation result with an id.
         """
         compacted = self._compact_params(params)
-        self._validate_params(compacted)
+        self._validate_contract(CONTRACT["motion-control"], compacted)
         return self._request("post", self.ENDPOINT, body=compacted)
 
     def get(self, id: str) -> Any:
@@ -59,22 +56,3 @@ class MotionControl(Resource):
             The current task status.
         """
         return self._request("get", f"{self.ENDPOINT}/{id}")
-
-    def _validate_params(self, params: Dict[str, Any]) -> None:
-        model = params.get("model")
-        if not model:
-            raise ValidationError("model is required")
-        if model not in MOTION_CONTROL_MODELS:
-            raise ValidationError(
-                f"Invalid model: {model}. Must be one of: {', '.join(MOTION_CONTROL_MODELS)}"
-            )
-
-        self._validate_optional(params, "output_resolution", MOTION_CONTROL_OUTPUT_RESOLUTIONS)
-        self._validate_optional(params, "character_orientation", MOTION_CONTROL_CHARACTER_ORIENTATIONS)
-        self._validate_optional(params, "background_source", MOTION_CONTROL_BACKGROUND_SOURCES)
-
-        if not params.get("source_image_url"):
-            raise ValidationError("source_image_url is required")
-
-        if not params.get("reference_video_url"):
-            raise ValidationError("reference_video_url is required")

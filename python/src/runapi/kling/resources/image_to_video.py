@@ -6,9 +6,8 @@ from typing import Any, Dict
 
 from runapi.core import Resource, ValidationError
 
+from ..contract_gen import CONTRACT
 from ..types import (
-    FIXED_DURATIONS,
-    IMAGE_TO_VIDEO_MODELS,
     CompletedImageToVideoResponse,
     ImageToVideoResponse,
 )
@@ -59,26 +58,11 @@ class ImageToVideo(Resource):
         return self._request("get", f"{self.ENDPOINT}/{id}")
 
     def _validate_params(self, params: Dict[str, Any]) -> None:
+        self._validate_contract(CONTRACT["image-to-video"], params)
+
+        # Bespoke: last_frame_image_url is only allowed for select models
+        # (model-gating, not expressible as a contract enum/required rule).
         model = params.get("model")
-        if not model:
-            raise ValidationError("model is required")
-        if model not in IMAGE_TO_VIDEO_MODELS:
-            raise ValidationError(
-                f"Invalid model: {model}. Must be one of: {', '.join(IMAGE_TO_VIDEO_MODELS)}"
-            )
-
-        if not params.get("prompt"):
-            raise ValidationError("prompt is required")
-        if not params.get("first_frame_image_url"):
-            raise ValidationError("first_frame_image_url is required")
-
-        duration_seconds = params.get("duration_seconds")
-        if duration_seconds is not None and duration_seconds not in FIXED_DURATIONS:
-            raise ValidationError(
-                f"Invalid duration_seconds: {duration_seconds}. "
-                f"Must be one of: {', '.join(str(d) for d in FIXED_DURATIONS)}"
-            )
-
         last_frame_image_url = params.get("last_frame_image_url")
         if last_frame_image_url and model not in (
             "kling-v2.5-turbo-image-to-video-pro",

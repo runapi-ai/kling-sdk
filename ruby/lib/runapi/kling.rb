@@ -2,6 +2,7 @@
 
 require "runapi/core"
 require_relative "kling/types"
+require_relative "kling/contract_gen"
 require_relative "kling/resources/text_to_video"
 require_relative "kling/resources/ai_avatar"
 require_relative "kling/resources/image_to_video"

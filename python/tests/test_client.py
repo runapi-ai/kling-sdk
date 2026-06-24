@@ -119,13 +119,13 @@ def test_text_to_video_run_narrows_completed_type():
 
 def test_text_to_video_rejects_missing_model():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="model is required"):
+    with pytest.raises(ValidationError, match="model must be one of:"):
         client.text_to_video.create(prompt="hello")
 
 
 def test_text_to_video_rejects_unknown_model():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid model"):
+    with pytest.raises(ValidationError, match="model must be one of:"):
         client.text_to_video.create(model="nope", prompt="hello")
 
 
@@ -213,19 +213,19 @@ def test_text_to_video_multi_prompt_duration_range():
 
 def test_text_to_video_rejects_invalid_output_resolution():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid output_resolution"):
+    with pytest.raises(ValidationError, match="output_resolution must be one of: 720p, 1080p, 4k"):
         client.text_to_video.create(model="kling-3.0", prompt="hello", output_resolution="9k")
 
 
 def test_text_to_video_rejects_invalid_aspect_ratio():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid aspect_ratio"):
+    with pytest.raises(ValidationError, match=r"aspect_ratio must be one of: 16:9, 9:16, 1:1"):
         client.text_to_video.create(model="kling-3.0", prompt="hello", aspect_ratio="4:3")
 
 
 def test_text_to_video_fixed_duration_models():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Must be one of: 5, 10"):
+    with pytest.raises(ValidationError, match="duration_seconds must be one of: 5, 10"):
         client.text_to_video.create(
             model="kling-v2.1-master-text-to-video", prompt="hello", duration_seconds=7
         )
@@ -234,7 +234,8 @@ def test_text_to_video_fixed_duration_models():
 def test_text_to_video_range_duration_models():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(
-        ValidationError, match="Must be an integer between 3 and 15"
+        ValidationError,
+        match="duration_seconds must be one of: 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15",
     ):
         client.text_to_video.create(model="kling-3.0", prompt="hello", duration_seconds=20)
 
@@ -291,20 +292,28 @@ def test_ai_avatar_run_narrows_completed_type():
 
 def test_ai_avatar_rejects_unknown_model():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid model"):
+    with pytest.raises(ValidationError, match="model must be one of:"):
         client.ai_avatar.create(model="nope")
 
 
 def test_ai_avatar_requires_source_image_url():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(ValidationError, match="source_image_url is required"):
-        client.ai_avatar.create(model="kling-ai-avatar-pro")
+        client.ai_avatar.create(
+            model="kling-ai-avatar-pro",
+            prompt="a host",
+            source_audio_url="https://x/a.mp3",
+        )
 
 
 def test_ai_avatar_requires_source_audio_url():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(ValidationError, match="source_audio_url is required"):
-        client.ai_avatar.create(model="kling-ai-avatar-pro", source_image_url="https://x/p.jpg")
+        client.ai_avatar.create(
+            model="kling-ai-avatar-pro",
+            prompt="a host",
+            source_image_url="https://x/p.jpg",
+        )
 
 
 def test_ai_avatar_requires_prompt():
@@ -364,14 +373,16 @@ def test_image_to_video_run_narrows_completed_type():
 
 def test_image_to_video_rejects_unknown_model():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid model"):
+    with pytest.raises(ValidationError, match="model must be one of:"):
         client.image_to_video.create(model="nope")
 
 
 def test_image_to_video_requires_prompt():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(ValidationError, match="prompt is required"):
-        client.image_to_video.create(model="kling-v2.1-pro")
+        client.image_to_video.create(
+            model="kling-v2.1-pro", first_frame_image_url="https://x/f.jpg"
+        )
 
 
 def test_image_to_video_requires_first_frame_image_url():
@@ -382,7 +393,7 @@ def test_image_to_video_requires_first_frame_image_url():
 
 def test_image_to_video_rejects_invalid_duration():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Must be one of: 5, 10"):
+    with pytest.raises(ValidationError, match="duration_seconds must be one of: 5, 10"):
         client.image_to_video.create(
             model="kling-v2.1-pro",
             prompt="zoom",
@@ -466,32 +477,34 @@ def test_motion_control_run_narrows_completed_type():
 
 def test_motion_control_rejects_unknown_model():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid model"):
+    with pytest.raises(ValidationError, match="model must be one of:"):
         client.motion_control.create(model="nope")
 
 
 def test_motion_control_rejects_invalid_output_resolution():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid output_resolution"):
+    with pytest.raises(ValidationError, match="output_resolution must be one of: 720p, 1080p"):
         client.motion_control.create(model="kling-3.0", output_resolution="4k")
 
 
 def test_motion_control_rejects_invalid_character_orientation():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid character_orientation"):
+    with pytest.raises(ValidationError, match="character_orientation must be one of: video, image"):
         client.motion_control.create(model="kling-3.0", character_orientation="upside-down")
 
 
 def test_motion_control_rejects_invalid_background_source():
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Invalid background_source"):
+    with pytest.raises(ValidationError, match="background_source must be one of: video, image"):
         client.motion_control.create(model="kling-3.0", background_source="audio")
 
 
 def test_motion_control_requires_source_image_url():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(ValidationError, match="source_image_url is required"):
-        client.motion_control.create(model="kling-3.0")
+        client.motion_control.create(
+            model="kling-3.0", reference_video_url="https://x/r.mp4"
+        )
 
 
 def test_motion_control_requires_reference_video_url():
@@ -502,9 +515,9 @@ def test_motion_control_requires_reference_video_url():
 
 def test_text_to_video_non_numeric_duration_raises_validation_error():
     # Regression: a non-numeric duration must raise the SDK's ValidationError,
-    # not a bare ValueError from int(). Fails if int() is unguarded again.
+    # not a bare error from the contract enum coercion.
     client = KlingClient(api_key="k", http_client=FakeHttp())
-    with pytest.raises(ValidationError, match="Must be an integer between"):
+    with pytest.raises(ValidationError, match="duration_seconds must be one of:"):
         client.text_to_video.create(model="kling-3.0", prompt="a cat", duration_seconds="abc")
 
 

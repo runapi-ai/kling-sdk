@@ -6,14 +6,10 @@ from typing import Any, Dict
 
 from runapi.core import Resource, ValidationError
 
+from ..contract_gen import CONTRACT
 from ..types import (
-    ASPECT_RATIOS,
-    DURATION_RANGE,
-    FIXED_DURATIONS,
     MULTI_PROMPT_DURATION_RANGE,
     MULTI_PROMPT_MAX_LENGTH,
-    TEXT_TO_VIDEO_MODELS,
-    TEXT_TO_VIDEO_OUTPUT_RESOLUTIONS,
     CompletedTextToVideoResponse,
     TextToVideoResponse,
 )
@@ -64,14 +60,9 @@ class TextToVideo(Resource):
         return self._request("get", f"{self.ENDPOINT}/{id}")
 
     def _validate_params(self, params: Dict[str, Any]) -> None:
-        model = params.get("model")
-        if not model:
-            raise ValidationError("model is required")
-        if model not in TEXT_TO_VIDEO_MODELS:
-            raise ValidationError(
-                f"Invalid model: {model}. Must be one of: {', '.join(TEXT_TO_VIDEO_MODELS)}"
-            )
+        self._validate_contract(CONTRACT["text-to-video"], params)
 
+        # Bespoke cross-field rules the contract cannot express.
         multi_shots = params.get("multi_shots") is True
 
         if multi_shots:
@@ -84,27 +75,6 @@ class TextToVideo(Resource):
         else:
             if not params.get("prompt"):
                 raise ValidationError("prompt is required")
-
-        self._validate_optional(params, "output_resolution", TEXT_TO_VIDEO_OUTPUT_RESOLUTIONS)
-        self._validate_optional(params, "aspect_ratio", ASPECT_RATIOS)
-
-        duration_seconds = params.get("duration_seconds")
-        if duration_seconds is not None:
-            try:
-                dur_int = int(duration_seconds)
-            except (TypeError, ValueError):
-                dur_int = None
-            if model in ("kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro"):
-                if duration_seconds not in FIXED_DURATIONS:
-                    raise ValidationError(
-                        f"Invalid duration_seconds: {duration_seconds}. "
-                        f"Must be one of: {', '.join(str(d) for d in FIXED_DURATIONS)}"
-                    )
-            elif dur_int is None or dur_int not in DURATION_RANGE:
-                raise ValidationError(
-                    f"Invalid duration_seconds: {duration_seconds}. "
-                    f"Must be an integer between {DURATION_RANGE.start} and {DURATION_RANGE.stop - 1}"
-                )
 
     def _validate_multi_prompt(self, multi_prompt: Any) -> None:
         if not (isinstance(multi_prompt, list) and len(multi_prompt) > 0):
