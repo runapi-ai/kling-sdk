@@ -9,6 +9,9 @@ type ImageToVideoModel string
 // KlingTextToVideoOutputResolution controls the output resolution for text-to-video tasks.
 type KlingTextToVideoOutputResolution string
 
+// KlingImageToVideoOutputResolution controls the output resolution for V3 Turbo image-to-video tasks.
+type KlingImageToVideoOutputResolution string
+
 // MotionControlOutputResolution controls the output resolution for motion control tasks.
 type MotionControlOutputResolution string
 
@@ -18,11 +21,15 @@ type TaskStatus string
 const (
 	// ModelKling30 is the latest-generation model with multi-shot, first/last frame images, sound generation, and Kling elements.
 	ModelKling30 TextToVideoModel = "kling-3.0"
+	// ModelV3TurboT2V creates 3-15 second text-to-video clips at 720p or 1080p.
+	ModelV3TurboT2V TextToVideoModel = "kling-v3-turbo-text-to-video"
 	// ModelV25TurboT2VPro is a fast, high-quality V2.5 model. Supports negative prompts and cfg_scale.
 	ModelV25TurboT2VPro TextToVideoModel = "kling-v2.5-turbo-text-to-video-pro"
 	// ModelV21MasterT2V is the V2.1 master model. Supports negative prompts and cfg_scale.
 	ModelV21MasterT2V TextToVideoModel = "kling-v2.1-master-text-to-video"
 
+	// ModelV3TurboI2V animates one first-frame image at 720p or 1080p.
+	ModelV3TurboI2V ImageToVideoModel = "kling-v3-turbo-image-to-video"
 	// ModelV25TurboI2VPro is the fast V2.5 image-to-video model with last-frame support.
 	ModelV25TurboI2VPro ImageToVideoModel = "kling-v2.5-turbo-image-to-video-pro"
 	// ModelV21Pro balances quality and speed for image-to-video.
@@ -38,6 +45,11 @@ const (
 	TextToVideoOutputResolution1080p KlingTextToVideoOutputResolution = "1080p"
 	// TextToVideoOutputResolution4K produces 4K output (highest quality, slowest).
 	TextToVideoOutputResolution4K KlingTextToVideoOutputResolution = "4k"
+
+	// ImageToVideoOutputResolution720p produces 720p output for V3 Turbo image-to-video.
+	ImageToVideoOutputResolution720p KlingImageToVideoOutputResolution = "720p"
+	// ImageToVideoOutputResolution1080p produces 1080p output for V3 Turbo image-to-video.
+	ImageToVideoOutputResolution1080p KlingImageToVideoOutputResolution = "1080p"
 )
 
 // MultiPromptItem defines a single shot in multi-shot generation mode ([ModelKling30] only).
@@ -47,13 +59,16 @@ type MultiPromptItem struct {
 	DurationSeconds int    `json:"duration_seconds" help:"required; shot duration in seconds"`
 }
 
-// KlingElement is a named visual element (character, object, style) with reference images or videos,
+// KlingElement is a named element (character, object, style) with reference image, video, or audio materials,
 // used in [ModelKling30] generation to maintain consistency.
 type KlingElement struct {
 	Name                  string   `json:"name" help:"required; element name"`
 	Description           string   `json:"description,omitempty" help:"optional; element description"`
-	ElementInputURLs      []string `json:"element_input_urls,omitempty" help:"optional; image URLs for the element"`
+	ElementInputURLs      []string `json:"element_input_urls,omitempty" help:"optional; image or video URLs for the element"`
 	ElementInputVideoURLs []string `json:"element_input_video_urls,omitempty" help:"optional; video URLs for the element"`
+	ElementInputAudioURLs []string `json:"element_input_audio_urls,omitempty" help:"optional; audio URLs for the element"`
+	StartTime             int      `json:"start_time,omitempty" help:"optional; video capture start time in milliseconds"`
+	EndTime               int      `json:"end_time,omitempty" help:"optional; video capture end time in milliseconds"`
 }
 
 // TextToVideoParams configures Kling text-to-video generation.
@@ -83,14 +98,15 @@ type TextToVideoParams struct {
 // ImageToVideoParams configures Kling image-to-video generation.
 // A first-frame image is required. LastFrameImageURL is supported by select models.
 type ImageToVideoParams struct {
-	Model              ImageToVideoModel `json:"model" help:"required; model slug"`
-	Prompt             string            `json:"prompt" help:"required; video description"`
-	FirstFrameImageURL string            `json:"first_frame_image_url" help:"required; first frame image URL"`
-	CallbackURL        string            `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
-	DurationSeconds    int               `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
-	NegativePrompt     string            `json:"negative_prompt,omitempty" help:"optional; negative prompt"`
-	CfgScale           *float64          `json:"cfg_scale,omitempty" help:"optional; guidance scale"`
-	LastFrameImageURL  string            `json:"last_frame_image_url,omitempty" help:"optional; final frame image URL for supported image-to-video models"`
+	Model              ImageToVideoModel                 `json:"model" help:"required; model slug"`
+	Prompt             string                            `json:"prompt" help:"required; video description"`
+	FirstFrameImageURL string                            `json:"first_frame_image_url" help:"required; first frame image URL"`
+	CallbackURL        string                            `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
+	DurationSeconds    int                               `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
+	OutputResolution   KlingImageToVideoOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution for V3 Turbo"`
+	NegativePrompt     string                            `json:"negative_prompt,omitempty" help:"optional; negative prompt"`
+	CfgScale           *float64                          `json:"cfg_scale,omitempty" help:"optional; guidance scale"`
+	LastFrameImageURL  string                            `json:"last_frame_image_url,omitempty" help:"optional; final frame image URL for supported image-to-video models"`
 }
 
 // AsyncTaskResponse carries the task ID, lifecycle status, and error for all Kling async operations.

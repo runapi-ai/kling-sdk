@@ -7,7 +7,7 @@
 </h3>
 
 <p align="center">
-  Kling API SDKs for JavaScript, Python, Ruby, Go, and Java on RunAPI.
+  Kling API SDKs for JavaScript, Python, Ruby, Go, Java, and PHP on RunAPI.
 </p>
 
 <div align="center">
@@ -22,9 +22,9 @@
 </div>
 <br/>
 
-The Kling API SDK packages JavaScript, Python, Ruby, Go, and Java clients for Kling on RunAPI. Use it for text-to-video, image-to-video, avatar, and motion-control workflows when your app needs typed request builders, predictable task polling, file upload helpers, account helpers, and consistent RunAPI errors.
+The Kling API SDK packages JavaScript, Python, Ruby, Go, Java, and PHP clients for Kling on RunAPI. Use it for text-to-video, image-to-video, avatar, and motion-control workflows when your app needs typed request builders, predictable task polling, file upload helpers, account helpers, and consistent RunAPI errors.
 
-Kling is listed in the RunAPI model catalog at https://runapi.ai/models/kling. Variant pages below carry pricing, rate-limit, and commercial-usage details. The public `kling-sdk` repository groups the language packages, examples, CI, and release tags for this model.
+Kling is listed in the RunAPI model catalog at https://runapi.ai/models/kling. Variant pages below carry pricing, rate-limit, and commercial-usage details. The public `kling-sdk` repository groups the non-PHP language packages, examples, CI, and release tags for this model. The PHP package is released from a split Composer repository.
 
 ## Install
 
@@ -61,6 +61,8 @@ dependencies {
   implementation("ai.runapi:runapi-kling")
 }
 ```
+
+The PHP package is published from the split Composer repository as `runapi-ai/kling`; see https://github.com/runapi-ai/kling-php for PHP install and examples.
 
 ## What you can build
 
@@ -113,6 +115,7 @@ Most media endpoints are asynchronous. `create()` submits a task and returns its
 - SDK docs: https://runapi.ai/docs#sdk-kling
 - Product docs: https://runapi.ai/docs#kling
 - SDK repository: https://github.com/runapi-ai/kling-sdk
+- PHP package repository: https://github.com/runapi-ai/kling-php
 - Skill repository: https://github.com/runapi-ai/kling
 - Provider comparison: https://runapi.ai/providers/kuaishou
 - Full catalog: https://runapi.ai/models
@@ -121,6 +124,8 @@ Most media endpoints are asynchronous. `create()` submits a task and returns its
 
 Use the most specific Kling variant page for pricing, rate limits, and commercial usage:
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
+- [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)
+- [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard)
 - [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro)
@@ -142,7 +147,7 @@ RunAPI-generated file URLs are temporary. Download and store generated images, v
 
 ### Which package should I install for Kling work?
 
-Install the model package for your language: `@runapi.ai/kling` on npm, `runapi-kling` on PyPI, `runapi-kling` on RubyGems, `github.com/runapi-ai/kling-sdk/go`, or `ai.runapi:runapi-kling`. Install core SDK packages only when you are building shared SDK infrastructure.
+Install the model package for your language: `@runapi.ai/kling` on npm, `runapi-kling` on PyPI, `runapi-kling` on RubyGems, `github.com/runapi-ai/kling-sdk/go`, `ai.runapi:runapi-kling` on Maven Central, or `runapi-ai/kling` on Packagist. Install core SDK packages only when you are building shared SDK infrastructure.
 
 ### Where should public links point?
 

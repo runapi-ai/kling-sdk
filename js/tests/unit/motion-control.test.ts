@@ -20,8 +20,8 @@ describe('MotionControl', () => {
       const motionControl = new MotionControl(mockHttp);
       const result = await motionControl.create({
         model: 'kling-3.0',
-        source_image_url: 'https://cdn.runapi.ai/public/samples/person.jpg',
-        reference_video_url: 'https://cdn.runapi.ai/public/samples/result.mp4',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+        reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
         prompt: 'A person dancing',
         output_resolution: '1080p',
       });
@@ -32,8 +32,8 @@ describe('MotionControl', () => {
         {
           body: {
             model: 'kling-3.0',
-            source_image_url: 'https://cdn.runapi.ai/public/samples/person.jpg',
-            reference_video_url: 'https://cdn.runapi.ai/public/samples/result.mp4',
+            source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
             prompt: 'A person dancing',
             output_resolution: '1080p',
           },
@@ -49,13 +49,13 @@ describe('MotionControl', () => {
       const motionControl = new MotionControl(mockHttp);
       await motionControl.create({
         model: 'kling-3.0',
-        source_image_url: 'https://cdn.runapi.ai/public/samples/person.jpg',
-        reference_video_url: 'https://cdn.runapi.ai/public/samples/result.mp4',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+        reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
         prompt: 'A person dancing',
         output_resolution: '720p',
         character_orientation: 'video',
         background_source: 'video',
-        callback_url: 'https://example.com/webhook',
+        callback_url: 'https://your-domain.com/webhook',
       });
 
       expect(mockHttp.request).toHaveBeenCalledWith(
@@ -64,13 +64,13 @@ describe('MotionControl', () => {
         {
           body: {
             model: 'kling-3.0',
-            source_image_url: 'https://cdn.runapi.ai/public/samples/person.jpg',
-            reference_video_url: 'https://cdn.runapi.ai/public/samples/result.mp4',
+            source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+            reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
             prompt: 'A person dancing',
             output_resolution: '720p',
             character_orientation: 'video',
             background_source: 'video',
-            callback_url: 'https://example.com/webhook',
+            callback_url: 'https://your-domain.com/webhook',
           },
         }
       );
@@ -103,7 +103,7 @@ describe('MotionControl', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-3.0',
-        videos: [{ url: 'https://cdn.runapi.ai/public/samples/motion.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/video.mp4' }],
       };
       vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
 
@@ -112,7 +112,7 @@ describe('MotionControl', () => {
 
       expect(result.status).toBe('completed');
       expect(result.videos).toHaveLength(1);
-      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/motion.mp4');
+      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/video.mp4');
     });
 
     it('should return failed status with error', async () => {
@@ -144,7 +144,7 @@ describe('MotionControl', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-3.0',
-        videos: [{ url: 'https://cdn.runapi.ai/public/samples/motion.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/video.mp4' }],
       };
 
       vi.mocked(mockHttp.request)
@@ -155,8 +155,8 @@ describe('MotionControl', () => {
       const motionControl = new MotionControl(mockHttp);
       const result = await motionControl.run({
         model: 'kling-3.0',
-        source_image_url: 'https://cdn.runapi.ai/public/samples/person.jpg',
-        reference_video_url: 'https://cdn.runapi.ai/public/samples/result.mp4',
+        source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+        reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
       });
 
       expect(result.status).toBe('completed');

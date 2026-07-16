@@ -116,15 +116,23 @@ describe('TextToVideo', () => {
       await textToVideo.create({
         model: 'kling-3.0',
         prompt: 'A bright room @element_dog',
-        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/first-frame.png',
+        first_frame_image_url: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg',
         kling_elements: [
           {
             name: 'element_dog',
             description: 'dog',
             element_input_urls: [
-              'https://cdn.runapi.ai/public/samples/dog-1.jpg',
-              'https://cdn.runapi.ai/public/samples/dog-2.jpg',
+              'https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg',
+              'https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg',
             ],
+            element_input_audio_urls: ['https://cdn.runapi.ai/public/samples/music.mp3'],
+          },
+          {
+            name: 'element_run',
+            description: 'running dog',
+            element_input_urls: ['https://cdn.runapi.ai/public/samples/video.mp4'],
+            start_time: 1000,
+            end_time: 6000,
           },
         ],
       });
@@ -136,20 +144,69 @@ describe('TextToVideo', () => {
           body: {
             model: 'kling-3.0',
             prompt: 'A bright room @element_dog',
-            first_frame_image_url: 'https://cdn.runapi.ai/public/samples/first-frame.png',
+            first_frame_image_url: 'https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg',
             kling_elements: [
               {
                 name: 'element_dog',
                 description: 'dog',
                 element_input_urls: [
-                  'https://cdn.runapi.ai/public/samples/dog-1.jpg',
-                  'https://cdn.runapi.ai/public/samples/dog-2.jpg',
+                  'https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg',
+                  'https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg',
                 ],
+                element_input_audio_urls: ['https://cdn.runapi.ai/public/samples/music.mp3'],
+              },
+              {
+                name: 'element_run',
+                description: 'running dog',
+                element_input_urls: ['https://cdn.runapi.ai/public/samples/video.mp4'],
+                start_time: 1000,
+                end_time: 6000,
               },
             ],
           },
         }
       );
+    });
+
+    it('should send correct request for V3 Turbo text-to-video', async () => {
+      const mockResponse: TaskCreateResponse = { id: 'task-v3-turbo' };
+      vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
+
+      const textToVideo = new TextToVideo(mockHttp);
+      await textToVideo.create({
+        model: 'kling-v3-turbo-text-to-video',
+        prompt: 'A silver train crossing a moonlit bridge',
+        duration_seconds: 7,
+        aspect_ratio: '16:9',
+        output_resolution: '1080p',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith(
+        'POST',
+        '/api/v1/kling/text_to_video',
+        {
+          body: {
+            model: 'kling-v3-turbo-text-to-video',
+            prompt: 'A silver train crossing a moonlit bridge',
+            duration_seconds: 7,
+            aspect_ratio: '16:9',
+            output_resolution: '1080p',
+          },
+        }
+      );
+    });
+
+    it('rejects unsupported V3 Turbo text-to-video fields', async () => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-v3-turbo-text-to-video',
+          prompt: 'A quiet city street after rain',
+          enable_sound: false,
+        } as never)
+      ).rejects.toThrow('enable_sound is not supported by kling-v3-turbo-text-to-video');
+      expect(mockHttp.request).not.toHaveBeenCalled();
     });
   });
 
@@ -235,7 +292,7 @@ describe('TextToVideo', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-3.0',
-        videos: [{ url: 'https://cdn.runapi.ai/public/samples/source.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/video.mp4' }],
       };
       vi.mocked(mockHttp.request).mockResolvedValueOnce(mockResponse);
 
@@ -244,7 +301,7 @@ describe('TextToVideo', () => {
 
       expect(result.status).toBe('completed');
       expect(result.videos).toHaveLength(1);
-      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/source.mp4');
+      expect(result.videos?.[0].url).toBe('https://cdn.runapi.ai/public/samples/video.mp4');
     });
 
     it('should return failed status with error', async () => {
@@ -276,7 +333,7 @@ describe('TextToVideo', () => {
         id: 'task-123',
         status: 'completed',
         model: 'kling-3.0',
-        videos: [{ url: 'https://cdn.runapi.ai/public/samples/source.mp4' }],
+        videos: [{ url: 'https://cdn.runapi.ai/public/samples/video.mp4' }],
       };
 
       vi.mocked(mockHttp.request)

@@ -31,6 +31,7 @@ abstract class KlingResource {
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(body, "body");
     Objects.requireNonNull(requestOptions, "requestOptions");
+    validateBody(action, body);
     ContractValidator.validate(action, body);
     return executor.send(
         HttpRequest.builder(HttpMethod.POST, endpoint).body(new JsonRequestBody(body)).options(requestOptions).build(),
@@ -41,6 +42,7 @@ abstract class KlingResource {
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(body, "body");
     Objects.requireNonNull(requestOptions, "requestOptions");
+    validateBody(action, body);
     ContractValidator.validate(action, body);
     return executor.send(
         HttpRequest.builder(HttpMethod.POST, endpoint).body(new JsonRequestBody(body)).options(requestOptions).build(),
@@ -77,6 +79,9 @@ abstract class KlingResource {
       throw new IllegalArgumentException(name + " must not be blank");
     }
     return checked;
+  }
+
+  protected void validateBody(String action, Map<String, Object> body) {
   }
 
   private Duration pollingInterval(RequestOptions requestOptions) {

@@ -2,14 +2,22 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from runapi.core import Resource, ValidationError
+from runapi.core import Resource, ValidationError, RequestOptions
 
 from ..contract_gen import CONTRACT
 from ..types import (
     CompletedImageToVideoResponse,
     ImageToVideoResponse,
+)
+
+V3_TURBO_MODEL = "kling-v3-turbo-image-to-video"
+V3_TURBO_UNSUPPORTED_FIELDS = (
+    "aspect_ratio",
+    "negative_prompt",
+    "cfg_scale",
+    "last_frame_image_url",
 )
 
 
@@ -21,7 +29,7 @@ class ImageToVideo(Resource):
     RESPONSE_CLASS = ImageToVideoResponse
     COMPLETED_RESPONSE_CLASS = CompletedImageToVideoResponse
 
-    def run(self, **params: Any) -> Any:
+    def run(self, options: Optional[RequestOptions] = None, **params: Any) -> Any:
         """Generate a video from an image and poll until it completes.
 
         Args:
@@ -30,10 +38,10 @@ class ImageToVideo(Resource):
         Returns:
             The completed task with videos.
         """
-        task = self.create(**params)
-        return self._poll_until_complete(lambda: self.get(task.id))
+        task = self.create(options=options, **params)
+        return self._poll_until_complete(lambda: self.get(task.id, options=options))
 
-    def create(self, **params: Any) -> Any:
+    def create(self, options: Optional[RequestOptions] = None, **params: Any) -> Any:
         """Create an image-to-video task and return immediately with an ``id``.
 
         Args:
@@ -44,9 +52,9 @@ class ImageToVideo(Resource):
         """
         compacted = self._compact_params(params)
         self._validate_params(compacted)
-        return self._request("post", self.ENDPOINT, body=compacted)
+        return self._request("post", self.ENDPOINT, body=compacted, options=options)
 
-    def get(self, id: str) -> Any:
+    def get(self, id: str, options: Optional[RequestOptions] = None) -> Any:
         """Fetch the current status of an image-to-video task.
 
         Args:
@@ -55,9 +63,10 @@ class ImageToVideo(Resource):
         Returns:
             The current task status.
         """
-        return self._request("get", f"{self.ENDPOINT}/{id}")
+        return self._request("get", f"{self.ENDPOINT}/{id}", options=options)
 
     def _validate_params(self, params: Dict[str, Any]) -> None:
+        self._reject_unsupported_v3_turbo_fields(params)
         self._validate_contract(CONTRACT["image-to-video"], params)
 
         # Bespoke: last_frame_image_url is only allowed for select models
@@ -72,3 +81,11 @@ class ImageToVideo(Resource):
                 "last_frame_image_url is only supported by "
                 "kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"
             )
+
+    def _reject_unsupported_v3_turbo_fields(self, params: Dict[str, Any]) -> None:
+        if params.get("model") != V3_TURBO_MODEL:
+            return
+
+        for field in V3_TURBO_UNSUPPORTED_FIELDS:
+            if self._field_present(params, field):
+                raise ValidationError(f"{field} is not supported by {V3_TURBO_MODEL}")

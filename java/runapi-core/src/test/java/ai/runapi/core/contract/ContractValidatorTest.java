@@ -67,7 +67,7 @@ class ContractValidatorTest {
   void acceptsSingleModelActionsWithoutModelParam() {
     Map<String, Object> params = new HashMap<String, Object>();
     params.put("descriptions", "Sample character");
-    params.put("reference_image_url", "https://example.com/character.png");
+    params.put("reference_image_url", "https://cdn.runapi.ai/public/samples/character.png");
 
     ContractValidator.validate("gemini-omni/create-character", params);
   }
@@ -138,6 +138,40 @@ class ContractValidatorTest {
             () -> ContractValidator.validate("suno/text-to-music", params));
 
     assertTrue(error.getMessage().contains("lyrics is not allowed when vocal_mode is auto_lyrics"));
+  }
+
+  @Test
+  void reportsForbiddenRuleBeforeMissingRequiredField() {
+    ContractAction contract =
+        new ContractAction(
+            ContractBuilders.list("m"),
+            ContractBuilders.fieldsByModel(
+                new Object[][] {
+                  {
+                    "m",
+                    ContractBuilders.fields(
+                        new Object[][] {{"source_image_urls", ContractBuilders.field(ContractBuilders.required())}})
+                  }
+                }),
+            ContractBuilders.rulesByModel(
+                new Object[][] {
+                  {
+                    "m",
+                    ContractBuilders.rules(
+                        ContractBuilders.rule(
+                            ContractBuilders.conditions(new Object[][] {{"model", "m"}}),
+                            Collections.<String>emptyList(),
+                            ContractBuilders.list("source_task_id")))
+                  }
+                }));
+    Map<String, Object> params = new HashMap<String, Object>();
+    params.put("model", "m");
+    params.put("source_task_id", "src_1");
+
+    ValidationException error =
+        assertThrows(ValidationException.class, () -> ContractValidator.validate(contract, params));
+
+    assertTrue(error.getMessage().contains("source_task_id is not allowed when model is m"));
   }
 
   @Test

@@ -6,20 +6,23 @@ import type { AsyncTaskStatus } from '@runapi.ai/core';
  */
 export type KlingTextToVideoModel =
   | 'kling-3.0'
+  | 'kling-v3-turbo-text-to-video'
   | 'kling-v2.5-turbo-text-to-video-pro'
   | 'kling-v2.1-master-text-to-video';
 
 /**
  * Image-to-video model variants. V2.5 turbo and V2.1 pro support last-frame image control.
  */
-export type KlingImageToVideoModel =
+export type KlingV2ImageToVideoModel =
   | 'kling-v2.5-turbo-image-to-video-pro'
   | 'kling-v2.1-pro'
   | 'kling-v2.1-standard'
   | 'kling-v2.1-master-image-to-video';
+export type KlingImageToVideoModel = KlingV2ImageToVideoModel | 'kling-v3-turbo-image-to-video';
 
 /** Output resolution for text-to-video. 4k is highest quality but slowest. */
 export type KlingTextToVideoOutputResolution = '720p' | '1080p' | '4k';
+export type KlingV3TurboOutputResolution = '720p' | '1080p';
 export type KlingAspectRatio = '16:9' | '9:16' | '1:1';
 /** Duration in seconds. Range varies by model: 3-15 for kling-3.0, 5 or 10 for V2.x. */
 export type KlingDuration = number;
@@ -30,16 +33,22 @@ export interface MultiPromptItem {
   duration_seconds: number;
 }
 
-/** Named visual element (character, object, style) with reference images or videos for generation consistency. */
+/** Named element (character, object, style) with reference image, video, or audio materials for generation consistency. */
 export interface KlingElement {
   /** Element identifier used for prompt referencing. */
   name: string;
   /** Description of the element's visual characteristics. */
   description: string;
-  /** Image URLs providing visual reference for the element. */
+  /** Image or video URLs providing visual reference for the element. */
   element_input_urls?: string[];
-  /** Video URLs providing motion/appearance reference for the element. */
+  /** Video URLs providing motion reference for the element. */
   element_input_video_urls?: string[];
+  /** Audio URLs providing voice or sound reference for the element. */
+  element_input_audio_urls?: string[];
+  /** Start time in milliseconds for video element capture. */
+  start_time?: number;
+  /** End time in milliseconds for video element capture; must be 3000-8000 ms after start_time. */
+  end_time?: number;
 }
 
 interface Kling3TextToVideoCommonParams {
@@ -103,13 +112,24 @@ export interface V21MasterTextToVideoParams {
   callback_url?: string;
 }
 
+/** V3 Turbo text-to-video: prompt-driven 3-15 second clips at 720p or 1080p. */
+export interface V3TurboTextToVideoParams {
+  model: 'kling-v3-turbo-text-to-video';
+  prompt: string;
+  /** Duration in seconds (3-15). */
+  duration_seconds?: KlingDuration;
+  aspect_ratio?: KlingAspectRatio;
+  output_resolution?: KlingV3TurboOutputResolution;
+  callback_url?: string;
+}
+
 /**
  * Image-to-video generation parameters. A first-frame image is required; the model
  * animates it into video guided by the text prompt. last_frame_image_url is supported
  * on V2.5 turbo and V2.1 pro models only.
  */
-export interface ImageToVideoParams {
-  model: KlingImageToVideoModel;
+export interface V2ImageToVideoParams {
+  model: KlingV2ImageToVideoModel;
   /** Video motion description prompt. */
   prompt: string;
   /** Source image URL used as the video's opening frame. */
@@ -122,11 +142,24 @@ export interface ImageToVideoParams {
   callback_url?: string;
 }
 
+/** V3 Turbo image-to-video: animate one first-frame image at 720p or 1080p. */
+export interface V3TurboImageToVideoParams {
+  model: 'kling-v3-turbo-image-to-video';
+  prompt: string;
+  first_frame_image_url: string;
+  duration_seconds?: KlingDuration;
+  output_resolution?: KlingV3TurboOutputResolution;
+  callback_url?: string;
+}
+
 export type TextToVideoParams =
   | Kling3TextToVideoSingleShotParams
   | Kling3TextToVideoMultiShotParams
   | V25TurboTextToVideoParams
-  | V21MasterTextToVideoParams;
+  | V21MasterTextToVideoParams
+  | V3TurboTextToVideoParams;
+
+export type ImageToVideoParams = V2ImageToVideoParams | V3TurboImageToVideoParams;
 
 export interface AsyncTaskResponse {
   id: string;

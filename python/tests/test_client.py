@@ -99,6 +99,66 @@ def test_text_to_video_create_posts_compacted_body():
     assert isinstance(result, TextToVideoResponse)
 
 
+def test_text_to_video_create_posts_element_audio_and_time_fields():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+    result = client.text_to_video.create(
+        model="kling-3.0",
+        prompt="A bright room @element_dog @element_run",
+        kling_elements=[
+            {
+                "name": "element_dog",
+                "description": "dog",
+                "element_input_urls": [
+                    "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
+                    "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg",
+                ],
+                "element_input_audio_urls": ["https://cdn.runapi.ai/public/samples/music.mp3"],
+            },
+            {
+                "name": "element_run",
+                "description": "running dog",
+                "element_input_urls": ["https://cdn.runapi.ai/public/samples/video.mp4"],
+                "start_time": 1000,
+                "end_time": 6000,
+            },
+        ],
+    )
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/text_to_video",
+            {
+                "model": "kling-3.0",
+                "prompt": "A bright room @element_dog @element_run",
+                "kling_elements": [
+                    {
+                        "name": "element_dog",
+                        "description": "dog",
+                        "element_input_urls": [
+                            "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
+                            "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg",
+                        ],
+                        "element_input_audio_urls": [
+                            "https://cdn.runapi.ai/public/samples/music.mp3"
+                        ],
+                    },
+                    {
+                        "name": "element_run",
+                        "description": "running dog",
+                        "element_input_urls": [
+                            "https://cdn.runapi.ai/public/samples/video.mp4"
+                        ],
+                        "start_time": 1000,
+                        "end_time": 6000,
+                    },
+                ],
+            },
+        ),
+    ]
+    assert isinstance(result, TextToVideoResponse)
+
+
 def test_text_to_video_get_fetches_by_id():
     fake = FakeHttp({"id": "t1", "status": "processing"})
     client = KlingClient(api_key="k", http_client=fake)
@@ -238,6 +298,45 @@ def test_text_to_video_range_duration_models():
         match="duration_seconds must be one of: 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15",
     ):
         client.text_to_video.create(model="kling-3.0", prompt="hello", duration_seconds=20)
+
+
+def test_text_to_video_v3_turbo_posts_body():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+    client.text_to_video.create(
+        model="kling-v3-turbo-text-to-video",
+        prompt="a silver train crossing a moonlit bridge",
+        duration_seconds=7,
+        aspect_ratio="16:9",
+        output_resolution="1080p",
+    )
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/text_to_video",
+            {
+                "model": "kling-v3-turbo-text-to-video",
+                "prompt": "a silver train crossing a moonlit bridge",
+                "duration_seconds": 7,
+                "aspect_ratio": "16:9",
+                "output_resolution": "1080p",
+            },
+        ),
+    ]
+
+
+def test_text_to_video_v3_turbo_rejects_unsupported_fields():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+    with pytest.raises(
+        ValidationError, match="enable_sound is not supported by kling-v3-turbo-text-to-video"
+    ):
+        client.text_to_video.create(
+            model="kling-v3-turbo-text-to-video",
+            prompt="a quiet city street after rain",
+            enable_sound=False,
+        )
+    assert fake.calls == []
 
 
 # --- ai_avatar ------------------------------------------------------------
@@ -426,6 +525,46 @@ def test_image_to_video_last_frame_allowed_for_supported_model():
         last_frame_image_url="https://x/l.jpg",
     )
     assert fake.calls[0][2]["last_frame_image_url"] == "https://x/l.jpg"
+
+
+def test_image_to_video_v3_turbo_posts_body():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+    client.image_to_video.create(
+        model="kling-v3-turbo-image-to-video",
+        prompt="camera glides toward the lighthouse",
+        first_frame_image_url="https://x/lighthouse.jpg",
+        duration_seconds=7,
+        output_resolution="720p",
+    )
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/image_to_video",
+            {
+                "model": "kling-v3-turbo-image-to-video",
+                "prompt": "camera glides toward the lighthouse",
+                "first_frame_image_url": "https://x/lighthouse.jpg",
+                "duration_seconds": 7,
+                "output_resolution": "720p",
+            },
+        ),
+    ]
+
+
+def test_image_to_video_v3_turbo_rejects_unsupported_fields():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+    with pytest.raises(
+        ValidationError, match="last_frame_image_url is not supported by kling-v3-turbo-image-to-video"
+    ):
+        client.image_to_video.create(
+            model="kling-v3-turbo-image-to-video",
+            prompt="camera glides toward the lighthouse",
+            first_frame_image_url="https://x/lighthouse.jpg",
+            last_frame_image_url="https://x/lighthouse-end.jpg",
+        )
+    assert fake.calls == []
 
 
 # --- motion_control -------------------------------------------------------

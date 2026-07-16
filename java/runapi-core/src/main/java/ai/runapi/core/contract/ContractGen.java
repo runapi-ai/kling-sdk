@@ -271,7 +271,7 @@ contract.put("grok-imagine/edit-image", new ContractAction(
                     {"enable_safety_checker", field()},
                     {"model", field()},
                     {"prompt", field()},
-                    {"source_image_url", field()},
+                    {"source_image_url", field(required())},
             })},
           })));
 contract.put("grok-imagine/extend", new ContractAction(
@@ -286,7 +286,7 @@ contract.put("grok-imagine/extend", new ContractAction(
             })},
           })));
 contract.put("grok-imagine/image-to-video", new ContractAction(
-    list("grok-imagine-image-to-video"),
+    list("grok-imagine-image-to-video", "grok-imagine-video-1.5-preview"),
           fieldsByModel(new Object[][] {
             {"grok-imagine-image-to-video", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("2:3", "3:2", "1:1", "16:9", "9:16"))},
@@ -301,6 +301,22 @@ contract.put("grok-imagine/image-to-video", new ContractAction(
                     {"source_image_urls", field()},
                     {"source_task_id", field()},
             })},
+            {"grok-imagine-video-1.5-preview", fields(new Object[][] {
+                    {"aspect_ratio", field(enumValues("1:1", "16:9", "9:16", "3:2", "2:3", "auto"))},
+                    {"callback_url", field()},
+                    {"duration_seconds", field(min(Double.valueOf(1.0)), max(Double.valueOf(15.0)))},
+                    {"enable_safety_checker", field()},
+                    {"index", field()},
+                    {"model", field()},
+                    {"motion_style", field()},
+                    {"output_resolution", field(enumValues("480p", "720p"))},
+                    {"prompt", field(min(Double.valueOf(1.0)), max(Double.valueOf(4096.0)), length())},
+                    {"source_image_urls", field(required())},
+                    {"source_task_id", field()},
+            })},
+          }),
+          rulesByModel(new Object[][] {
+{"grok-imagine-video-1.5-preview", rules(rule(conditions(new Object[][] {{"model", "grok-imagine-video-1.5-preview"}}), list(), list("source_task_id", "index", "motion_style", "enable_safety_checker")))},
           })));
 contract.put("grok-imagine/text-to-image", new ContractAction(
     list("grok-imagine-text-to-image"),
@@ -315,7 +331,7 @@ contract.put("grok-imagine/text-to-image", new ContractAction(
             })},
           })));
 contract.put("grok-imagine/text-to-video", new ContractAction(
-    list("grok-imagine-text-to-video"),
+    list("grok-imagine-text-to-video", "grok-imagine-video-1.5-preview"),
           fieldsByModel(new Object[][] {
             {"grok-imagine-text-to-video", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("2:3", "3:2", "1:1", "16:9", "9:16"))},
@@ -327,6 +343,19 @@ contract.put("grok-imagine/text-to-video", new ContractAction(
                     {"output_resolution", field(enumValues("480p", "720p"))},
                     {"prompt", field()},
             })},
+            {"grok-imagine-video-1.5-preview", fields(new Object[][] {
+                    {"aspect_ratio", field(enumValues("1:1", "16:9", "9:16", "3:2", "2:3", "auto"))},
+                    {"callback_url", field()},
+                    {"duration_seconds", field(min(Double.valueOf(1.0)), max(Double.valueOf(15.0)))},
+                    {"enable_safety_checker", field()},
+                    {"model", field()},
+                    {"motion_style", field()},
+                    {"output_resolution", field(enumValues("480p", "720p"))},
+                    {"prompt", field(required(), min(Double.valueOf(1.0)), max(Double.valueOf(4096.0)), length())},
+            })},
+          }),
+          rulesByModel(new Object[][] {
+{"grok-imagine-video-1.5-preview", rules(rule(conditions(new Object[][] {{"model", "grok-imagine-video-1.5-preview"}}), list(), list("motion_style", "enable_safety_checker")))},
           })));
 contract.put("grok-imagine/upscale-image", new ContractAction(
     list(),
@@ -461,11 +490,11 @@ contract.put("ideogram-v3/edit-image", new ContractAction(
             {"ideogram-v3-character-edit", fields(new Object[][] {
                     {"callback_url", field()},
                     {"enable_prompt_expansion", field()},
-                    {"mask_url", field()},
+                    {"mask_url", field(required())},
                     {"model", field()},
                     {"output_count", field(enumValues(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3), Integer.valueOf(4)))},
                     {"prompt", field()},
-                    {"reference_image_urls", field()},
+                    {"reference_image_urls", field(required())},
                     {"rendering_speed", field(enumValues("turbo", "balanced", "quality"))},
                     {"seed", field()},
                     {"source_image_url", field(required())},
@@ -474,7 +503,7 @@ contract.put("ideogram-v3/edit-image", new ContractAction(
             {"ideogram-v3-edit", fields(new Object[][] {
                     {"callback_url", field()},
                     {"enable_prompt_expansion", field()},
-                    {"mask_url", field()},
+                    {"mask_url", field(required())},
                     {"model", field()},
                     {"output_count", field(enumValues(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3), Integer.valueOf(4)))},
                     {"prompt", field()},
@@ -510,7 +539,7 @@ contract.put("ideogram-v3/remix-image", new ContractAction(
                     {"negative_prompt", field()},
                     {"output_count", field(enumValues(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3), Integer.valueOf(4)))},
                     {"prompt", field()},
-                    {"reference_image_urls", field()},
+                    {"reference_image_urls", field(required())},
                     {"reference_mask_urls", field()},
                     {"rendering_speed", field(enumValues("turbo", "balanced", "quality"))},
                     {"seed", field()},
@@ -548,7 +577,7 @@ contract.put("ideogram-v3/text-to-image", new ContractAction(
                     {"negative_prompt", field()},
                     {"output_count", field(enumValues(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3), Integer.valueOf(4)))},
                     {"prompt", field()},
-                    {"reference_image_urls", field()},
+                    {"reference_image_urls", field(required())},
                     {"rendering_speed", field(enumValues("turbo", "balanced", "quality"))},
                     {"seed", field()},
                     {"style", field(enumValues("auto", "realistic", "fiction"))},
@@ -588,16 +617,14 @@ contract.put("imagen-4/text-to-image", new ContractAction(
                     {"callback_url", field()},
                     {"model", field()},
                     {"negative_prompt", field()},
-                    {"output_count", field()},
                     {"prompt", field()},
                     {"seed", field()},
             })},
             {"imagen-4-fast", fields(new Object[][] {
-                    {"aspect_ratio", field(enumValues("1:1", "16:9", "9:16", "3:4", "4:3"))},
+                    {"aspect_ratio", field(enumValues("1:1", "16:9", "9:16", "3:4", "4:3", "auto"))},
                     {"callback_url", field()},
                     {"model", field()},
                     {"negative_prompt", field()},
-                    {"output_count", field(enumValues(Integer.valueOf(1), Integer.valueOf(2), Integer.valueOf(3), Integer.valueOf(4)))},
                     {"prompt", field()},
                     {"seed", field()},
             })},
@@ -606,7 +633,6 @@ contract.put("imagen-4/text-to-image", new ContractAction(
                     {"callback_url", field()},
                     {"model", field()},
                     {"negative_prompt", field()},
-                    {"output_count", field()},
                     {"prompt", field()},
                     {"seed", field()},
             })},
@@ -657,7 +683,7 @@ contract.put("kling/avatar", new ContractAction(
             })},
           })));
 contract.put("kling/image-to-video", new ContractAction(
-    list("kling-v2.1-master-image-to-video", "kling-v2.1-pro", "kling-v2.1-standard", "kling-v2.5-turbo-image-to-video-pro"),
+    list("kling-v2.1-master-image-to-video", "kling-v2.1-pro", "kling-v2.1-standard", "kling-v2.5-turbo-image-to-video-pro", "kling-v3-turbo-image-to-video"),
           fieldsByModel(new Object[][] {
             {"kling-v2.1-master-image-to-video", fields(new Object[][] {
                     {"aspect_ratio", field()},
@@ -668,6 +694,7 @@ contract.put("kling/image-to-video", new ContractAction(
                     {"last_frame_image_url", field()},
                     {"model", field(required())},
                     {"negative_prompt", field()},
+                    {"output_resolution", field()},
                     {"prompt", field(required())},
             })},
             {"kling-v2.1-pro", fields(new Object[][] {
@@ -679,6 +706,7 @@ contract.put("kling/image-to-video", new ContractAction(
                     {"last_frame_image_url", field()},
                     {"model", field(required())},
                     {"negative_prompt", field()},
+                    {"output_resolution", field()},
                     {"prompt", field(required())},
             })},
             {"kling-v2.1-standard", fields(new Object[][] {
@@ -690,6 +718,7 @@ contract.put("kling/image-to-video", new ContractAction(
                     {"last_frame_image_url", field()},
                     {"model", field(required())},
                     {"negative_prompt", field()},
+                    {"output_resolution", field()},
                     {"prompt", field(required())},
             })},
             {"kling-v2.5-turbo-image-to-video-pro", fields(new Object[][] {
@@ -701,8 +730,27 @@ contract.put("kling/image-to-video", new ContractAction(
                     {"last_frame_image_url", field()},
                     {"model", field(required())},
                     {"negative_prompt", field()},
+                    {"output_resolution", field()},
                     {"prompt", field(required())},
             })},
+            {"kling-v3-turbo-image-to-video", fields(new Object[][] {
+                    {"callback_url", field()},
+                    {"cfg_scale", field()},
+                    {"duration_seconds", field(enumValues(Integer.valueOf(3), Integer.valueOf(4), Integer.valueOf(5), Integer.valueOf(6), Integer.valueOf(7), Integer.valueOf(8), Integer.valueOf(9), Integer.valueOf(10), Integer.valueOf(11), Integer.valueOf(12), Integer.valueOf(13), Integer.valueOf(14), Integer.valueOf(15)))},
+                    {"first_frame_image_url", field(required())},
+                    {"last_frame_image_url", field()},
+                    {"model", field(required())},
+                    {"negative_prompt", field()},
+                    {"output_resolution", field(enumValues("720p", "1080p"))},
+                    {"prompt", field(required(), min(Double.valueOf(1.0)), max(Double.valueOf(2500.0)), length())},
+            })},
+          }),
+          rulesByModel(new Object[][] {
+{"kling-v2.1-master-image-to-video", rules(rule(conditions(new Object[][] {{"model", "kling-v2.1-master-image-to-video"}}), list(), list("output_resolution")))},
+{"kling-v2.1-pro", rules(rule(conditions(new Object[][] {{"model", "kling-v2.1-pro"}}), list(), list("output_resolution")))},
+{"kling-v2.1-standard", rules(rule(conditions(new Object[][] {{"model", "kling-v2.1-standard"}}), list(), list("output_resolution")))},
+{"kling-v2.5-turbo-image-to-video-pro", rules(rule(conditions(new Object[][] {{"model", "kling-v2.5-turbo-image-to-video-pro"}}), list(), list("output_resolution")))},
+{"kling-v3-turbo-image-to-video", rules(rule(conditions(new Object[][] {{"model", "kling-v3-turbo-image-to-video"}}), list(), list("aspect_ratio", "negative_prompt", "cfg_scale", "last_frame_image_url")))},
           })));
 contract.put("kling/motion-control", new ContractAction(
     list("kling-3.0"),
@@ -719,7 +767,7 @@ contract.put("kling/motion-control", new ContractAction(
             })},
           })));
 contract.put("kling/text-to-video", new ContractAction(
-    list("kling-3.0", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro"),
+    list("kling-3.0", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro", "kling-v3-turbo-text-to-video"),
           fieldsByModel(new Object[][] {
             {"kling-3.0", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("16:9", "9:16", "1:1"))},
@@ -769,6 +817,25 @@ contract.put("kling/text-to-video", new ContractAction(
                     {"output_resolution", field()},
                     {"prompt", field()},
             })},
+            {"kling-v3-turbo-text-to-video", fields(new Object[][] {
+                    {"aspect_ratio", field(enumValues("16:9", "9:16", "1:1"))},
+                    {"callback_url", field()},
+                    {"cfg_scale", field()},
+                    {"duration_seconds", field(enumValues(Integer.valueOf(3), Integer.valueOf(4), Integer.valueOf(5), Integer.valueOf(6), Integer.valueOf(7), Integer.valueOf(8), Integer.valueOf(9), Integer.valueOf(10), Integer.valueOf(11), Integer.valueOf(12), Integer.valueOf(13), Integer.valueOf(14), Integer.valueOf(15)))},
+                    {"enable_sound", field()},
+                    {"first_frame_image_url", field()},
+                    {"kling_elements", field()},
+                    {"last_frame_image_url", field()},
+                    {"model", field(required())},
+                    {"multi_prompt", field()},
+                    {"multi_shots", field()},
+                    {"negative_prompt", field()},
+                    {"output_resolution", field(enumValues("720p", "1080p"))},
+                    {"prompt", field(required(), min(Double.valueOf(1.0)), max(Double.valueOf(2500.0)), length())},
+            })},
+          }),
+          rulesByModel(new Object[][] {
+{"kling-v3-turbo-text-to-video", rules(rule(conditions(new Object[][] {{"model", "kling-v3-turbo-text-to-video"}}), list(), list("enable_sound", "negative_prompt", "cfg_scale", "multi_shots", "multi_prompt", "first_frame_image_url", "last_frame_image_url", "kling_elements")))},
           })));
 contract.put("luma/modify-video", new ContractAction(
     list("luma-modify-video"),
@@ -782,19 +849,30 @@ contract.put("luma/modify-video", new ContractAction(
             })},
           })));
 contract.put("nano-banana/edit-image", new ContractAction(
-    list("nano-banana-edit"),
+    list("nano-banana-2-lite", "nano-banana-edit"),
           fieldsByModel(new Object[][] {
+            {"nano-banana-2-lite", fields(new Object[][] {
+                    {"aspect_ratio", field(required(), enumValues("1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9", "auto"))},
+                    {"callback_url", field()},
+                    {"model", field()},
+                    {"output_format", field()},
+                    {"prompt", field(required(), min(Double.valueOf(1.0)), max(Double.valueOf(20000.0)), length())},
+                    {"source_image_urls", field(required())},
+            })},
             {"nano-banana-edit", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("1:1", "9:16", "16:9", "3:4", "4:3", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"))},
                     {"callback_url", field()},
                     {"model", field()},
                     {"output_format", field(enumValues("png", "jpeg"))},
                     {"prompt", field()},
-                    {"source_image_urls", field()},
+                    {"source_image_urls", field(required())},
             })},
+          }),
+          rulesByModel(new Object[][] {
+{"nano-banana-2-lite", rules(rule(conditions(new Object[][] {{"model", "nano-banana-2-lite"}}), list(), list("output_format")))},
           })));
 contract.put("nano-banana/text-to-image", new ContractAction(
-    list("nano-banana", "nano-banana-2", "nano-banana-pro"),
+    list("nano-banana", "nano-banana-2", "nano-banana-2-lite", "nano-banana-pro"),
           fieldsByModel(new Object[][] {
             {"nano-banana", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("1:1", "9:16", "16:9", "3:4", "4:3", "3:2", "2:3", "5:4", "4:5", "21:9", "auto"))},
@@ -814,6 +892,15 @@ contract.put("nano-banana/text-to-image", new ContractAction(
                     {"prompt", field()},
                     {"reference_image_urls", field()},
             })},
+            {"nano-banana-2-lite", fields(new Object[][] {
+                    {"aspect_ratio", field(required(), enumValues("1:1", "1:4", "1:8", "2:3", "3:2", "3:4", "4:1", "4:3", "4:5", "5:4", "8:1", "9:16", "16:9", "21:9", "auto"))},
+                    {"callback_url", field()},
+                    {"model", field()},
+                    {"output_format", field()},
+                    {"output_resolution", field()},
+                    {"prompt", field(required(), min(Double.valueOf(1.0)), max(Double.valueOf(20000.0)), length())},
+                    {"reference_image_urls", field()},
+            })},
             {"nano-banana-pro", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("1:1", "2:3", "3:2", "3:4", "4:3", "4:5", "5:4", "9:16", "16:9", "21:9", "auto"))},
                     {"callback_url", field()},
@@ -822,6 +909,42 @@ contract.put("nano-banana/text-to-image", new ContractAction(
                     {"output_resolution", field(enumValues("1k", "2k", "4k"))},
                     {"prompt", field()},
                     {"reference_image_urls", field()},
+            })},
+          }),
+          rulesByModel(new Object[][] {
+{"nano-banana-2-lite", rules(rule(conditions(new Object[][] {{"model", "nano-banana-2-lite"}}), list(), list("output_resolution", "output_format")))},
+          })));
+contract.put("omnihuman/audio-to-video", new ContractAction(
+    list("omnihuman-1.5"),
+          fieldsByModel(new Object[][] {
+            {"omnihuman-1.5", fields(new Object[][] {
+                    {"callback_url", field()},
+                    {"enable_fast_mode", field()},
+                    {"mask_urls", field()},
+                    {"model", field()},
+                    {"output_resolution", field(enumValues("720p", "1080p"))},
+                    {"prompt", field(max(Double.valueOf(1000.0)), length())},
+                    {"seed", field()},
+                    {"source_audio_url", field(required())},
+                    {"source_image_url", field(required())},
+            })},
+          })));
+contract.put("omnihuman/human-identification", new ContractAction(
+    list("omnihuman-1.5-human-identification"),
+          fieldsByModel(new Object[][] {
+            {"omnihuman-1.5-human-identification", fields(new Object[][] {
+                    {"callback_url", field()},
+                    {"model", field()},
+                    {"source_image_url", field(required())},
+            })},
+          })));
+contract.put("omnihuman/subject-detection", new ContractAction(
+    list("omnihuman-1.5-subject-detection"),
+          fieldsByModel(new Object[][] {
+            {"omnihuman-1.5-subject-detection", fields(new Object[][] {
+                    {"callback_url", field()},
+                    {"model", field()},
+                    {"source_image_url", field(required())},
             })},
           })));
 contract.put("qwen-2/edit-image", new ContractAction(
@@ -928,25 +1051,33 @@ contract.put("runway/text-to-video", new ContractAction(
             })},
           })));
 contract.put("seedance/text-to-video", new ContractAction(
-    list("seedance-1.5-pro", "seedance-2.0", "seedance-2.0-fast", "seedance-v1-lite", "seedance-v1-pro", "seedance-v1-pro-fast"),
+    list("seedance-1.5-pro", "seedance-2-mini", "seedance-2.0", "seedance-2.0-fast", "seedance-v1-lite", "seedance-v1-pro", "seedance-v1-pro-fast"),
           fieldsByModel(new Object[][] {
             {"seedance-1.5-pro", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("1:1", "4:3", "3:4", "16:9", "9:16", "21:9"))},
                     {"callback_url", field()},
                     {"duration_seconds", field(required(), min(Double.valueOf(4.0)), max(Double.valueOf(12.0)))},
                     {"enable_safety_checker", field()},
-                    {"first_frame_image_url", field()},
                     {"generate_audio", field()},
-                    {"last_frame_image_url", field()},
                     {"lock_camera", field()},
                     {"model", field()},
                     {"output_resolution", field(enumValues("480p", "720p", "1080p"))},
                     {"prompt", field()},
+                    {"source_image_urls", field()},
+            })},
+            {"seedance-2-mini", fields(new Object[][] {
+                    {"aspect_ratio", field(enumValues("1:1", "4:3", "3:4", "16:9", "9:16", "21:9", "auto"))},
+                    {"callback_url", field()},
+                    {"duration_seconds", field(min(Double.valueOf(4.0)), max(Double.valueOf(15.0)))},
+                    {"first_frame_image_url", field()},
+                    {"generate_audio", field()},
+                    {"last_frame_image_url", field()},
+                    {"model", field()},
+                    {"output_resolution", field(enumValues("480p", "720p"))},
+                    {"prompt", field()},
                     {"reference_audio_urls", field()},
                     {"reference_image_urls", field()},
                     {"reference_video_urls", field()},
-                    {"seed", field()},
-                    {"source_image_urls", field()},
                     {"web_search", field()},
             })},
             {"seedance-2.0", fields(new Object[][] {
@@ -957,15 +1088,12 @@ contract.put("seedance/text-to-video", new ContractAction(
                     {"first_frame_image_url", field()},
                     {"generate_audio", field()},
                     {"last_frame_image_url", field()},
-                    {"lock_camera", field()},
                     {"model", field()},
-                    {"output_resolution", field(enumValues("480p", "720p", "1080p"))},
+                    {"output_resolution", field(enumValues("480p", "720p", "1080p", "4k"))},
                     {"prompt", field()},
                     {"reference_audio_urls", field()},
                     {"reference_image_urls", field()},
                     {"reference_video_urls", field()},
-                    {"seed", field()},
-                    {"source_image_urls", field()},
                     {"web_search", field()},
             })},
             {"seedance-2.0-fast", fields(new Object[][] {
@@ -976,15 +1104,12 @@ contract.put("seedance/text-to-video", new ContractAction(
                     {"first_frame_image_url", field()},
                     {"generate_audio", field()},
                     {"last_frame_image_url", field()},
-                    {"lock_camera", field()},
                     {"model", field()},
                     {"output_resolution", field(enumValues("480p", "720p"))},
                     {"prompt", field()},
                     {"reference_audio_urls", field()},
                     {"reference_image_urls", field()},
                     {"reference_video_urls", field()},
-                    {"seed", field()},
-                    {"source_image_urls", field()},
                     {"web_search", field()},
             })},
             {"seedance-v1-lite", fields(new Object[][] {
@@ -993,18 +1118,12 @@ contract.put("seedance/text-to-video", new ContractAction(
                     {"duration_seconds", field(required(), enumValues(Integer.valueOf(5), Integer.valueOf(10)))},
                     {"enable_safety_checker", field()},
                     {"first_frame_image_url", field()},
-                    {"generate_audio", field()},
                     {"last_frame_image_url", field()},
                     {"lock_camera", field()},
                     {"model", field()},
                     {"output_resolution", field(enumValues("480p", "720p", "1080p"))},
                     {"prompt", field()},
-                    {"reference_audio_urls", field()},
-                    {"reference_image_urls", field()},
-                    {"reference_video_urls", field()},
                     {"seed", field()},
-                    {"source_image_urls", field()},
-                    {"web_search", field()},
             })},
             {"seedance-v1-pro", fields(new Object[][] {
                     {"aspect_ratio", field(enumValues("1:1", "4:3", "3:4", "16:9", "9:16", "21:9"))},
@@ -1012,37 +1131,20 @@ contract.put("seedance/text-to-video", new ContractAction(
                     {"duration_seconds", field(required(), enumValues(Integer.valueOf(5), Integer.valueOf(10)))},
                     {"enable_safety_checker", field()},
                     {"first_frame_image_url", field()},
-                    {"generate_audio", field()},
-                    {"last_frame_image_url", field()},
                     {"lock_camera", field()},
                     {"model", field()},
                     {"output_resolution", field(enumValues("480p", "720p", "1080p"))},
                     {"prompt", field()},
-                    {"reference_audio_urls", field()},
-                    {"reference_image_urls", field()},
-                    {"reference_video_urls", field()},
                     {"seed", field()},
-                    {"source_image_urls", field()},
-                    {"web_search", field()},
             })},
             {"seedance-v1-pro-fast", fields(new Object[][] {
-                    {"aspect_ratio", field()},
                     {"callback_url", field()},
                     {"duration_seconds", field(required(), enumValues(Integer.valueOf(5), Integer.valueOf(10)))},
                     {"enable_safety_checker", field()},
                     {"first_frame_image_url", field(required())},
-                    {"generate_audio", field()},
-                    {"last_frame_image_url", field()},
-                    {"lock_camera", field()},
                     {"model", field()},
                     {"output_resolution", field(enumValues("720p", "1080p"))},
                     {"prompt", field()},
-                    {"reference_audio_urls", field()},
-                    {"reference_image_urls", field()},
-                    {"reference_video_urls", field()},
-                    {"seed", field()},
-                    {"source_image_urls", field()},
-                    {"web_search", field()},
             })},
           })));
 contract.put("seedream/edit-image", new ContractAction(
@@ -1640,16 +1742,18 @@ contract.put("suno/replace-section", new ContractAction(
     list(),
           fieldsByModel(new Object[][] {
             {"_", fields(new Object[][] {
-                    {"audio_id", field(required())},
+                    {"audio_id", field()},
                     {"callback_url", field()},
-                    {"full_lyrics", field()},
-                    {"infill_end_time", field()},
-                    {"infill_start_time", field()},
-                    {"lyrics", field()},
+                    {"full_lyrics", field(required())},
+                    {"infill_end_time", field(required())},
+                    {"infill_start_time", field(required())},
+                    {"lyrics", field(required())},
+                    {"model", field(enumValues("suno-v4", "suno-v4.5", "suno-v4.5-all", "suno-v4.5-plus", "suno-v5", "suno-v5.5"))},
                     {"negative_tags", field()},
-                    {"tags", field()},
-                    {"task_id", field(required())},
-                    {"title", field()},
+                    {"tags", field(required())},
+                    {"task_id", field()},
+                    {"title", field(required())},
+                    {"upload_url", field()},
             })},
           })));
 contract.put("suno/separate-audio-stems", new ContractAction(
@@ -1904,6 +2008,25 @@ contract.put("veo-3-1/upscale-video", new ContractAction(
                     {"output_resolution", field(enumValues("1080p", "4k"))},
                     {"source_task_id", field()},
             })},
+          })));
+contract.put("volcengine-lip-sync/lip-sync-video", new ContractAction(
+    list("volcengine-lip-sync"),
+          fieldsByModel(new Object[][] {
+            {"volcengine-lip-sync", fields(new Object[][] {
+                    {"align_audio", field()},
+                    {"align_audio_reverse", field()},
+                    {"callback_url", field()},
+                    {"enable_scene_detection", field()},
+                    {"enable_vocal_separation", field()},
+                    {"mode", field(required(), enumValues("lite", "basic"))},
+                    {"model", field()},
+                    {"source_audio_url", field(required())},
+                    {"source_video_url", field(required())},
+                    {"template_start_seconds", field(min(Double.valueOf(0.0)))},
+            })},
+          }),
+          rulesByModel(new Object[][] {
+{"volcengine-lip-sync", rules(rule(conditions(new Object[][] {{"mode", "lite"}}), list(), list("enable_scene_detection")), rule(conditions(new Object[][] {{"mode", "basic"}}), list(), list("align_audio", "align_audio_reverse", "template_start_seconds")), rule(conditions(new Object[][] {{"align_audio_reverse", true}}), list("align_audio"), list()))},
           })));
 contract.put("wan/animate", new ContractAction(
     list("wan-2.2-animate-move", "wan-2.2-animate-replace"),

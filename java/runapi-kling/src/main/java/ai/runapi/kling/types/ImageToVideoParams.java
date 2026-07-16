@@ -11,6 +11,7 @@ public final class ImageToVideoParams {
   private final String firstFrameImageUrl;
   private final String callbackUrl;
   private final Integer durationSeconds;
+  private final String outputResolution;
   private final String negativePrompt;
   private final Double cfgScale;
   private final String lastFrameImageUrl;
@@ -22,6 +23,7 @@ public final class ImageToVideoParams {
     this.firstFrameImageUrl = KlingParamUtils.requireNonBlank(builder.firstFrameImageUrl, "firstFrameImageUrl");
     this.callbackUrl = builder.callbackUrl;
     this.durationSeconds = builder.durationSeconds;
+    this.outputResolution = builder.outputResolution;
     this.negativePrompt = builder.negativePrompt;
     this.cfgScale = builder.cfgScale;
     this.lastFrameImageUrl = builder.lastFrameImageUrl;
@@ -46,6 +48,7 @@ public final class ImageToVideoParams {
     raw.put("first_frame_image_url", KlingParamUtils.wireValue(firstFrameImageUrl));
     raw.put("callback_url", KlingParamUtils.wireValue(callbackUrl));
     raw.put("duration_seconds", KlingParamUtils.wireValue(durationSeconds));
+    raw.put("output_resolution", KlingParamUtils.wireValue(outputResolution));
     raw.put("negative_prompt", KlingParamUtils.wireValue(negativePrompt));
     raw.put("cfg_scale", KlingParamUtils.wireValue(cfgScale));
     raw.put("last_frame_image_url", KlingParamUtils.wireValue(lastFrameImageUrl));
@@ -62,6 +65,7 @@ public final class ImageToVideoParams {
     private String firstFrameImageUrl;
     private String callbackUrl;
     private Integer durationSeconds;
+    private String outputResolution;
     private String negativePrompt;
     private Double cfgScale;
     private String lastFrameImageUrl;
@@ -103,6 +107,12 @@ public final class ImageToVideoParams {
     /** Sets the duration in seconds. */
     public Builder durationSeconds(int value) {
       this.durationSeconds = value;
+      return this;
+    }
+
+    /** Sets the output resolution. */
+    public Builder outputResolution(String value) {
+      this.outputResolution = KlingParamUtils.requireNonBlank(value, "outputResolution");
       return this;
     }
 

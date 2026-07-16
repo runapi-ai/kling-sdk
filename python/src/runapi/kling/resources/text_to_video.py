@@ -2,9 +2,9 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
-from runapi.core import Resource, ValidationError
+from runapi.core import Resource, ValidationError, RequestOptions
 
 from ..contract_gen import CONTRACT
 from ..types import (
@@ -12,6 +12,18 @@ from ..types import (
     MULTI_PROMPT_MAX_LENGTH,
     CompletedTextToVideoResponse,
     TextToVideoResponse,
+)
+
+V3_TURBO_MODEL = "kling-v3-turbo-text-to-video"
+V3_TURBO_UNSUPPORTED_FIELDS = (
+    "enable_sound",
+    "negative_prompt",
+    "cfg_scale",
+    "multi_shots",
+    "multi_prompt",
+    "first_frame_image_url",
+    "last_frame_image_url",
+    "kling_elements",
 )
 
 
@@ -23,7 +35,7 @@ class TextToVideo(Resource):
     RESPONSE_CLASS = TextToVideoResponse
     COMPLETED_RESPONSE_CLASS = CompletedTextToVideoResponse
 
-    def run(self, **params: Any) -> Any:
+    def run(self, options: Optional[RequestOptions] = None, **params: Any) -> Any:
         """Generate a video from text and poll until it completes.
 
         Args:
@@ -32,10 +44,10 @@ class TextToVideo(Resource):
         Returns:
             The completed task with videos.
         """
-        task = self.create(**params)
-        return self._poll_until_complete(lambda: self.get(task.id))
+        task = self.create(options=options, **params)
+        return self._poll_until_complete(lambda: self.get(task.id, options=options))
 
-    def create(self, **params: Any) -> Any:
+    def create(self, options: Optional[RequestOptions] = None, **params: Any) -> Any:
         """Create a text-to-video task and return immediately with an ``id``.
 
         Args:
@@ -46,9 +58,9 @@ class TextToVideo(Resource):
         """
         compacted = self._compact_params(params)
         self._validate_params(compacted)
-        return self._request("post", self.ENDPOINT, body=compacted)
+        return self._request("post", self.ENDPOINT, body=compacted, options=options)
 
-    def get(self, id: str) -> Any:
+    def get(self, id: str, options: Optional[RequestOptions] = None) -> Any:
         """Fetch the current status of a text-to-video task.
 
         Args:
@@ -57,9 +69,10 @@ class TextToVideo(Resource):
         Returns:
             The current task status.
         """
-        return self._request("get", f"{self.ENDPOINT}/{id}")
+        return self._request("get", f"{self.ENDPOINT}/{id}", options=options)
 
     def _validate_params(self, params: Dict[str, Any]) -> None:
+        self._reject_unsupported_v3_turbo_fields(params)
         self._validate_contract(CONTRACT["text-to-video"], params)
 
         # Bespoke cross-field rules the contract cannot express.
@@ -75,6 +88,14 @@ class TextToVideo(Resource):
         else:
             if not params.get("prompt"):
                 raise ValidationError("prompt is required")
+
+    def _reject_unsupported_v3_turbo_fields(self, params: Dict[str, Any]) -> None:
+        if params.get("model") != V3_TURBO_MODEL:
+            return
+
+        for field in V3_TURBO_UNSUPPORTED_FIELDS:
+            if self._field_present(params, field):
+                raise ValidationError(f"{field} is not supported by {V3_TURBO_MODEL}")
 
     def _validate_multi_prompt(self, multi_prompt: Any) -> None:
         if not (isinstance(multi_prompt, list) and len(multi_prompt) > 0):

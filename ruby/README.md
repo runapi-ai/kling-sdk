@@ -1,8 +1,8 @@
-# Kling AI API Ruby SDK for RunAPI
+# Kling API Ruby SDK for RunAPI
 
-The kling ai api Ruby SDK is the language-specific package for Kling on RunAPI. Use this kling ai api package for text-to-video, image-to-video, video editing, and animation flows when your application needs JSON request bodies, task status lookup, and consistent RunAPI errors in Ruby.
+The Kling Ruby SDK is the language-specific package for Kling on RunAPI. Use this package for video generation, animation, and video editing workflows when your application needs request bodies, task status lookup, and consistent RunAPI errors in Ruby.
 
-This kling ai api README is the Ruby package guide inside the public `kling-sdk` repository. For the repository overview, start at `../README.md`; for model details, use https://runapi.ai/models/kling; for API reference, use https://runapi.ai/docs#kling; for SDK docs, use https://runapi.ai/docs#sdk-kling.
+This README is the Ruby package guide inside the public `kling-sdk` repository. For the repository overview, start at `../README.md`; for model details, use https://runapi.ai/models/kling; for API reference, use https://runapi.ai/docs#kling; for SDK docs, use https://runapi.ai/docs#sdk-kling.
 
 ## Install
 
@@ -13,13 +13,13 @@ gem install runapi-kling
 ## Quick start
 
 ```ruby
-require "runapi-kling"
+require "runapi/kling"
 
 client = RunApi::Kling::Client.new
-task = client.generations.create(
+task = client.text_to_video.create(
   # Pass the Kling JSON request body from https://runapi.ai/docs#kling.
 )
-status = client.generations.get(task.id)
+status = client.text_to_video.get(task.id)
 ```
 
 Use `create` when you want to submit a task and return quickly, `get` when you need the latest task state, and `run` when a script should create and poll until completion. In web request handlers, prefer `create` plus webhook or later `get` polling so a worker is not held open.
@@ -28,7 +28,7 @@ RunAPI-generated file URLs are temporary. Download and store generated images, v
 
 ## Language notes
 
-Use Ruby keyword arguments and the `RunApi::Kling` error classes when building video jobs, Rails workers, or scripts. The available resources include text-to-video, image-to-video, AI avatars, V2.1/V2.5 video variants, and motion controls. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
+Use Ruby keyword arguments and the `RunApi::Kling` error classes when building video jobs, Rails workers, or scripts. The available resources are `text_to_video`, `ai_avatar`, `image_to_video`, and `motion_control`. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
 
 ## Links
 

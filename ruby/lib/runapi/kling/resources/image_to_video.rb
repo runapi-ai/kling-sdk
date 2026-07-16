@@ -12,6 +12,13 @@ module RunApi
 
         RESPONSE_CLASS = Types::ImageToVideoResponse
         COMPLETED_RESPONSE_CLASS = Types::CompletedImageToVideoResponse
+        V3_TURBO_MODEL = "kling-v3-turbo-image-to-video"
+        V3_TURBO_UNSUPPORTED_FIELDS = %i[
+          aspect_ratio
+          negative_prompt
+          cfg_scale
+          last_frame_image_url
+        ].freeze
 
         def initialize(http)
           @http = http
@@ -21,32 +28,33 @@ module RunApi
         #
         # @param params [Hash] image-to-video parameters
         # @return [RunApi::Kling::Types::CompletedImageToVideoResponse] completed task with videos
-        def run(**params)
-          task = create(**params)
-          poll_until_complete { get(task.id) }
+        def run(options: nil, **params)
+          task = create(options: options, **params)
+          poll_until_complete { get(task.id, options: options) }
         end
 
         # Create an image-to-video task.
         #
         # @param params [Hash] image-to-video parameters
         # @return [RunApi::Kling::Types::ImageToVideoResponse] task creation result with id
-        def create(**params)
+        def create(options: nil, **params)
           params = compact_params(params)
           validate_params!(params)
-          request(:post, ENDPOINT, body: params)
+          request(:post, ENDPOINT, body: params, options: options)
         end
 
         # Get image-to-video task status by task ID.
         #
         # @param id [String] task ID
         # @return [RunApi::Kling::Types::ImageToVideoResponse] current task status
-        def get(id)
-          request(:get, "#{ENDPOINT}/#{id}")
+        def get(id, options: nil)
+          request(:get, "#{ENDPOINT}/#{id}", options: options)
         end
 
         private
 
         def validate_params!(params)
+          reject_unsupported_v3_turbo_fields!(params)
           validate_contract!(CONTRACT["image-to-video"], params)
 
           # Bespoke: last_frame_image_url is only allowed for select models
@@ -56,6 +64,13 @@ module RunApi
           if last_frame_image_url && !%w[kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
             raise Core::ValidationError, "last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"
           end
+        end
+
+        def reject_unsupported_v3_turbo_fields!(params)
+          return unless param(params, :model) == V3_TURBO_MODEL
+
+          field = V3_TURBO_UNSUPPORTED_FIELDS.find { |candidate| field_present?(params, candidate) }
+          raise Core::ValidationError, "#{field} is not supported by #{V3_TURBO_MODEL}" if field
         end
       end
     end

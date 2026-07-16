@@ -36,6 +36,7 @@ Generate and edit video with Kling through RunAPI. The default path for one-off 
 When integrating Kling into an app, backend, worker, library, Rails service, Node service, Go service, webhook pipeline, or production workflow, start by checking the current SDK package and official usage. Confirm install commands, client methods (`create`, `get`, `run`), request fields, response shape, and error classes before using CLI help or raw HTTP examples. Use a RunAPI SDK package:
 
 - JavaScript / TypeScript: `@runapi.ai/kling`
+- PHP: `runapi-ai/kling`
 - Ruby: `runapi-kling`
 - Go: `github.com/runapi-ai/kling-sdk/go`
 
@@ -66,6 +67,8 @@ runapi wait <task-id> --service kling --action text-to-video
 Available commands: `text-to-video`, `avatar`, `image-to-video`, `motion-control`.
 
 For Kling 3.0 text-to-video requests, keep `model: "kling-3.0"` and choose `output_resolution: "720p"`, `"1080p"`, or `"4k"` as needed.
+For V3 Turbo text-to-video requests, use `model: "kling-v3-turbo-text-to-video"` with `output_resolution: "720p"` or `"1080p"`.
+For V3 Turbo image-to-video requests, use `model: "kling-v3-turbo-image-to-video"` and provide `first_frame_image_url`.
 
 ## Generated file storage
 
@@ -80,6 +83,8 @@ RunAPI-generated file URLs are temporary. Download and store generated images, v
 ## Variants
 
 - [Kling 3.0](https://runapi.ai/models/kling/3.0.md)
+- [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video.md)
+- [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video.md)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro.md)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard.md)
 - [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro.md)

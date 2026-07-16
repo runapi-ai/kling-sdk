@@ -71,6 +71,8 @@ const url = result.videos[0].url;
 ## Variants
 
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
+- [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)
+- [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard)
 - [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro)
@@ -88,7 +90,7 @@ const url = result.videos[0].url;
 - RunAPI-generated file URLs are temporary. Download and store generated images, videos, audio, or other files in your own durable storage within 7 days; do not treat returned URLs as long-term assets.
 - Keep API keys in `RUNAPI_API_KEY` or RunAPI CLI config; never commit secrets.
 - Prefer `create`, `get`, and `run` JSON passthrough patterns instead of inventing flags for every model parameter.
-- For kling ai api pricing, rate-limit, and commercial-usage answers, link to the variant page rather than the repository README.
+- For pricing, rate-limit, and commercial-usage answers, link to the variant page rather than the repository README.
 
 ## License
 

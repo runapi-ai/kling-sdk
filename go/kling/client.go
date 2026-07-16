@@ -8,6 +8,7 @@ package kling
 
 import (
 	"context"
+	"strings"
 
 	"github.com/runapi-ai/core-sdk/go/base"
 	"github.com/runapi-ai/core-sdk/go/core"
@@ -20,6 +21,24 @@ const (
 	aiAvatarPath      = "/api/v1/kling/ai_avatar"
 	motionControlPath = "/api/v1/kling/motion_control"
 )
+
+var v3TurboTextToVideoUnsupportedFields = []string{
+	"enable_sound",
+	"negative_prompt",
+	"cfg_scale",
+	"multi_shots",
+	"multi_prompt",
+	"first_frame_image_url",
+	"last_frame_image_url",
+	"kling_elements",
+}
+
+var v3TurboImageToVideoUnsupportedFields = []string{
+	"aspect_ratio",
+	"negative_prompt",
+	"cfg_scale",
+	"last_frame_image_url",
+}
 
 // Client provides Kling video generation, AI avatar lip-sync, and motion control.
 type Client struct {
@@ -62,6 +81,9 @@ type TextToVideo struct{ http core.HTTPClient }
 func (r *TextToVideo) Create(ctx context.Context, params TextToVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
+	if err := validateTextToVideoBody(body); err != nil {
+		return nil, err
+	}
 	if err := core.ValidateParams(contractSchema["text-to-video"], body); err != nil {
 		return nil, err
 	}
@@ -87,6 +109,9 @@ type ImageToVideo struct{ http core.HTTPClient }
 func (r *ImageToVideo) Create(ctx context.Context, params ImageToVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
+	if err := validateImageToVideoBody(body); err != nil {
+		return nil, err
+	}
 	if err := core.ValidateParams(contractSchema["image-to-video"], body); err != nil {
 		return nil, err
 	}
@@ -154,4 +179,63 @@ func (r *MotionControl) Get(ctx context.Context, id string, opts ...option.Reque
 func (r *MotionControl) Run(ctx context.Context, params MotionControlParams, opts ...option.RequestOption) (*MotionControlResponse, error) {
 	_, pollingOptions := option.ResolveRequestOptions(opts...)
 	return core.RunAsync(ctx, func(ctx context.Context) (*core.TaskCreateResponse, error) { return r.Create(ctx, params, opts...) }, func(ctx context.Context, id string) (*MotionControlResponse, error) { return r.Get(ctx, id, opts...) }, pollingOptions)
+}
+
+func validateTextToVideoBody(body map[string]any) error {
+	if body["model"] != string(ModelV3TurboT2V) {
+		return nil
+	}
+	return rejectUnsupportedFields(body, v3TurboTextToVideoUnsupportedFields, string(ModelV3TurboT2V))
+}
+
+func validateImageToVideoBody(body map[string]any) error {
+	if body["model"] != string(ModelV3TurboI2V) {
+		return nil
+	}
+	return rejectUnsupportedFields(body, v3TurboImageToVideoUnsupportedFields, string(ModelV3TurboI2V))
+}
+
+func rejectUnsupportedFields(body map[string]any, fields []string, model string) error {
+	for _, field := range fields {
+		if fieldPresent(body, field) {
+			return core.NewError(core.ErrValidation, field+" is not supported by "+model, 400, "", nil, nil)
+		}
+	}
+	return nil
+}
+
+func fieldPresent(params map[string]any, field string) bool {
+	value, ok := params[field]
+	if !ok {
+		return false
+	}
+	if b, isBool := value.(bool); isBool && !b {
+		return true
+	}
+	if arr, isArray := value.([]any); isArray {
+		for _, item := range arr {
+			if presentValue(item) {
+				return true
+			}
+		}
+		return false
+	}
+	return presentValue(value)
+}
+
+func presentValue(value any) bool {
+	switch v := value.(type) {
+	case nil:
+		return false
+	case bool:
+		return v
+	case string:
+		return strings.TrimSpace(v) != ""
+	case []any:
+		return len(v) > 0
+	case map[string]any:
+		return len(v) > 0
+	default:
+		return true
+	}
 }

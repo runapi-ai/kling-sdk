@@ -2,6 +2,7 @@ package ai.runapi.kling;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import ai.runapi.core.RequestOptions;
@@ -34,6 +35,7 @@ import ai.runapi.kling.types.TextToVideoResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.ByteArrayOutputStream;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collections;
 import org.junit.jupiter.api.Test;
 
@@ -71,6 +73,118 @@ class KlingClientTest {
     assertEquals("/api/v1/kling/text_to_video", transport.request.getPath());
     JsonNode body = bodyJson(transport.request);
     assertNotNull(body);
+  }
+
+  @Test
+  void createSendsElementAudioAndTimeFields() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_elements\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.textToVideo().create(
+        TextToVideoParams.builder()
+            .model(TextToVideoModel.KLING_3_0)
+            .prompt("A bright room @element_dog @element_run")
+            .klingElements(Arrays.asList(
+                KlingElement.builder()
+                    .name("element_dog")
+                    .description("dog")
+                    .elementInputUrls(Arrays.asList(
+                        "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
+                        "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg"))
+                    .elementInputAudioUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/music.mp3"))
+                    .build(),
+                KlingElement.builder()
+                    .name("element_run")
+                    .description("running dog")
+                    .elementInputUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/video.mp4"))
+                    .startTime(1000)
+                    .endTime(6000)
+                    .build()))
+            .build()
+    );
+
+    JsonNode elements = bodyJson(transport.request).get("kling_elements");
+    assertEquals("https://cdn.runapi.ai/public/samples/music.mp3", elements.get(0).get("element_input_audio_urls").get(0).asText());
+    assertEquals("https://cdn.runapi.ai/public/samples/video.mp4", elements.get(1).get("element_input_urls").get(0).asText());
+    assertEquals(1000, elements.get(1).get("start_time").asInt());
+    assertEquals(6000, elements.get(1).get("end_time").asInt());
+  }
+
+  @Test
+  void createSendsV3TurboTextToVideoShape() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.textToVideo().create(
+        TextToVideoParams.builder()
+            .model(TextToVideoModel.KLING_V3_TURBO_TEXT_TO_VIDEO)
+            .prompt("A silver train crossing a moonlit bridge")
+            .durationSeconds(7)
+            .aspectRatio("16:9")
+            .outputResolution("1080p")
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-v3-turbo-text-to-video", body.get("model").asText());
+    assertEquals(7, body.get("duration_seconds").asInt());
+    assertEquals("1080p", body.get("output_resolution").asText());
+  }
+
+  @Test
+  void createRejectsV3TurboTextToVideoUnsupportedFields() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.textToVideo().create(
+            TextToVideoParams.builder()
+                .model(TextToVideoModel.KLING_V3_TURBO_TEXT_TO_VIDEO)
+                .prompt("A quiet city street after rain")
+                .enableSound(false)
+                .build()));
+
+    assertEquals("enable_sound is not supported by kling-v3-turbo-text-to-video", error.getMessage());
+    assertNull(transport.request);
+  }
+
+  @Test
+  void createSendsV3TurboImageToVideoShape() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_i2v\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.imageToVideo().create(
+        ImageToVideoParams.builder()
+            .model(ImageToVideoModel.KLING_V3_TURBO_IMAGE_TO_VIDEO)
+            .prompt("Camera glides toward the lighthouse")
+            .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+            .durationSeconds(7)
+            .outputResolution("720p")
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-v3-turbo-image-to-video", body.get("model").asText());
+    assertEquals("https://cdn.runapi.ai/public/samples/image-to-video.jpg", body.get("first_frame_image_url").asText());
+    assertEquals("720p", body.get("output_resolution").asText());
+  }
+
+  @Test
+  void createRejectsV3TurboImageToVideoUnsupportedFields() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_i2v\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_V3_TURBO_IMAGE_TO_VIDEO)
+                .prompt("Camera glides toward the lighthouse")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
+                .build()));
+
+    assertEquals("last_frame_image_url is not supported by kling-v3-turbo-image-to-video", error.getMessage());
+    assertNull(transport.request);
   }
 
   @Test

@@ -21,27 +21,27 @@ module RunApi
         #
         # @param params [Hash] AI avatar parameters
         # @return [RunApi::Kling::Types::CompletedAiAvatarResponse] completed task with videos
-        def run(**params)
-          task = create(**params)
-          poll_until_complete { get(task.id) }
+        def run(options: nil, **params)
+          task = create(options: options, **params)
+          poll_until_complete { get(task.id, options: options) }
         end
 
         # Create an AI avatar generation task.
         #
         # @param params [Hash] AI avatar parameters
         # @return [RunApi::Kling::Types::AiAvatarResponse] task creation result with id
-        def create(**params)
+        def create(options: nil, **params)
           params = compact_params(params)
           validate_params!(params)
-          request(:post, ENDPOINT, body: params)
+          request(:post, ENDPOINT, body: params, options: options)
         end
 
         # Get AI avatar task status by task ID.
         #
         # @param id [String] task ID
         # @return [RunApi::Kling::Types::AiAvatarResponse] current task status
-        def get(id)
-          request(:get, "#{ENDPOINT}/#{id}")
+        def get(id, options: nil)
+          request(:get, "#{ENDPOINT}/#{id}", options: options)
         end
 
         private
