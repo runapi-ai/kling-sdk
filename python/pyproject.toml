@@ -4,20 +4,22 @@ build-backend = "hatchling.build"
 
 [project]
 name = "runapi-kling"
-version = "0.1.1"
+version = "0.1.2"
 description = "RunAPI Kling SDK for text-to-video, image-to-video, avatar, and motion-control workflows in JavaScript, Python, Ruby, Go, Java, and PHP"
 readme = "README.md"
 requires-python = ">=3.9"
 license = "Apache-2.0"
 authors = [{ name = "RunAPI", email = "contact@runapi.ai" }]
 keywords = ["runapi", "runapi-ai", "kling", "api", "sdk", "typescript", "python", "ruby", "golang", "java", "maven", "gradle", "video-generation", "text-to-video", "video-api", "kling-ai-api"]
-dependencies = ["runapi-core>=0.1.4"]
+dependencies = ["runapi-core>=0.2.3"]
 
 [project.urls]
 Homepage = "https://runapi.ai/models/kling"
 Documentation = "https://runapi.ai/docs#sdk-kling"
 Source = "https://github.com/runapi-ai/kling-sdk"
 Issues = "https://github.com/runapi-ai/kling-sdk/issues"
+Changelog = "https://github.com/runapi-ai/kling-sdk/blob/main/CHANGELOG.md"
+"Release Notes" = "https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.1.2"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/runapi"]

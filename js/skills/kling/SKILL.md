@@ -69,6 +69,7 @@ Available commands: `text-to-video`, `avatar`, `image-to-video`, `motion-control
 For Kling 3.0 text-to-video requests, keep `model: "kling-3.0"` and choose `output_resolution: "720p"`, `"1080p"`, or `"4k"` as needed.
 For V3 Turbo text-to-video requests, use `model: "kling-v3-turbo-text-to-video"` with `output_resolution: "720p"` or `"1080p"`.
 For V3 Turbo image-to-video requests, use `model: "kling-v3-turbo-image-to-video"` and provide `first_frame_image_url`.
+For Kling 2.6 text-to-video or image-to-video requests, use `model: "kling-v2.6"`; `enable_sound: true` requires `mode: "pro"`, and `last_frame_image_url` additionally requires `duration_seconds: 5`.
 
 ## Generated file storage
 
@@ -83,6 +84,7 @@ RunAPI-generated file URLs are temporary. Download and store generated images, v
 ## Variants
 
 - [Kling 3.0](https://runapi.ai/models/kling/3.0.md)
+- [Kling 2.6](https://runapi.ai/models/kling/v2.6.md)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video.md)
 - [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video.md)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro.md)

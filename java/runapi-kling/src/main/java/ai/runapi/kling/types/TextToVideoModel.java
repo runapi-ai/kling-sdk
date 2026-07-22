@@ -6,6 +6,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 public final class TextToVideoModel extends KlingValue {
   /** kling-3.0 model slug. */
   public static final TextToVideoModel KLING_3_0 = new TextToVideoModel("kling-3.0");
+  /** kling-v2.6 model slug. */
+  public static final TextToVideoModel KLING_V2_6 = new TextToVideoModel("kling-v2.6");
   /** kling-v3-turbo-text-to-video model slug. */
   public static final TextToVideoModel KLING_V3_TURBO_TEXT_TO_VIDEO = new TextToVideoModel("kling-v3-turbo-text-to-video");
   /** kling-v2.1-master-text-to-video model slug. */

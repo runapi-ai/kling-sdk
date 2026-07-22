@@ -12,6 +12,7 @@ module RunApi
 
         RESPONSE_CLASS = Types::TextToVideoResponse
         COMPLETED_RESPONSE_CLASS = Types::CompletedTextToVideoResponse
+        V26_MODEL = "kling-v2.6"
         V3_TURBO_MODEL = "kling-v3-turbo-text-to-video"
         V3_TURBO_UNSUPPORTED_FIELDS = %i[
           enable_sound
@@ -60,6 +61,7 @@ module RunApi
         def validate_params!(params)
           reject_unsupported_v3_turbo_fields!(params)
           validate_contract!(CONTRACT["text-to-video"], params)
+          validate_v26_params!(params)
 
           # Bespoke cross-field rules the contract cannot express.
           multi_shots = param(params, :multi_shots) == true
@@ -73,6 +75,13 @@ module RunApi
           else
             raise Core::ValidationError, "prompt is required" unless param(params, :prompt)
           end
+        end
+
+        def validate_v26_params!(params)
+          return unless param(params, :model) == V26_MODEL
+          return unless param(params, :enable_sound) == true && param(params, :mode) != "pro"
+
+          raise Core::ValidationError, "enable_sound requires mode pro for #{V26_MODEL}"
         end
 
         def reject_unsupported_v3_turbo_fields!(params)

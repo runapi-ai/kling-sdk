@@ -15,6 +15,7 @@ import java.util.Map;
 public final class ImageToVideoResource extends KlingResource {
   /** API endpoint path for image to video operations. */
   public static final String ENDPOINT = "/api/v1/kling/image_to_video";
+  private static final String V26_MODEL = "kling-v2.6";
   private static final String V3_TURBO_MODEL = "kling-v3-turbo-image-to-video";
   private static final List<String> V3_TURBO_UNSUPPORTED_FIELDS = java.util.Arrays.asList(
       "aspect_ratio",
@@ -59,6 +60,9 @@ public final class ImageToVideoResource extends KlingResource {
 
   @Override
   protected void validateBody(String action, Map<String, Object> body) {
+    if (V26_MODEL.equals(body.get("model"))) {
+      validateV26Body(body);
+    }
     if (!V3_TURBO_MODEL.equals(body.get("model"))) {
       return;
     }
@@ -67,6 +71,21 @@ public final class ImageToVideoResource extends KlingResource {
       if (fieldPresent(body, field)) {
         throw new ValidationException(field + " is not supported by " + V3_TURBO_MODEL);
       }
+    }
+  }
+
+  private static void validateV26Body(Map<String, Object> body) {
+    if (Boolean.TRUE.equals(body.get("enable_sound")) && !"pro".equals(body.get("mode"))) {
+      throw new ValidationException("enable_sound requires mode pro for kling-v2.6");
+    }
+    if (!fieldPresent(body, "last_frame_image_url")) {
+      return;
+    }
+    if (!"pro".equals(body.get("mode"))) {
+      throw new ValidationException("last_frame_image_url requires mode pro for kling-v2.6");
+    }
+    if (body.containsKey("duration_seconds") && ((Number) body.get("duration_seconds")).intValue() != 5) {
+      throw new ValidationException("last_frame_image_url requires duration_seconds 5 for kling-v2.6");
     }
   }
 

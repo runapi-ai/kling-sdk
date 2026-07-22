@@ -239,6 +239,44 @@ func TestTextToVideoRejectsV3TurboUnsupportedFields(t *testing.T) {
 	}
 }
 
+func TestTextToVideoCreateV26(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	trueVal := true
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:           ModelV26T2V,
+		Prompt:          "a paper boat crossing a rain puddle",
+		Mode:            "pro",
+		EnableSound:     &trueVal,
+		DurationSeconds: 10,
+		AspectRatio:     "16:9",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v2.6" || body["mode"] != "pro" || body["enable_sound"] != true {
+		t.Fatalf("unexpected Kling 2.6 body: %v", body)
+	}
+}
+
+func TestTextToVideoRejectsV26SoundOutsideProMode(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	trueVal := true
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:       ModelV26T2V,
+		Prompt:      "a paper boat crossing a rain puddle",
+		EnableSound: &trueVal,
+	})
+	if err == nil || !strings.Contains(err.Error(), "enable_sound requires mode pro for kling-v2.6") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if stub.body != nil {
+		t.Fatalf("expected no request body, got: %v", stub.body)
+	}
+}
+
 func TestTextToVideoGet(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
@@ -473,6 +511,76 @@ func TestImageToVideoRejectsV3TurboUnsupportedFields(t *testing.T) {
 	}
 	if stub.body != nil {
 		t.Fatalf("expected no request body, got: %v", stub.body)
+	}
+}
+
+func TestImageToVideoCreateV26(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	trueVal := true
+	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
+		Model:              ModelV26I2V,
+		Prompt:             "camera follows the cyclist through fog",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
+		Mode:               "pro",
+		EnableSound:        &trueVal,
+		DurationSeconds:    5,
+		AspectRatio:        "16:9",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v2.6" || body["mode"] != "pro" || body["enable_sound"] != true {
+		t.Fatalf("unexpected Kling 2.6 body: %v", body)
+	}
+	if body["last_frame_image_url"] != "https://cdn.runapi.ai/public/samples/last-frame.jpg" {
+		t.Fatalf("unexpected last_frame_image_url: %v", body["last_frame_image_url"])
+	}
+}
+
+func TestImageToVideoRejectsV26ConditionalFields(t *testing.T) {
+	trueVal := true
+	tests := []struct {
+		name    string
+		params  ImageToVideoParams
+		message string
+	}{
+		{
+			name: "sound outside pro mode",
+			params: ImageToVideoParams{
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", EnableSound: &trueVal,
+			},
+			message: "enable_sound requires mode pro for kling-v2.6",
+		},
+		{
+			name: "last frame outside pro mode",
+			params: ImageToVideoParams{
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", LastFrameImageURL: "https://example.test/last.jpg",
+			},
+			message: "last_frame_image_url requires mode pro for kling-v2.6",
+		},
+		{
+			name: "last frame with ten seconds",
+			params: ImageToVideoParams{
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", LastFrameImageURL: "https://example.test/last.jpg", Mode: "pro", DurationSeconds: 10,
+			},
+			message: "last_frame_image_url requires duration_seconds 5 for kling-v2.6",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			stub := &stubHTTPClient{}
+			client := NewClientWithHTTP(stub)
+			_, err := client.ImageToVideo.Create(context.Background(), test.params)
+			if err == nil || !strings.Contains(err.Error(), test.message) {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if stub.body != nil {
+				t.Fatalf("expected no request body, got: %v", stub.body)
+			}
+		})
 	}
 }
 

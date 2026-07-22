@@ -58,6 +58,8 @@ const result = await client.textToVideo.run({
 const url = result.videos[0].url;
 ```
 
+Kling 2.6 uses `model: 'kling-v2.6'` for both text-to-video and image-to-video. Set `mode: 'pro'` before enabling sound; final-frame image-to-video requests also use `duration_seconds: 5`.
+
 ## Routing
 
 - Model page: https://runapi.ai/models/kling
@@ -71,6 +73,7 @@ const url = result.videos[0].url;
 ## Variants
 
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
+- [Kling 2.6](https://runapi.ai/models/kling/v2.6)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)
 - [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)

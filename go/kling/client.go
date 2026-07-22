@@ -87,6 +87,9 @@ func (r *TextToVideo) Create(ctx context.Context, params TextToVideoParams, opts
 	if err := core.ValidateParams(contractSchema["text-to-video"], body); err != nil {
 		return nil, err
 	}
+	if err := validateV26TextToVideoBody(body); err != nil {
+		return nil, err
+	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, textToVideoPath, body, requestOptions)
 }
 
@@ -113,6 +116,9 @@ func (r *ImageToVideo) Create(ctx context.Context, params ImageToVideoParams, op
 		return nil, err
 	}
 	if err := core.ValidateParams(contractSchema["image-to-video"], body); err != nil {
+		return nil, err
+	}
+	if err := validateV26ImageToVideoBody(body); err != nil {
 		return nil, err
 	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, imageToVideoPath, body, requestOptions)
@@ -195,13 +201,46 @@ func validateImageToVideoBody(body map[string]any) error {
 	return rejectUnsupportedFields(body, v3TurboImageToVideoUnsupportedFields, string(ModelV3TurboI2V))
 }
 
+func validateV26TextToVideoBody(body map[string]any) error {
+	if body["model"] != string(ModelV26T2V) {
+		return nil
+	}
+	if body["enable_sound"] == true && body["mode"] != "pro" {
+		return validationError("enable_sound requires mode pro for kling-v2.6")
+	}
+	return nil
+}
+
+func validateV26ImageToVideoBody(body map[string]any) error {
+	if body["model"] != string(ModelV26I2V) {
+		return nil
+	}
+	if body["enable_sound"] == true && body["mode"] != "pro" {
+		return validationError("enable_sound requires mode pro for kling-v2.6")
+	}
+	if !fieldPresent(body, "last_frame_image_url") {
+		return nil
+	}
+	if body["mode"] != "pro" {
+		return validationError("last_frame_image_url requires mode pro for kling-v2.6")
+	}
+	if duration, ok := body["duration_seconds"]; ok && duration != float64(5) {
+		return validationError("last_frame_image_url requires duration_seconds 5 for kling-v2.6")
+	}
+	return nil
+}
+
 func rejectUnsupportedFields(body map[string]any, fields []string, model string) error {
 	for _, field := range fields {
 		if fieldPresent(body, field) {
-			return core.NewError(core.ErrValidation, field+" is not supported by "+model, 400, "", nil, nil)
+			return validationError(field + " is not supported by " + model)
 		}
 	}
 	return nil
+}
+
+func validationError(message string) error {
+	return core.NewError(core.ErrValidation, message, 400, "", nil, nil)
 }
 
 func fieldPresent(params map[string]any, field string) bool {

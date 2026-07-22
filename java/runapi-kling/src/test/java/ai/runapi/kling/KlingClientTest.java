@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ai.runapi.core.RequestOptions;
 import ai.runapi.core.errors.ValidationException;
@@ -149,6 +150,45 @@ class KlingClientTest {
   }
 
   @Test
+  void createSendsV26TextToVideoFields() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v26\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.textToVideo().create(
+        TextToVideoParams.builder()
+            .model(TextToVideoModel.KLING_V2_6)
+            .prompt("A paper boat crossing a rain puddle")
+            .mode("pro")
+            .durationSeconds(10)
+            .enableSound(true)
+            .aspectRatio("16:9")
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-v2.6", body.get("model").asText());
+    assertEquals("pro", body.get("mode").asText());
+    assertTrue(body.get("enable_sound").asBoolean());
+  }
+
+  @Test
+  void createRejectsV26TextToVideoSoundOutsideProMode() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v26\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.textToVideo().create(
+            TextToVideoParams.builder()
+                .model(TextToVideoModel.KLING_V2_6)
+                .prompt("test")
+                .enableSound(true)
+                .build()));
+
+    assertEquals("enable_sound requires mode pro for kling-v2.6", error.getMessage());
+    assertNull(transport.request);
+  }
+
+  @Test
   void createSendsV3TurboImageToVideoShape() throws Exception {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_i2v\",\"status\":\"processing\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
@@ -185,6 +225,70 @@ class KlingClientTest {
 
     assertEquals("last_frame_image_url is not supported by kling-v3-turbo-image-to-video", error.getMessage());
     assertNull(transport.request);
+  }
+
+  @Test
+  void createSendsV26ImageToVideoFields() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v26_i2v\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.imageToVideo().create(
+        ImageToVideoParams.builder()
+            .model(ImageToVideoModel.KLING_V2_6)
+            .prompt("Camera follows the cyclist through fog")
+            .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+            .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
+            .mode("pro")
+            .durationSeconds(5)
+            .enableSound(true)
+            .aspectRatio("16:9")
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-v2.6", body.get("model").asText());
+    assertEquals("pro", body.get("mode").asText());
+    assertTrue(body.get("enable_sound").asBoolean());
+    assertEquals("https://cdn.runapi.ai/public/samples/last-frame.jpg", body.get("last_frame_image_url").asText());
+  }
+
+  @Test
+  void createRejectsInvalidV26ImageToVideoConditions() {
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(new CapturingTransport("{\"id\":\"task\"}")).build();
+
+    ValidationException soundError = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_V2_6)
+                .prompt("test")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .enableSound(true)
+                .build()));
+    assertEquals("enable_sound requires mode pro for kling-v2.6", soundError.getMessage());
+
+    ValidationException modeError = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_V2_6)
+                .prompt("test")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
+                .build()));
+    assertEquals("last_frame_image_url requires mode pro for kling-v2.6", modeError.getMessage());
+
+    ValidationException durationError = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_V2_6)
+                .prompt("test")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
+                .mode("pro")
+                .durationSeconds(10)
+                .build()));
+    assertEquals("last_frame_image_url requires duration_seconds 5 for kling-v2.6", durationError.getMessage());
   }
 
   @Test

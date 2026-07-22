@@ -10,6 +10,8 @@ public final class ImageToVideoParams {
   private final String prompt;
   private final String firstFrameImageUrl;
   private final String callbackUrl;
+  private final String mode;
+  private final Boolean enableSound;
   private final Integer durationSeconds;
   private final String outputResolution;
   private final String negativePrompt;
@@ -22,6 +24,8 @@ public final class ImageToVideoParams {
     this.prompt = KlingParamUtils.requireNonBlank(builder.prompt, "prompt");
     this.firstFrameImageUrl = KlingParamUtils.requireNonBlank(builder.firstFrameImageUrl, "firstFrameImageUrl");
     this.callbackUrl = builder.callbackUrl;
+    this.mode = builder.mode;
+    this.enableSound = builder.enableSound;
     this.durationSeconds = builder.durationSeconds;
     this.outputResolution = builder.outputResolution;
     this.negativePrompt = builder.negativePrompt;
@@ -47,6 +51,8 @@ public final class ImageToVideoParams {
     raw.put("prompt", KlingParamUtils.wireValue(prompt));
     raw.put("first_frame_image_url", KlingParamUtils.wireValue(firstFrameImageUrl));
     raw.put("callback_url", KlingParamUtils.wireValue(callbackUrl));
+    raw.put("mode", KlingParamUtils.wireValue(mode));
+    raw.put("enable_sound", KlingParamUtils.wireValue(enableSound));
     raw.put("duration_seconds", KlingParamUtils.wireValue(durationSeconds));
     raw.put("output_resolution", KlingParamUtils.wireValue(outputResolution));
     raw.put("negative_prompt", KlingParamUtils.wireValue(negativePrompt));
@@ -64,6 +70,8 @@ public final class ImageToVideoParams {
     private String prompt;
     private String firstFrameImageUrl;
     private String callbackUrl;
+    private String mode;
+    private Boolean enableSound;
     private Integer durationSeconds;
     private String outputResolution;
     private String negativePrompt;
@@ -101,6 +109,18 @@ public final class ImageToVideoParams {
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
       this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      return this;
+    }
+
+    /** Sets the Kling 2.6 generation mode (std or pro). */
+    public Builder mode(String value) {
+      this.mode = KlingParamUtils.requireNonBlank(value, "mode");
+      return this;
+    }
+
+    /** Sets whether Kling 2.6 generates synchronized sound. */
+    public Builder enableSound(boolean value) {
+      this.enableSound = value;
       return this;
     }
 

@@ -124,6 +124,28 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
       expect(result.id).to eq("task-v3-turbo-t2v")
     end
 
+    it "accepts Kling 2.6 mode and sound fields" do
+      params = {
+        model: "kling-v2.6",
+        prompt: "a paper boat crossing a rain puddle",
+        mode: "pro",
+        duration_seconds: 10,
+        enable_sound: true,
+        aspect_ratio: "16:9"
+      }
+      expect(http).to receive(:request).with(:post, endpoint, body: params)
+        .and_return("id" => "task-v26-t2v")
+
+      result = text_to_video.create(**params)
+      expect(result.id).to eq("task-v26-t2v")
+    end
+
+    it "rejects Kling 2.6 sound outside pro mode" do
+      expect do
+        text_to_video.create(model: "kling-v2.6", prompt: "test", enable_sound: true)
+      end.to raise_error(RunApi::Core::ValidationError, /enable_sound requires mode pro for kling-v2.6/)
+    end
+
     it "rejects unsupported V3 Turbo text-to-video fields" do
       expect do
         text_to_video.create(

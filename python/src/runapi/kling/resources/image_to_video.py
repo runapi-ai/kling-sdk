@@ -12,6 +12,7 @@ from ..types import (
     ImageToVideoResponse,
 )
 
+V26_MODEL = "kling-v2.6"
 V3_TURBO_MODEL = "kling-v3-turbo-image-to-video"
 V3_TURBO_UNSUPPORTED_FIELDS = (
     "aspect_ratio",
@@ -73,13 +74,30 @@ class ImageToVideo(Resource):
         # (model-gating, not expressible as a contract enum/required rule).
         model = params.get("model")
         last_frame_image_url = params.get("last_frame_image_url")
-        if last_frame_image_url and model not in (
+        if model == V26_MODEL:
+            self._validate_v26_params(params, last_frame_image_url)
+        elif last_frame_image_url and model not in (
             "kling-v2.5-turbo-image-to-video-pro",
             "kling-v2.1-pro",
         ):
             raise ValidationError(
                 "last_frame_image_url is only supported by "
                 "kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"
+            )
+
+    def _validate_v26_params(
+        self, params: Dict[str, Any], last_frame_image_url: Any
+    ) -> None:
+        mode = params.get("mode") or "std"
+        if params.get("enable_sound") is True and mode != "pro":
+            raise ValidationError(f"enable_sound requires mode pro for {V26_MODEL}")
+        if not last_frame_image_url:
+            return
+        if mode != "pro":
+            raise ValidationError(f"last_frame_image_url requires mode pro for {V26_MODEL}")
+        if params.get("duration_seconds", 5) != 5:
+            raise ValidationError(
+                f"last_frame_image_url requires duration_seconds 5 for {V26_MODEL}"
             )
 
     def _reject_unsupported_v3_turbo_fields(self, params: Dict[str, Any]) -> None:

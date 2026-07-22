@@ -65,7 +65,7 @@ module RunApi
         }
       },
       "image-to-video" => {
-        "models" => ["kling-v2.1-master-image-to-video", "kling-v2.1-pro", "kling-v2.1-standard", "kling-v2.5-turbo-image-to-video-pro", "kling-v3-turbo-image-to-video"],
+        "models" => ["kling-v2.1-master-image-to-video", "kling-v2.1-pro", "kling-v2.1-standard", "kling-v2.5-turbo-image-to-video-pro", "kling-v2.6", "kling-v3-turbo-image-to-video"],
         "fields_by_model" => {
           "kling-v2.1-master-image-to-video" => {
             "duration_seconds" => {
@@ -127,6 +127,30 @@ module RunApi
               "required" => true
             }
           },
+          "kling-v2.6" => {
+            "aspect_ratio" => {
+              "enum" => ["16:9", "9:16", "1:1"]
+            },
+            "duration_seconds" => {
+              "enum" => [5, 10],
+              "type" => "integer"
+            },
+            "first_frame_image_url" => {
+              "required" => true
+            },
+            "mode" => {
+              "enum" => ["std", "pro"]
+            },
+            "model" => {
+              "required" => true
+            },
+            "prompt" => {
+              "required" => true,
+              "min" => 1,
+              "max" => 2500,
+              "length" => true
+            }
+          },
           "kling-v3-turbo-image-to-video" => {
             "duration_seconds" => {
               "enum" => [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
@@ -153,27 +177,32 @@ module RunApi
           "when" => {
             "model" => "kling-v2.1-master-image-to-video"
           },
-          "forbidden" => ["output_resolution"]
+          "forbidden" => ["output_resolution", "mode", "enable_sound"]
         }, {
           "when" => {
             "model" => "kling-v2.1-pro"
           },
-          "forbidden" => ["output_resolution"]
+          "forbidden" => ["output_resolution", "mode", "enable_sound"]
         }, {
           "when" => {
             "model" => "kling-v2.1-standard"
           },
-          "forbidden" => ["output_resolution"]
+          "forbidden" => ["output_resolution", "mode", "enable_sound"]
         }, {
           "when" => {
             "model" => "kling-v2.5-turbo-image-to-video-pro"
           },
-          "forbidden" => ["output_resolution"]
+          "forbidden" => ["output_resolution", "mode", "enable_sound"]
+        }, {
+          "when" => {
+            "model" => "kling-v2.6"
+          },
+          "forbidden" => ["output_resolution", "negative_prompt", "cfg_scale"]
         }, {
           "when" => {
             "model" => "kling-v3-turbo-image-to-video"
           },
-          "forbidden" => ["aspect_ratio", "negative_prompt", "cfg_scale", "last_frame_image_url"]
+          "forbidden" => ["mode", "enable_sound", "aspect_ratio", "negative_prompt", "cfg_scale", "last_frame_image_url"]
         }]
       },
       "motion-control" => {
@@ -202,7 +231,7 @@ module RunApi
         }
       },
       "text-to-video" => {
-        "models" => ["kling-3.0", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro", "kling-v3-turbo-text-to-video"],
+        "models" => ["kling-3.0", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro", "kling-v2.6", "kling-v3-turbo-text-to-video"],
         "fields_by_model" => {
           "kling-3.0" => {
             "aspect_ratio" => {
@@ -243,6 +272,27 @@ module RunApi
               "required" => true
             }
           },
+          "kling-v2.6" => {
+            "aspect_ratio" => {
+              "enum" => ["16:9", "9:16", "1:1"]
+            },
+            "duration_seconds" => {
+              "enum" => [5, 10],
+              "type" => "integer"
+            },
+            "mode" => {
+              "enum" => ["std", "pro"]
+            },
+            "model" => {
+              "required" => true
+            },
+            "prompt" => {
+              "required" => true,
+              "min" => 1,
+              "max" => 2500,
+              "length" => true
+            }
+          },
           "kling-v3-turbo-text-to-video" => {
             "aspect_ratio" => {
               "enum" => ["16:9", "9:16", "1:1"]
@@ -267,9 +317,29 @@ module RunApi
         },
         "rules" => [{
           "when" => {
+            "model" => "kling-3.0"
+          },
+          "forbidden" => ["mode"]
+        }, {
+          "when" => {
+            "model" => "kling-v2.1-master-text-to-video"
+          },
+          "forbidden" => ["mode"]
+        }, {
+          "when" => {
+            "model" => "kling-v2.5-turbo-text-to-video-pro"
+          },
+          "forbidden" => ["mode"]
+        }, {
+          "when" => {
+            "model" => "kling-v2.6"
+          },
+          "forbidden" => ["output_resolution", "negative_prompt", "cfg_scale", "multi_shots", "multi_prompt", "first_frame_image_url", "last_frame_image_url", "kling_elements"]
+        }, {
+          "when" => {
             "model" => "kling-v3-turbo-text-to-video"
           },
-          "forbidden" => ["enable_sound", "negative_prompt", "cfg_scale", "multi_shots", "multi_prompt", "first_frame_image_url", "last_frame_image_url", "kling_elements"]
+          "forbidden" => ["mode", "enable_sound", "negative_prompt", "cfg_scale", "multi_shots", "multi_prompt", "first_frame_image_url", "last_frame_image_url", "kling_elements"]
         }]
       }
     }.freeze

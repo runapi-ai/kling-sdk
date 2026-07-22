@@ -71,6 +71,7 @@ export const contract = {
       "kling-v2.1-pro",
       "kling-v2.1-standard",
       "kling-v2.5-turbo-image-to-video-pro",
+      "kling-v2.6",
       "kling-v3-turbo-image-to-video"
     ],
     "fields_by_model": {
@@ -146,6 +147,40 @@ export const contract = {
           "required": true
         }
       },
+      "kling-v2.6": {
+        "aspect_ratio": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "duration_seconds": {
+          "enum": [
+            5,
+            10
+          ],
+          "type": "integer"
+        },
+        "first_frame_image_url": {
+          "required": true
+        },
+        "mode": {
+          "enum": [
+            "std",
+            "pro"
+          ]
+        },
+        "model": {
+          "required": true
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        }
+      },
       "kling-v3-turbo-image-to-video": {
         "duration_seconds": {
           "enum": [
@@ -191,7 +226,9 @@ export const contract = {
           "model": "kling-v2.1-master-image-to-video"
         },
         "forbidden": [
-          "output_resolution"
+          "output_resolution",
+          "mode",
+          "enable_sound"
         ]
       },
       {
@@ -199,7 +236,9 @@ export const contract = {
           "model": "kling-v2.1-pro"
         },
         "forbidden": [
-          "output_resolution"
+          "output_resolution",
+          "mode",
+          "enable_sound"
         ]
       },
       {
@@ -207,7 +246,9 @@ export const contract = {
           "model": "kling-v2.1-standard"
         },
         "forbidden": [
-          "output_resolution"
+          "output_resolution",
+          "mode",
+          "enable_sound"
         ]
       },
       {
@@ -215,7 +256,19 @@ export const contract = {
           "model": "kling-v2.5-turbo-image-to-video-pro"
         },
         "forbidden": [
-          "output_resolution"
+          "output_resolution",
+          "mode",
+          "enable_sound"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v2.6"
+        },
+        "forbidden": [
+          "output_resolution",
+          "negative_prompt",
+          "cfg_scale"
         ]
       },
       {
@@ -223,6 +276,8 @@ export const contract = {
           "model": "kling-v3-turbo-image-to-video"
         },
         "forbidden": [
+          "mode",
+          "enable_sound",
           "aspect_ratio",
           "negative_prompt",
           "cfg_scale",
@@ -272,6 +327,7 @@ export const contract = {
       "kling-3.0",
       "kling-v2.1-master-text-to-video",
       "kling-v2.5-turbo-text-to-video-pro",
+      "kling-v2.6",
       "kling-v3-turbo-text-to-video"
     ],
     "fields_by_model": {
@@ -350,6 +406,37 @@ export const contract = {
           "required": true
         }
       },
+      "kling-v2.6": {
+        "aspect_ratio": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "duration_seconds": {
+          "enum": [
+            5,
+            10
+          ],
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "std",
+            "pro"
+          ]
+        },
+        "model": {
+          "required": true
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        }
+      },
       "kling-v3-turbo-text-to-video": {
         "aspect_ratio": {
           "enum": [
@@ -396,9 +483,49 @@ export const contract = {
     "rules": [
       {
         "when": {
+          "model": "kling-3.0"
+        },
+        "forbidden": [
+          "mode"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v2.1-master-text-to-video"
+        },
+        "forbidden": [
+          "mode"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v2.5-turbo-text-to-video-pro"
+        },
+        "forbidden": [
+          "mode"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v2.6"
+        },
+        "forbidden": [
+          "output_resolution",
+          "negative_prompt",
+          "cfg_scale",
+          "multi_shots",
+          "multi_prompt",
+          "first_frame_image_url",
+          "last_frame_image_url",
+          "kling_elements"
+        ]
+      },
+      {
+        "when": {
           "model": "kling-v3-turbo-text-to-video"
         },
         "forbidden": [
+          "mode",
           "enable_sound",
           "negative_prompt",
           "cfg_scale",

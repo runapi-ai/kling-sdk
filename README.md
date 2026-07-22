@@ -39,7 +39,7 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("ai.runapi:runapi-kling:0.1.2")
+  implementation("ai.runapi:runapi-kling:0.1.3")
 }
 ```
 
@@ -49,7 +49,7 @@ Maven:
 <dependency>
   <groupId>ai.runapi</groupId>
   <artifactId>runapi-kling</artifactId>
-  <version>0.1.2</version>
+  <version>0.1.3</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Use the Java BOM when installing multiple RunAPI Java modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("ai.runapi:runapi-bom:0.1.7"))
+  implementation(platform("ai.runapi:runapi-bom:0.2.4"))
   implementation("ai.runapi:runapi-kling")
 }
 ```
@@ -97,6 +97,22 @@ CompletedTextToVideoResponse result = client.textToVideo().run(
 
 Java packages target Java 8 bytecode and are tested on Java 8, 11, 17, and 21. Each model artifact depends on `ai.runapi:runapi-core`, so application code normally installs only `ai.runapi:runapi-kling`.
 
+## Kling 2.6
+
+Use `kling-v2.6` for text-to-video or image-to-video requests. Sound requires `mode: "pro"`; an image-to-video final frame additionally requires a five-second request.
+
+```typescript
+const result = await client.imageToVideo.run({
+  model: 'kling-v2.6',
+  prompt: 'Camera follows the cyclist through fog as the city lights appear',
+  first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+  mode: 'pro',
+  duration_seconds: 5,
+  enable_sound: true,
+  last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+});
+```
+
 ## Task lifecycle
 
 Most media endpoints are asynchronous. `create()` submits a task and returns its id, `get(id)` fetches the latest task state, and `run(params)` creates the task and polls until it reaches a terminal state. In web request handlers, prefer `create()` plus webhook or later `get()` polling so the server does not hold a worker open.
@@ -124,6 +140,7 @@ Most media endpoints are asynchronous. `create()` submits a task and returns its
 
 Use the most specific Kling variant page for pricing, rate limits, and commercial usage:
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
+- [Kling 2.6](https://runapi.ai/models/kling/v2.6)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)
 - [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)

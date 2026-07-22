@@ -10,6 +10,7 @@ import type {
 } from '../types';
 
 const ENDPOINT = '/api/v1/kling/text_to_video';
+const V26_MODEL = 'kling-v2.6';
 const V3_TURBO_MODEL = 'kling-v3-turbo-text-to-video';
 const V3_TURBO_UNSUPPORTED_FIELDS = [
   'enable_sound',
@@ -51,6 +52,7 @@ export class TextToVideo {
     const body = compactParams(params);
     rejectUnsupportedV3TurboFields(body as Record<string, unknown>);
     validateParams(contract['text-to-video'] as ActionSchema, body as Record<string, unknown>);
+    validateV26Params(body as Record<string, unknown>);
     return this.http.request<TaskCreateResponse>('POST', ENDPOINT, {
       body,
       ...options,
@@ -67,6 +69,13 @@ export class TextToVideo {
     return this.http.request<TextToVideoResponse>('GET', `${ENDPOINT}/${id}`, {
       ...options,
     });
+  }
+}
+
+function validateV26Params(body: Record<string, unknown>): void {
+  if (body.model !== V26_MODEL) return;
+  if (body.enable_sound === true && body.mode !== 'pro') {
+    throw new ValidationError(`enable_sound requires mode pro for ${V26_MODEL}`);
   }
 }
 

@@ -21,6 +21,8 @@ type TaskStatus string
 const (
 	// ModelKling30 is the latest-generation model with multi-shot, first/last frame images, sound generation, and Kling elements.
 	ModelKling30 TextToVideoModel = "kling-3.0"
+	// ModelV26T2V supports standard/pro generation modes and optional sound in pro mode.
+	ModelV26T2V TextToVideoModel = "kling-v2.6"
 	// ModelV3TurboT2V creates 3-15 second text-to-video clips at 720p or 1080p.
 	ModelV3TurboT2V TextToVideoModel = "kling-v3-turbo-text-to-video"
 	// ModelV25TurboT2VPro is a fast, high-quality V2.5 model. Supports negative prompts and cfg_scale.
@@ -30,6 +32,8 @@ const (
 
 	// ModelV3TurboI2V animates one first-frame image at 720p or 1080p.
 	ModelV3TurboI2V ImageToVideoModel = "kling-v3-turbo-image-to-video"
+	// ModelV26I2V supports standard/pro generation modes, optional sound, and pro final-frame control.
+	ModelV26I2V ImageToVideoModel = "kling-v2.6"
 	// ModelV25TurboI2VPro is the fast V2.5 image-to-video model with last-frame support.
 	ModelV25TurboI2VPro ImageToVideoModel = "kling-v2.5-turbo-image-to-video-pro"
 	// ModelV21Pro balances quality and speed for image-to-video.
@@ -78,6 +82,7 @@ type TextToVideoParams struct {
 	Model       TextToVideoModel `json:"model" help:"required; model slug"`
 	Prompt      string           `json:"prompt,omitempty" help:"required unless multi_shots; video description"`
 	CallbackURL string           `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
+	Mode        string           `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
 
 	EnableSound      *bool                            `json:"enable_sound,omitempty" help:"optional; enable sound generation"`
 	DurationSeconds  int                              `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
@@ -102,7 +107,10 @@ type ImageToVideoParams struct {
 	Prompt             string                            `json:"prompt" help:"required; video description"`
 	FirstFrameImageURL string                            `json:"first_frame_image_url" help:"required; first frame image URL"`
 	CallbackURL        string                            `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
+	Mode               string                            `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
+	EnableSound        *bool                             `json:"enable_sound,omitempty" help:"optional; true requires pro mode for Kling 2.6"`
 	DurationSeconds    int                               `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
+	AspectRatio        string                            `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio"`
 	OutputResolution   KlingImageToVideoOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution for V3 Turbo"`
 	NegativePrompt     string                            `json:"negative_prompt,omitempty" help:"optional; negative prompt"`
 	CfgScale           *float64                          `json:"cfg_scale,omitempty" help:"optional; guidance scale"`

@@ -6,19 +6,21 @@ import type { AsyncTaskStatus } from '@runapi.ai/core';
  */
 export type KlingTextToVideoModel =
   | 'kling-3.0'
+  | 'kling-v2.6'
   | 'kling-v3-turbo-text-to-video'
   | 'kling-v2.5-turbo-text-to-video-pro'
   | 'kling-v2.1-master-text-to-video';
 
-/**
- * Image-to-video model variants. V2.5 turbo and V2.1 pro support last-frame image control.
- */
+/** Earlier V2 image-to-video variants. V2.5 turbo and V2.1 pro support last-frame image control. */
 export type KlingV2ImageToVideoModel =
   | 'kling-v2.5-turbo-image-to-video-pro'
   | 'kling-v2.1-pro'
   | 'kling-v2.1-standard'
   | 'kling-v2.1-master-image-to-video';
-export type KlingImageToVideoModel = KlingV2ImageToVideoModel | 'kling-v3-turbo-image-to-video';
+export type KlingImageToVideoModel =
+  | KlingV2ImageToVideoModel
+  | 'kling-v2.6'
+  | 'kling-v3-turbo-image-to-video';
 
 /** Output resolution for text-to-video. 4k is highest quality but slowest. */
 export type KlingTextToVideoOutputResolution = '720p' | '1080p' | '4k';
@@ -26,6 +28,7 @@ export type KlingV3TurboOutputResolution = '720p' | '1080p';
 export type KlingAspectRatio = '16:9' | '9:16' | '1:1';
 /** Duration in seconds. Range varies by model: 3-15 for kling-3.0, 5 or 10 for V2.x. */
 export type KlingDuration = number;
+export type KlingV26Mode = 'std' | 'pro';
 
 /** A single shot in a multi-shot text-to-video sequence. */
 export interface MultiPromptItem {
@@ -123,10 +126,22 @@ export interface V3TurboTextToVideoParams {
   callback_url?: string;
 }
 
+/** Kling 2.6 text-to-video with standard/pro quality modes and optional sound in pro mode. */
+export interface KlingV26TextToVideoParams {
+  model: 'kling-v2.6';
+  prompt: string;
+  mode?: KlingV26Mode;
+  duration_seconds?: 5 | 10;
+  /** Generate synchronized audio; true requires mode pro. */
+  enable_sound?: boolean;
+  aspect_ratio?: KlingAspectRatio;
+  callback_url?: string;
+}
+
 /**
- * Image-to-video generation parameters. A first-frame image is required; the model
+ * Earlier V2 image-to-video parameters. A first-frame image is required; the model
  * animates it into video guided by the text prompt. last_frame_image_url is supported
- * on V2.5 turbo and V2.1 pro models only.
+ * on V2.5 turbo and V2.1 pro.
  */
 export interface V2ImageToVideoParams {
   model: KlingV2ImageToVideoModel;
@@ -152,14 +167,30 @@ export interface V3TurboImageToVideoParams {
   callback_url?: string;
 }
 
+/** Kling 2.6 image-to-video with optional sound and final-frame control in pro mode. */
+export interface KlingV26ImageToVideoParams {
+  model: 'kling-v2.6';
+  prompt: string;
+  first_frame_image_url: string;
+  /** Final frame URL; requires mode pro and duration_seconds 5. */
+  last_frame_image_url?: string;
+  mode?: KlingV26Mode;
+  duration_seconds?: 5 | 10;
+  /** Generate synchronized audio; true requires mode pro. */
+  enable_sound?: boolean;
+  aspect_ratio?: KlingAspectRatio;
+  callback_url?: string;
+}
+
 export type TextToVideoParams =
   | Kling3TextToVideoSingleShotParams
   | Kling3TextToVideoMultiShotParams
+  | KlingV26TextToVideoParams
   | V25TurboTextToVideoParams
   | V21MasterTextToVideoParams
   | V3TurboTextToVideoParams;
 
-export type ImageToVideoParams = V2ImageToVideoParams | V3TurboImageToVideoParams;
+export type ImageToVideoParams = V2ImageToVideoParams | KlingV26ImageToVideoParams | V3TurboImageToVideoParams;
 
 export interface AsyncTaskResponse {
   id: string;

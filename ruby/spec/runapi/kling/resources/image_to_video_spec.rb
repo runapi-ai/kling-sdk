@@ -50,6 +50,49 @@ RSpec.describe RunApi::Kling::Resources::ImageToVideo do
     expect(result.id).to eq("task-v3-i2v")
   end
 
+  it "accepts Kling 2.6 mode, sound, and final frame fields" do
+    params = {
+      model: "kling-v2.6",
+      prompt: "camera follows the cyclist through fog",
+      first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+      last_frame_image_url: "https://cdn.runapi.ai/public/samples/last-frame.jpg",
+      mode: "pro",
+      duration_seconds: 5,
+      enable_sound: true,
+      aspect_ratio: "16:9"
+    }
+    expect(http).to receive(:request).with(:post, "/api/v1/kling/image_to_video", body: params)
+      .and_return("id" => "task-v26-i2v")
+
+    result = resource.create(**params)
+    expect(result.id).to eq("task-v26-i2v")
+  end
+
+  it "rejects Kling 2.6 sound outside pro mode" do
+    expect do
+      resource.create(
+        model: "kling-v2.6",
+        prompt: "test",
+        first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+        enable_sound: true
+      )
+    end.to raise_error(RunApi::Core::ValidationError, /enable_sound requires mode pro for kling-v2.6/)
+  end
+
+  it "rejects Kling 2.6 final frames outside pro five-second requests" do
+    base_params = {
+      model: "kling-v2.6",
+      prompt: "test",
+      first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+      last_frame_image_url: "https://cdn.runapi.ai/public/samples/last-frame.jpg"
+    }
+
+    expect { resource.create(**base_params) }
+      .to raise_error(RunApi::Core::ValidationError, /last_frame_image_url requires mode pro for kling-v2.6/)
+    expect { resource.create(**base_params, mode: "pro", duration_seconds: 10) }
+      .to raise_error(RunApi::Core::ValidationError, /last_frame_image_url requires duration_seconds 5 for kling-v2.6/)
+  end
+
   it "requires first_frame_image_url" do
     expect do
       resource.create(model: "kling-v2.5-turbo-image-to-video-pro", prompt: "a flower blooming")

@@ -10,6 +10,7 @@ import type {
 } from '../types';
 
 const ENDPOINT = '/api/v1/kling/image_to_video';
+const V26_MODEL = 'kling-v2.6';
 const V3_TURBO_MODEL = 'kling-v3-turbo-image-to-video';
 const V3_TURBO_UNSUPPORTED_FIELDS = [
   'aspect_ratio',
@@ -47,6 +48,7 @@ export class ImageToVideo {
     const body = compactParams(params);
     rejectUnsupportedV3TurboFields(body as Record<string, unknown>);
     validateParams(contract['image-to-video'] as ActionSchema, body as Record<string, unknown>);
+    validateV26Params(body as Record<string, unknown>);
     return this.http.request<TaskCreateResponse>('POST', ENDPOINT, {
       body,
       ...options,
@@ -63,6 +65,20 @@ export class ImageToVideo {
     return this.http.request<ImageToVideoResponse>('GET', `${ENDPOINT}/${id}`, {
       ...options,
     });
+  }
+}
+
+function validateV26Params(body: Record<string, unknown>): void {
+  if (body.model !== V26_MODEL) return;
+  if (body.enable_sound === true && body.mode !== 'pro') {
+    throw new ValidationError(`enable_sound requires mode pro for ${V26_MODEL}`);
+  }
+  if (!fieldPresent(body, 'last_frame_image_url')) return;
+  if (body.mode !== 'pro') {
+    throw new ValidationError(`last_frame_image_url requires mode pro for ${V26_MODEL}`);
+  }
+  if (body.duration_seconds !== undefined && body.duration_seconds !== 5) {
+    throw new ValidationError(`last_frame_image_url requires duration_seconds 5 for ${V26_MODEL}`);
   }
 }
 

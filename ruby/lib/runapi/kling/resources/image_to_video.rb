@@ -12,6 +12,7 @@ module RunApi
 
         RESPONSE_CLASS = Types::ImageToVideoResponse
         COMPLETED_RESPONSE_CLASS = Types::CompletedImageToVideoResponse
+        V26_MODEL = "kling-v2.6"
         V3_TURBO_MODEL = "kling-v3-turbo-image-to-video"
         V3_TURBO_UNSUPPORTED_FIELDS = %i[
           aspect_ratio
@@ -61,9 +62,26 @@ module RunApi
           # (model-gating, not expressible as a contract enum/required rule).
           model = param(params, :model)
           last_frame_image_url = param(params, :last_frame_image_url)
-          if last_frame_image_url && !%w[kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
+          if model == V26_MODEL
+            validate_v26_params!(params, last_frame_image_url)
+          elsif last_frame_image_url && !%w[kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
             raise Core::ValidationError, "last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"
           end
+        end
+
+        def validate_v26_params!(params, last_frame_image_url)
+          mode = param(params, :mode) || "std"
+          if param(params, :enable_sound) == true && mode != "pro"
+            raise Core::ValidationError, "enable_sound requires mode pro for #{V26_MODEL}"
+          end
+          return unless last_frame_image_url
+
+          raise Core::ValidationError, "last_frame_image_url requires mode pro for #{V26_MODEL}" unless mode == "pro"
+
+          duration_seconds = param(params, :duration_seconds) || 5
+          return if duration_seconds.to_i == 5
+
+          raise Core::ValidationError, "last_frame_image_url requires duration_seconds 5 for #{V26_MODEL}"
         end
 
         def reject_unsupported_v3_turbo_fields!(params)

@@ -15,6 +15,7 @@ import java.util.Map;
 public final class TextToVideoResource extends KlingResource {
   /** API endpoint path for text to video operations. */
   public static final String ENDPOINT = "/api/v1/kling/text_to_video";
+  private static final String V26_MODEL = "kling-v2.6";
   private static final String V3_TURBO_MODEL = "kling-v3-turbo-text-to-video";
   private static final List<String> V3_TURBO_UNSUPPORTED_FIELDS = java.util.Arrays.asList(
       "enable_sound",
@@ -63,6 +64,11 @@ public final class TextToVideoResource extends KlingResource {
 
   @Override
   protected void validateBody(String action, Map<String, Object> body) {
+    if (V26_MODEL.equals(body.get("model"))
+        && Boolean.TRUE.equals(body.get("enable_sound"))
+        && !"pro".equals(body.get("mode"))) {
+      throw new ValidationException("enable_sound requires mode pro for kling-v2.6");
+    }
     if (!V3_TURBO_MODEL.equals(body.get("model"))) {
       return;
     }

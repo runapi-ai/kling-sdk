@@ -111,6 +111,67 @@ describe('ImageToVideo', () => {
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
 
+    it('sends Kling 2.6 image-to-video mode, sound, and final frame fields', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-v26-i2v' });
+
+      const imageToVideo = new ImageToVideo(mockHttp);
+      await imageToVideo.create({
+        model: 'kling-v2.6',
+        prompt: 'Camera follows the cyclist through fog',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+        last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+        mode: 'pro',
+        duration_seconds: 5,
+        enable_sound: true,
+        aspect_ratio: '16:9',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith('POST', '/api/v1/kling/image_to_video', {
+        body: {
+          model: 'kling-v2.6',
+          prompt: 'Camera follows the cyclist through fog',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+          mode: 'pro',
+          duration_seconds: 5,
+          enable_sound: true,
+          aspect_ratio: '16:9',
+        },
+      });
+    });
+
+    it('rejects Kling 2.6 sound outside pro mode', async () => {
+      const imageToVideo = new ImageToVideo(mockHttp);
+
+      await expect(
+        imageToVideo.create({
+          model: 'kling-v2.6',
+          prompt: 'Camera follows the cyclist through fog',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+          enable_sound: true,
+        })
+      ).rejects.toThrow('enable_sound requires mode pro for kling-v2.6');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
+    it('rejects Kling 2.6 final frames outside pro five-second requests', async () => {
+      const imageToVideo = new ImageToVideo(mockHttp);
+      const baseParams = {
+        model: 'kling-v2.6' as const,
+        prompt: 'Camera follows the cyclist through fog',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+        last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+      };
+
+      await expect(imageToVideo.create(baseParams)).rejects.toThrow(
+        'last_frame_image_url requires mode pro for kling-v2.6'
+      );
+      await expect(
+        imageToVideo.create({ ...baseParams, mode: 'pro', duration_seconds: 10 })
+      ).rejects.toThrow('last_frame_image_url requires duration_seconds 5 for kling-v2.6');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
   });
 
   describe('get', () => {

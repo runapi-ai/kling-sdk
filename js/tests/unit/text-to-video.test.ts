@@ -208,6 +208,44 @@ describe('TextToVideo', () => {
       ).rejects.toThrow('enable_sound is not supported by kling-v3-turbo-text-to-video');
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
+
+    it('sends Kling 2.6 text-to-video mode and sound fields', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-v26' });
+
+      const textToVideo = new TextToVideo(mockHttp);
+      await textToVideo.create({
+        model: 'kling-v2.6',
+        prompt: 'A paper boat crossing a rain puddle',
+        mode: 'pro',
+        duration_seconds: 10,
+        enable_sound: true,
+        aspect_ratio: '16:9',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith('POST', '/api/v1/kling/text_to_video', {
+        body: {
+          model: 'kling-v2.6',
+          prompt: 'A paper boat crossing a rain puddle',
+          mode: 'pro',
+          duration_seconds: 10,
+          enable_sound: true,
+          aspect_ratio: '16:9',
+        },
+      });
+    });
+
+    it('rejects Kling 2.6 sound outside pro mode', async () => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-v2.6',
+          prompt: 'A paper boat crossing a rain puddle',
+          enable_sound: true,
+        })
+      ).rejects.toThrow('enable_sound requires mode pro for kling-v2.6');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
   });
 
 

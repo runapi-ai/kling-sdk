@@ -339,6 +339,48 @@ def test_text_to_video_v3_turbo_rejects_unsupported_fields():
     assert fake.calls == []
 
 
+def test_text_to_video_v26_posts_mode_and_sound_fields():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+
+    client.text_to_video.create(
+        model="kling-v2.6",
+        prompt="a paper boat crossing a rain puddle",
+        mode="pro",
+        duration_seconds=10,
+        enable_sound=True,
+        aspect_ratio="16:9",
+    )
+
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/text_to_video",
+            {
+                "model": "kling-v2.6",
+                "prompt": "a paper boat crossing a rain puddle",
+                "mode": "pro",
+                "duration_seconds": 10,
+                "enable_sound": True,
+                "aspect_ratio": "16:9",
+            },
+        )
+    ]
+
+
+def test_text_to_video_v26_rejects_sound_outside_pro_mode():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(
+        ValidationError, match="enable_sound requires mode pro for kling-v2.6"
+    ):
+        client.text_to_video.create(
+            model="kling-v2.6", prompt="test", enable_sound=True
+        )
+    assert fake.calls == []
+
+
 # --- ai_avatar ------------------------------------------------------------
 
 
@@ -565,6 +607,76 @@ def test_image_to_video_v3_turbo_rejects_unsupported_fields():
             last_frame_image_url="https://x/lighthouse-end.jpg",
         )
     assert fake.calls == []
+
+
+def test_image_to_video_v26_posts_mode_sound_and_final_frame_fields():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+
+    client.image_to_video.create(
+        model="kling-v2.6",
+        prompt="camera follows the cyclist through fog",
+        first_frame_image_url="https://x/first.jpg",
+        last_frame_image_url="https://x/last.jpg",
+        mode="pro",
+        duration_seconds=5,
+        enable_sound=True,
+        aspect_ratio="16:9",
+    )
+
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/image_to_video",
+            {
+                "model": "kling-v2.6",
+                "prompt": "camera follows the cyclist through fog",
+                "first_frame_image_url": "https://x/first.jpg",
+                "last_frame_image_url": "https://x/last.jpg",
+                "mode": "pro",
+                "duration_seconds": 5,
+                "enable_sound": True,
+                "aspect_ratio": "16:9",
+            },
+        )
+    ]
+
+
+def test_image_to_video_v26_rejects_sound_outside_pro_mode():
+    client = KlingClient(api_key="k", http_client=FakeHttp())
+
+    with pytest.raises(
+        ValidationError, match="enable_sound requires mode pro for kling-v2.6"
+    ):
+        client.image_to_video.create(
+            model="kling-v2.6",
+            prompt="test",
+            first_frame_image_url="https://x/first.jpg",
+            enable_sound=True,
+        )
+
+
+@pytest.mark.parametrize(
+    ("extra", "message"),
+    [
+        ({}, "last_frame_image_url requires mode pro for kling-v2.6"),
+        (
+            {"mode": "pro", "duration_seconds": 10},
+            "last_frame_image_url requires duration_seconds 5 for kling-v2.6",
+        ),
+    ],
+)
+def test_image_to_video_v26_rejects_invalid_final_frame_combinations(extra, message):
+    client = KlingClient(api_key="k", http_client=FakeHttp())
+
+    with pytest.raises(ValidationError, match=message):
+        client.image_to_video.create(
+            model="kling-v2.6",
+            prompt="test",
+            first_frame_image_url="https://x/first.jpg",
+            last_frame_image_url="https://x/last.jpg",
+            **extra,
+        )
 
 
 # --- motion_control -------------------------------------------------------

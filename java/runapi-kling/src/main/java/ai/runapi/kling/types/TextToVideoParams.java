@@ -10,6 +10,7 @@ public final class TextToVideoParams {
   private final String model;
   private final String prompt;
   private final String callbackUrl;
+  private final String mode;
   private final Boolean enableSound;
   private final Integer durationSeconds;
   private final String aspectRatio;
@@ -26,6 +27,7 @@ public final class TextToVideoParams {
     this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
     this.prompt = builder.prompt;
     this.callbackUrl = builder.callbackUrl;
+    this.mode = builder.mode;
     this.enableSound = builder.enableSound;
     this.durationSeconds = builder.durationSeconds;
     this.aspectRatio = builder.aspectRatio;
@@ -55,6 +57,7 @@ public final class TextToVideoParams {
     raw.put("model", KlingParamUtils.wireValue(model));
     raw.put("prompt", KlingParamUtils.wireValue(prompt));
     raw.put("callback_url", KlingParamUtils.wireValue(callbackUrl));
+    raw.put("mode", KlingParamUtils.wireValue(mode));
     raw.put("enable_sound", KlingParamUtils.wireValue(enableSound));
     raw.put("duration_seconds", KlingParamUtils.wireValue(durationSeconds));
     raw.put("aspect_ratio", KlingParamUtils.wireValue(aspectRatio));
@@ -96,6 +99,7 @@ public final class TextToVideoParams {
     private String model;
     private String prompt;
     private String callbackUrl;
+    private String mode;
     private Boolean enableSound;
     private Integer durationSeconds;
     private String aspectRatio;
@@ -132,6 +136,12 @@ public final class TextToVideoParams {
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
       this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      return this;
+    }
+
+    /** Sets the Kling 2.6 generation mode (std or pro). */
+    public Builder mode(String value) {
+      this.mode = KlingParamUtils.requireNonBlank(value, "mode");
       return this;
     }
 
