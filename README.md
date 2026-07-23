@@ -22,7 +22,7 @@
 </div>
 <br/>
 
-The Kling API SDK packages JavaScript, Python, Ruby, Go, Java, and PHP clients for Kling on RunAPI. Use it for text-to-video, image-to-video, avatar, and motion-control workflows when your app needs typed request builders, predictable task polling, file upload helpers, account helpers, and consistent RunAPI errors.
+The Kling API SDK packages JavaScript, Python, Ruby, Go, Java, and PHP clients for Kling on RunAPI. Use it for text-to-video, image-to-video, avatar, motion-control, and V2.5 Turbo continuation workflows when your app needs typed request builders, predictable task polling, file upload helpers, account helpers, and consistent RunAPI errors.
 
 Kling is listed in the RunAPI model catalog at https://runapi.ai/models/kling. Variant pages below carry pricing, rate-limit, and commercial-usage details. The public `kling-sdk` repository groups the non-PHP language packages, examples, CI, and release tags for this model. The PHP package is released from a split Composer repository.
 
@@ -39,7 +39,7 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("ai.runapi:runapi-kling:0.1.3")
+  implementation("ai.runapi:runapi-kling:0.1.4")
 }
 ```
 
@@ -49,7 +49,7 @@ Maven:
 <dependency>
   <groupId>ai.runapi</groupId>
   <artifactId>runapi-kling</artifactId>
-  <version>0.1.3</version>
+  <version>0.1.4</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Use the Java BOM when installing multiple RunAPI Java modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("ai.runapi:runapi-bom:0.2.4"))
+  implementation(platform("ai.runapi:runapi-bom:0.2.5"))
   implementation("ai.runapi:runapi-kling")
 }
 ```
@@ -110,6 +110,19 @@ const result = await client.imageToVideo.run({
   duration_seconds: 5,
   enable_sound: true,
   last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+## Kling V3 Omni
+
+Use `kling-v3-omni` for text-to-video or image-to-video requests with `720p`, `1080p`, or `4k` output resolution and optional synchronized sound. Image-to-video requires a first frame; a final frame can be used only with a five-second request.
+
+```typescript
+const result = await client.imageToVideo.run({
+  model: 'kling-v3-omni',
+  prompt: 'Camera follows the cyclist through fog as the city lights appear',
+  first_frame_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+  last_frame_image_url: 'https://cdn.runapi.ai/public/samples/image.jpg',
+  output_resolution: '1080p',
+  duration_seconds: 5,
+  enable_sound: true,
 });
 ```
 
@@ -141,6 +154,7 @@ Most media endpoints are asynchronous. `create()` submits a task and returns its
 Use the most specific Kling variant page for pricing, rate limits, and commercial usage:
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
 - [Kling 2.6](https://runapi.ai/models/kling/v2.6)
+- [Kling V3 Omni](https://runapi.ai/models/kling/v3-omni)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)
 - [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)

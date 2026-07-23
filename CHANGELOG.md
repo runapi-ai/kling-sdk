@@ -1,5 +1,12 @@
 # Changelog
 
+## [js/v0.2.11](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.2.11), [ruby/v0.2.11](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.2.11), [go/v0.2.11](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.2.11), [python/v0.1.3](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.1.3), [java/v0.1.4](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.1.4) - 2026-07-23
+
+### Added
+- Add Kling V3 Omni text-to-video and image-to-video requests with 720p, 1080p, and 4K output resolution, optional sound, and final-frame validation.
+- Add SDK support for continuing completed Kling v2.5 Turbo videos.
+
+
 ## [js/v0.2.10](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.2.10), [ruby/v0.2.10](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.2.10), [go/v0.2.10](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.2.10), [python/v0.1.2](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.1.2), [java/v0.1.3](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.1.3) - 2026-07-22
 
 ### Added

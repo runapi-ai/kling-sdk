@@ -1,6 +1,7 @@
 package ai.runapi.kling;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -13,8 +14,6 @@ import ai.runapi.core.http.HttpResponse;
 import ai.runapi.core.http.HttpTransport;
 import ai.runapi.core.http.JsonRequestBody;
 import ai.runapi.core.json.Json;
-import ai.runapi.kling.types.CompletedTextToVideoResponse;
-import ai.runapi.kling.types.TextToVideoResponse;
 import ai.runapi.kling.types.AiAvatarModel;
 import ai.runapi.kling.types.AiAvatarParams;
 import ai.runapi.kling.types.AiAvatarResponse;
@@ -171,6 +170,27 @@ class KlingClientTest {
   }
 
   @Test
+  void createSendsV3OmniTextToVideoFields() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_omni\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.textToVideo().create(
+        TextToVideoParams.builder()
+            .model(TextToVideoModel.KLING_V3_OMNI)
+            .prompt("A paper boat crossing a rain puddle")
+            .outputResolution("1080p")
+            .durationSeconds(10)
+            .enableSound(true)
+            .aspectRatio("16:9")
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-v3-omni", body.get("model").asText());
+    assertEquals("1080p", body.get("output_resolution").asText());
+    assertTrue(body.get("enable_sound").asBoolean());
+  }
+
+  @Test
   void createRejectsV26TextToVideoSoundOutsideProMode() {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v26\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
@@ -252,6 +272,30 @@ class KlingClientTest {
   }
 
   @Test
+  void createSendsV3OmniImageToVideoFields() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_omni_i2v\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.imageToVideo().create(
+        ImageToVideoParams.builder()
+            .model(ImageToVideoModel.KLING_V3_OMNI)
+            .prompt("Camera follows the cyclist through fog")
+            .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/portrait.jpg")
+            .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
+            .outputResolution("4k")
+            .durationSeconds(5)
+            .enableSound(false)
+            .aspectRatio("9:16")
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-v3-omni", body.get("model").asText());
+    assertEquals("4k", body.get("output_resolution").asText());
+    assertFalse(body.get("enable_sound").asBoolean());
+    assertEquals("https://cdn.runapi.ai/public/samples/image.jpg", body.get("last_frame_image_url").asText());
+  }
+
+  @Test
   void createRejectsInvalidV26ImageToVideoConditions() {
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(new CapturingTransport("{\"id\":\"task\"}")).build();
 
@@ -289,6 +333,26 @@ class KlingClientTest {
                 .durationSeconds(10)
                 .build()));
     assertEquals("last_frame_image_url requires duration_seconds 5 for kling-v2.6", durationError.getMessage());
+  }
+
+  @Test
+  void createRejectsV3OmniFinalFrameOutsideFiveSeconds() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_V3_OMNI)
+                .prompt("test")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/portrait.jpg")
+                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
+                .durationSeconds(7)
+                .build()));
+
+    assertEquals("last_frame_image_url requires duration_seconds 5 for kling-v3-omni", error.getMessage());
+    assertNull(transport.request);
   }
 
   @Test

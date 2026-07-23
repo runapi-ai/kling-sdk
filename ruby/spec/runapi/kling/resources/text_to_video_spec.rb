@@ -146,6 +146,22 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
       end.to raise_error(RunApi::Core::ValidationError, /enable_sound requires mode pro for kling-v2.6/)
     end
 
+    it "accepts Kling V3 Omni resolution and sound fields" do
+      params = {
+        model: "kling-v3-omni",
+        prompt: "a paper boat crossing a rain puddle",
+        output_resolution: "1080p",
+        duration_seconds: 10,
+        enable_sound: true,
+        aspect_ratio: "16:9"
+      }
+      expect(http).to receive(:request).with(:post, endpoint, body: params)
+        .and_return("id" => "task-v3-omni-t2v")
+
+      result = text_to_video.create(**params)
+      expect(result.id).to eq("task-v3-omni-t2v")
+    end
+
     it "rejects unsupported V3 Turbo text-to-video fields" do
       expect do
         text_to_video.create(

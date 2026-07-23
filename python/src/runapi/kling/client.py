@@ -10,6 +10,7 @@ from .resources.ai_avatar import AiAvatar
 from .resources.image_to_video import ImageToVideo
 from .resources.motion_control import MotionControl
 from .resources.text_to_video import TextToVideo
+from .resources.extend_video import ExtendVideo
 
 
 class KlingClient:
@@ -31,3 +32,4 @@ class KlingClient:
         self.ai_avatar = AiAvatar(http)
         self.image_to_video = ImageToVideo(http)
         self.motion_control = MotionControl(http)
+        self.extend_video = ExtendVideo(http)

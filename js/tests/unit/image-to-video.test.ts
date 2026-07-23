@@ -172,6 +172,50 @@ describe('ImageToVideo', () => {
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
 
+    it('sends Kling V3 Omni image-to-video resolution, sound, and final frame fields', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-v3-omni-i2v' });
+
+      const imageToVideo = new ImageToVideo(mockHttp);
+      await imageToVideo.create({
+        model: 'kling-v3-omni',
+        prompt: 'Camera follows the cyclist through fog',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+        last_frame_image_url: 'https://cdn.runapi.ai/public/samples/image.jpg',
+        output_resolution: '4k',
+        duration_seconds: 5,
+        enable_sound: false,
+        aspect_ratio: '9:16',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith('POST', '/api/v1/kling/image_to_video', {
+        body: {
+          model: 'kling-v3-omni',
+          prompt: 'Camera follows the cyclist through fog',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/image.jpg',
+          output_resolution: '4k',
+          duration_seconds: 5,
+          enable_sound: false,
+          aspect_ratio: '9:16',
+        },
+      });
+    });
+
+    it('rejects Kling V3 Omni final frames outside five-second requests', async () => {
+      const imageToVideo = new ImageToVideo(mockHttp);
+
+      await expect(
+        imageToVideo.create({
+          model: 'kling-v3-omni',
+          prompt: 'Camera follows the cyclist through fog',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
+          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/image.jpg',
+          duration_seconds: 7,
+        })
+      ).rejects.toThrow('last_frame_image_url requires duration_seconds 5 for kling-v3-omni');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
   });
 
   describe('get', () => {

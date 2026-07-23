@@ -118,7 +118,7 @@ public final class ImageToVideoParams {
       return this;
     }
 
-    /** Sets whether Kling 2.6 generates synchronized sound. */
+    /** Sets whether the selected model generates synchronized sound. */
     public Builder enableSound(boolean value) {
       this.enableSound = value;
       return this;

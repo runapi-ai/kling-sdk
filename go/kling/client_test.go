@@ -260,6 +260,27 @@ func TestTextToVideoCreateV26(t *testing.T) {
 	}
 }
 
+func TestTextToVideoCreateV3Omni(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	trueVal := true
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:            ModelV3OmniT2V,
+		Prompt:           "a paper boat crossing a rain puddle",
+		OutputResolution: TextToVideoOutputResolution1080p,
+		EnableSound:      &trueVal,
+		DurationSeconds:  10,
+		AspectRatio:      "16:9",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v3-omni" || body["output_resolution"] != "1080p" || body["enable_sound"] != true {
+		t.Fatalf("unexpected Kling V3 Omni body: %v", body)
+	}
+}
+
 func TestTextToVideoRejectsV26SoundOutsideProMode(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
@@ -540,6 +561,32 @@ func TestImageToVideoCreateV26(t *testing.T) {
 	}
 }
 
+func TestImageToVideoCreateV3Omni(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	falseVal := false
+	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
+		Model:              ModelV3OmniI2V,
+		Prompt:             "camera follows the cyclist through fog",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/image.jpg",
+		OutputResolution:   ImageToVideoOutputResolution4K,
+		EnableSound:        &falseVal,
+		DurationSeconds:    5,
+		AspectRatio:        "9:16",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v3-omni" || body["output_resolution"] != "4k" || body["enable_sound"] != false {
+		t.Fatalf("unexpected Kling V3 Omni body: %v", body)
+	}
+	if body["last_frame_image_url"] != "https://cdn.runapi.ai/public/samples/image.jpg" {
+		t.Fatalf("unexpected last_frame_image_url: %v", body["last_frame_image_url"])
+	}
+}
+
 func TestImageToVideoRejectsV26ConditionalFields(t *testing.T) {
 	trueVal := true
 	tests := []struct {
@@ -581,6 +628,24 @@ func TestImageToVideoRejectsV26ConditionalFields(t *testing.T) {
 				t.Fatalf("expected no request body, got: %v", stub.body)
 			}
 		})
+	}
+}
+
+func TestImageToVideoRejectsV3OmniFinalFrameOutsideFiveSeconds(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
+		Model:              ModelV3OmniI2V,
+		Prompt:             "camera follows the cyclist through fog",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/image.jpg",
+		DurationSeconds:    7,
+	})
+	if err == nil || !strings.Contains(err.Error(), "last_frame_image_url requires duration_seconds 5 for kling-v3-omni") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if stub.body != nil {
+		t.Fatalf("expected no request body, got: %v", stub.body)
 	}
 }
 

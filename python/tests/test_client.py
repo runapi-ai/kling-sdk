@@ -368,6 +368,35 @@ def test_text_to_video_v26_posts_mode_and_sound_fields():
     ]
 
 
+def test_text_to_video_v3_omni_posts_resolution_and_sound_fields():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+
+    client.text_to_video.create(
+        model="kling-v3-omni",
+        prompt="a paper boat crossing a rain puddle",
+        output_resolution="1080p",
+        duration_seconds=10,
+        enable_sound=True,
+        aspect_ratio="16:9",
+    )
+
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/text_to_video",
+            {
+                "model": "kling-v3-omni",
+                "prompt": "a paper boat crossing a rain puddle",
+                "output_resolution": "1080p",
+                "duration_seconds": 10,
+                "enable_sound": True,
+                "aspect_ratio": "16:9",
+            },
+        )
+    ]
+
+
 def test_text_to_video_v26_rejects_sound_outside_pro_mode():
     fake = FakeHttp()
     client = KlingClient(api_key="k", http_client=fake)
@@ -642,6 +671,39 @@ def test_image_to_video_v26_posts_mode_sound_and_final_frame_fields():
     ]
 
 
+def test_image_to_video_v3_omni_posts_resolution_sound_and_final_frame_fields():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+
+    client.image_to_video.create(
+        model="kling-v3-omni",
+        prompt="camera follows the cyclist through fog",
+        first_frame_image_url="https://cdn.runapi.ai/public/samples/portrait.jpg",
+        last_frame_image_url="https://cdn.runapi.ai/public/samples/image.jpg",
+        output_resolution="4k",
+        duration_seconds=5,
+        enable_sound=False,
+        aspect_ratio="9:16",
+    )
+
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/image_to_video",
+            {
+                "model": "kling-v3-omni",
+                "prompt": "camera follows the cyclist through fog",
+                "first_frame_image_url": "https://cdn.runapi.ai/public/samples/portrait.jpg",
+                "last_frame_image_url": "https://cdn.runapi.ai/public/samples/image.jpg",
+                "output_resolution": "4k",
+                "duration_seconds": 5,
+                "enable_sound": False,
+                "aspect_ratio": "9:16",
+            },
+        )
+    ]
+
+
 def test_image_to_video_v26_rejects_sound_outside_pro_mode():
     client = KlingClient(api_key="k", http_client=FakeHttp())
 
@@ -677,6 +739,24 @@ def test_image_to_video_v26_rejects_invalid_final_frame_combinations(extra, mess
             last_frame_image_url="https://x/last.jpg",
             **extra,
         )
+
+
+def test_image_to_video_v3_omni_rejects_final_frame_outside_five_seconds():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(
+        ValidationError,
+        match="last_frame_image_url requires duration_seconds 5 for kling-v3-omni",
+    ):
+        client.image_to_video.create(
+            model="kling-v3-omni",
+            prompt="test",
+            first_frame_image_url="https://cdn.runapi.ai/public/samples/portrait.jpg",
+            last_frame_image_url="https://cdn.runapi.ai/public/samples/image.jpg",
+            duration_seconds=7,
+        )
+    assert fake.calls == []
 
 
 # --- motion_control -------------------------------------------------------

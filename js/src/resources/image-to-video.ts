@@ -11,6 +11,7 @@ import type {
 
 const ENDPOINT = '/api/v1/kling/image_to_video';
 const V26_MODEL = 'kling-v2.6';
+const V3_OMNI_MODEL = 'kling-v3-omni';
 const V3_TURBO_MODEL = 'kling-v3-turbo-image-to-video';
 const V3_TURBO_UNSUPPORTED_FIELDS = [
   'aspect_ratio',
@@ -49,6 +50,7 @@ export class ImageToVideo {
     rejectUnsupportedV3TurboFields(body as Record<string, unknown>);
     validateParams(contract['image-to-video'] as ActionSchema, body as Record<string, unknown>);
     validateV26Params(body as Record<string, unknown>);
+    validateV3OmniFields(body as Record<string, unknown>);
     return this.http.request<TaskCreateResponse>('POST', ENDPOINT, {
       body,
       ...options,
@@ -79,6 +81,13 @@ function validateV26Params(body: Record<string, unknown>): void {
   }
   if (body.duration_seconds !== undefined && body.duration_seconds !== 5) {
     throw new ValidationError(`last_frame_image_url requires duration_seconds 5 for ${V26_MODEL}`);
+  }
+}
+
+function validateV3OmniFields(body: Record<string, unknown>): void {
+  if (body.model !== V3_OMNI_MODEL || !fieldPresent(body, 'last_frame_image_url')) return;
+  if ((body.duration_seconds ?? 5) !== 5) {
+    throw new ValidationError(`last_frame_image_url requires duration_seconds 5 for ${V3_OMNI_MODEL}`);
   }
 }
 

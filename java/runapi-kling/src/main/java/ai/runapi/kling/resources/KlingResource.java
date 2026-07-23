@@ -38,6 +38,21 @@ abstract class KlingResource {
         TaskCreateResponse.class);
   }
 
+  final TaskCreateResponse createTaskWithContractModel(
+      String action, Map<String, Object> body, String model, RequestOptions requestOptions) {
+    Objects.requireNonNull(action, "action");
+    Objects.requireNonNull(body, "body");
+    Objects.requireNonNull(model, "model");
+    Objects.requireNonNull(requestOptions, "requestOptions");
+    validateBody(action, body);
+    Map<String, Object> contractBody = new java.util.LinkedHashMap<String, Object>(body);
+    contractBody.put("model", model);
+    ContractValidator.validate(action, contractBody);
+    return executor.send(
+        HttpRequest.builder(HttpMethod.POST, endpoint).body(new JsonRequestBody(body)).options(requestOptions).build(),
+        TaskCreateResponse.class);
+  }
+
   final <T> T runSync(String action, Map<String, Object> body, RequestOptions requestOptions, Class<T> responseType) {
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(body, "body");
@@ -65,6 +80,22 @@ abstract class KlingResource {
       Class<T> responseType,
       Class<C> completedType) {
     TaskCreateResponse created = createTask(action, body, requestOptions);
+    String id = requireNonBlank(created.getId(), "id");
+    T response = Poller.pollUntilComplete(
+        () -> getTask(id, requestOptions, responseType),
+        pollingInterval(requestOptions),
+        pollingMaxWait(requestOptions));
+    return Json.mapper().convertValue(response, completedType);
+  }
+
+  final <T extends TaskResponse, C extends T> C runTaskWithContractModel(
+      String action,
+      Map<String, Object> body,
+      String model,
+      RequestOptions requestOptions,
+      Class<T> responseType,
+      Class<C> completedType) {
+    TaskCreateResponse created = createTaskWithContractModel(action, body, model, requestOptions);
     String id = requireNonBlank(created.getId(), "id");
     T response = Poller.pollUntilComplete(
         () -> getTask(id, requestOptions, responseType),

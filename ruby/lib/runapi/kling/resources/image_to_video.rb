@@ -13,6 +13,7 @@ module RunApi
         RESPONSE_CLASS = Types::ImageToVideoResponse
         COMPLETED_RESPONSE_CLASS = Types::CompletedImageToVideoResponse
         V26_MODEL = "kling-v2.6"
+        V3_OMNI_MODEL = "kling-v3-omni"
         V3_TURBO_MODEL = "kling-v3-turbo-image-to-video"
         V3_TURBO_UNSUPPORTED_FIELDS = %i[
           aspect_ratio
@@ -58,12 +59,16 @@ module RunApi
           reject_unsupported_v3_turbo_fields!(params)
           validate_contract!(CONTRACT["image-to-video"], params)
 
-          # Bespoke: last_frame_image_url is only allowed for select models
-          # (model-gating, not expressible as a contract enum/required rule).
+          # Bespoke last-frame rules that the generated contract cannot express.
           model = param(params, :model)
           last_frame_image_url = param(params, :last_frame_image_url)
           if model == V26_MODEL
             validate_v26_params!(params, last_frame_image_url)
+          elsif last_frame_image_url && model == V3_OMNI_MODEL
+            duration_seconds = param(params, :duration_seconds) || 5
+            return if duration_seconds.to_i == 5
+
+            raise Core::ValidationError, "last_frame_image_url requires duration_seconds 5 for #{V3_OMNI_MODEL}"
           elsif last_frame_image_url && !%w[kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
             raise Core::ValidationError, "last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"
           end

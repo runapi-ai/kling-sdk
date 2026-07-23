@@ -5,6 +5,7 @@ import ai.runapi.core.ClientOptions;
 import ai.runapi.core.http.HttpTransport;
 import java.net.URI;
 import ai.runapi.kling.resources.AiAvatarResource;
+import ai.runapi.kling.resources.ExtendVideoResource;
 import ai.runapi.kling.resources.ImageToVideoResource;
 import ai.runapi.kling.resources.MotionControlResource;
 import ai.runapi.kling.resources.TextToVideoResource;
@@ -12,6 +13,7 @@ import ai.runapi.kling.resources.TextToVideoResource;
 /** Kling model-family Java SDK client. */
 public final class KlingClient extends BaseClient {
   private final AiAvatarResource aiAvatar;
+  private final ExtendVideoResource extendVideo;
   private final ImageToVideoResource imageToVideo;
   private final MotionControlResource motionControl;
   private final TextToVideoResource textToVideo;
@@ -19,6 +21,7 @@ public final class KlingClient extends BaseClient {
   private KlingClient(ClientOptions options) {
     super(options);
     this.aiAvatar = new AiAvatarResource(transport(), options());
+    this.extendVideo = new ExtendVideoResource(transport(), options());
     this.imageToVideo = new ImageToVideoResource(transport(), options());
     this.motionControl = new MotionControlResource(transport(), options());
     this.textToVideo = new TextToVideoResource(transport(), options());
@@ -32,6 +35,11 @@ public final class KlingClient extends BaseClient {
   /** Ai Avatar operations. */
   public AiAvatarResource aiAvatar() {
     return aiAvatar;
+  }
+
+  /** Extend Video operations. */
+  public ExtendVideoResource extendVideo() {
+    return extendVideo;
   }
 
   /** Image To Video operations. */

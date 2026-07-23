@@ -1,27 +1,21 @@
 import type { AsyncTaskStatus } from '@runapi.ai/core';
+import type { modelValues } from './contract_gen';
 
 /**
  * Text-to-video model variants. kling-3.0 supports multi-shot, sound, first/last frame images,
  * and Kling elements. V2.x models support negative prompts and cfg_scale instead.
  */
 export type KlingTextToVideoModel =
-  | 'kling-3.0'
-  | 'kling-v2.6'
-  | 'kling-v3-turbo-text-to-video'
-  | 'kling-v2.5-turbo-text-to-video-pro'
-  | 'kling-v2.1-master-text-to-video';
+  (typeof modelValues.textToVideo)[keyof typeof modelValues.textToVideo];
 
 /** Earlier V2 image-to-video variants. V2.5 turbo and V2.1 pro support last-frame image control. */
 export type KlingV2ImageToVideoModel =
-  | 'kling-v2.5-turbo-image-to-video-pro'
-  | 'kling-v2.1-pro'
-  | 'kling-v2.1-standard'
-  | 'kling-v2.1-master-image-to-video';
+  | (typeof modelValues.imageToVideo.KLING_V2_5_TURBO_IMAGE_TO_VIDEO_PRO)
+  | (typeof modelValues.imageToVideo.KLING_V2_1_PRO)
+  | (typeof modelValues.imageToVideo.KLING_V2_1_STANDARD)
+  | (typeof modelValues.imageToVideo.KLING_V2_1_MASTER_IMAGE_TO_VIDEO);
 export type KlingImageToVideoModel =
-  | KlingV2ImageToVideoModel
-  | 'kling-v2.6'
-  | 'kling-v3-turbo-image-to-video';
-
+  (typeof modelValues.imageToVideo)[keyof typeof modelValues.imageToVideo];
 /** Output resolution for text-to-video. 4k is highest quality but slowest. */
 export type KlingTextToVideoOutputResolution = '720p' | '1080p' | '4k';
 export type KlingV3TurboOutputResolution = '720p' | '1080p';
@@ -55,7 +49,7 @@ export interface KlingElement {
 }
 
 interface Kling3TextToVideoCommonParams {
-  model: 'kling-3.0';
+  model: (typeof modelValues.textToVideo.KLING_3_0);
   /** Duration in seconds (3-15). */
   duration_seconds?: KlingDuration;
   aspect_ratio?: KlingAspectRatio;
@@ -92,7 +86,7 @@ export interface Kling3TextToVideoMultiShotParams extends Kling3TextToVideoCommo
 
 /** V2.5 Turbo text-to-video: fast, high-quality generation with negative prompt and cfg_scale control. */
 export interface V25TurboTextToVideoParams {
-  model: 'kling-v2.5-turbo-text-to-video-pro';
+  model: (typeof modelValues.textToVideo.KLING_V2_5_TURBO_TEXT_TO_VIDEO_PRO);
   prompt: string;
   /** Duration: 5 or 10 seconds. */
   duration_seconds?: 5 | 10;
@@ -106,7 +100,7 @@ export interface V25TurboTextToVideoParams {
 
 /** V2.1 Master text-to-video: highest V2.1 quality with negative prompt and cfg_scale control. */
 export interface V21MasterTextToVideoParams {
-  model: 'kling-v2.1-master-text-to-video';
+  model: (typeof modelValues.textToVideo.KLING_V2_1_MASTER_TEXT_TO_VIDEO);
   prompt: string;
   duration_seconds?: 5 | 10;
   aspect_ratio?: KlingAspectRatio;
@@ -117,7 +111,7 @@ export interface V21MasterTextToVideoParams {
 
 /** V3 Turbo text-to-video: prompt-driven 3-15 second clips at 720p or 1080p. */
 export interface V3TurboTextToVideoParams {
-  model: 'kling-v3-turbo-text-to-video';
+  model: (typeof modelValues.textToVideo.KLING_V3_TURBO_TEXT_TO_VIDEO);
   prompt: string;
   /** Duration in seconds (3-15). */
   duration_seconds?: KlingDuration;
@@ -133,6 +127,17 @@ export interface KlingV26TextToVideoParams {
   mode?: KlingV26Mode;
   duration_seconds?: 5 | 10;
   /** Generate synchronized audio; true requires mode pro. */
+  enable_sound?: boolean;
+  aspect_ratio?: KlingAspectRatio;
+  callback_url?: string;
+}
+
+/** Kling v3 Omni text-to-video with native 4K, synchronized sound, and flexible duration. */
+export interface V3OmniTextToVideoParams {
+  model: (typeof modelValues.textToVideo.KLING_V3_OMNI);
+  prompt: string;
+  output_resolution?: KlingTextToVideoOutputResolution;
+  duration_seconds?: KlingDuration;
   enable_sound?: boolean;
   aspect_ratio?: KlingAspectRatio;
   callback_url?: string;
@@ -159,7 +164,7 @@ export interface V2ImageToVideoParams {
 
 /** V3 Turbo image-to-video: animate one first-frame image at 720p or 1080p. */
 export interface V3TurboImageToVideoParams {
-  model: 'kling-v3-turbo-image-to-video';
+  model: (typeof modelValues.imageToVideo.KLING_V3_TURBO_IMAGE_TO_VIDEO);
   prompt: string;
   first_frame_image_url: string;
   duration_seconds?: KlingDuration;
@@ -182,15 +187,42 @@ export interface KlingV26ImageToVideoParams {
   callback_url?: string;
 }
 
+/** Kling v3 Omni image-to-video from caller-owned first and optional final frames. */
+export interface V3OmniImageToVideoParams {
+  model: (typeof modelValues.imageToVideo.KLING_V3_OMNI);
+  prompt: string;
+  first_frame_image_url: string;
+  /** Final frame image URL; requires duration_seconds 5. */
+  last_frame_image_url?: string;
+  output_resolution?: KlingTextToVideoOutputResolution;
+  duration_seconds?: KlingDuration;
+  enable_sound?: boolean;
+  aspect_ratio?: KlingAspectRatio;
+  callback_url?: string;
+}
+
 export type TextToVideoParams =
   | Kling3TextToVideoSingleShotParams
   | Kling3TextToVideoMultiShotParams
   | KlingV26TextToVideoParams
   | V25TurboTextToVideoParams
   | V21MasterTextToVideoParams
-  | V3TurboTextToVideoParams;
+  | V3TurboTextToVideoParams
+  | V3OmniTextToVideoParams;
 
-export type ImageToVideoParams = V2ImageToVideoParams | KlingV26ImageToVideoParams | V3TurboImageToVideoParams;
+export type ImageToVideoParams =
+  | V2ImageToVideoParams
+  | KlingV26ImageToVideoParams
+  | V3TurboImageToVideoParams
+  | V3OmniImageToVideoParams;
+
+/** Continue a completed Kling V2.5 Turbo video task. */
+export interface KlingExtendVideoParams {
+  source_task_id: string;
+  mode?: 'std' | 'pro';
+  prompt?: string;
+  callback_url?: string;
+}
 
 export interface AsyncTaskResponse {
   id: string;
@@ -222,10 +254,7 @@ export interface ImageToVideoResponse extends AsyncTaskResponse {
  * Standard models are faster with slightly less refined lip sync.
  */
 export type AiAvatarModel =
-  | 'kling-ai-avatar-pro'
-  | 'kling-ai-avatar-standard'
-  | 'kling-ai-avatar-v1-pro'
-  | 'kling-v1-avatar-standard';
+  (typeof modelValues.avatar)[keyof typeof modelValues.avatar];
 
 /** Lip-sync a face image to an audio track, producing a talking-head video. */
 export interface AiAvatarParams {
@@ -250,7 +279,7 @@ export interface AiAvatarResponse extends AsyncTaskResponse {
  * the movement patterns from the reference while preserving its own appearance.
  */
 export interface MotionControlParams {
-  model: 'kling-3.0';
+  model: (typeof modelValues.textToVideo.KLING_3_0);
   /** Subject image URL whose appearance is preserved. */
   source_image_url: string;
   /** Reference video URL whose motion patterns are transferred. */

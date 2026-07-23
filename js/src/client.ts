@@ -3,6 +3,7 @@ import { TextToVideo } from './resources/text-to-video';
 import { ImageToVideo } from './resources/image-to-video';
 import { AiAvatar } from './resources/ai-avatar';
 import { MotionControl } from './resources/motion-control';
+import { ExtendVideo } from './resources/extend-video';
 
 /**
  * Kling video generation, AI avatar lip-sync, and motion control API client.
@@ -26,6 +27,7 @@ export class KlingClient extends BaseClient {
   public readonly aiAvatar: AiAvatar;
   /** Transfer motion from a reference video onto a subject image. */
   public readonly motionControl: MotionControl;
+  public readonly extendVideo: ExtendVideo;
 
   constructor(options: ClientOptions = {}) {
     super(options);
@@ -33,5 +35,6 @@ export class KlingClient extends BaseClient {
     this.imageToVideo = new ImageToVideo(this.http);
     this.aiAvatar = new AiAvatar(this.http);
     this.motionControl = new MotionControl(this.http);
+    this.extendVideo = new ExtendVideo(this.http);
   }
 }

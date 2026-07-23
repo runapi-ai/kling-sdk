@@ -246,6 +246,31 @@ describe('TextToVideo', () => {
       ).rejects.toThrow('enable_sound requires mode pro for kling-v2.6');
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
+
+    it('sends Kling V3 Omni text-to-video resolution and sound fields', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-v3-omni' });
+
+      const textToVideo = new TextToVideo(mockHttp);
+      await textToVideo.create({
+        model: 'kling-v3-omni',
+        prompt: 'A paper boat crossing a rain puddle',
+        output_resolution: '1080p',
+        duration_seconds: 10,
+        enable_sound: true,
+        aspect_ratio: '16:9',
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith('POST', '/api/v1/kling/text_to_video', {
+        body: {
+          model: 'kling-v3-omni',
+          prompt: 'A paper boat crossing a rain puddle',
+          output_resolution: '1080p',
+          duration_seconds: 10,
+          enable_sound: true,
+          aspect_ratio: '16:9',
+        },
+      });
+    });
   });
 
 

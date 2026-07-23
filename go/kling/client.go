@@ -20,6 +20,7 @@ const (
 	imageToVideoPath  = "/api/v1/kling/image_to_video"
 	aiAvatarPath      = "/api/v1/kling/ai_avatar"
 	motionControlPath = "/api/v1/kling/motion_control"
+	extendVideoPath   = "/api/v1/kling/extend_video"
 )
 
 var v3TurboTextToVideoUnsupportedFields = []string{
@@ -47,6 +48,7 @@ type Client struct {
 	ImageToVideo  *ImageToVideo
 	AiAvatar      *AiAvatar
 	MotionControl *MotionControl
+	ExtendVideo   *ExtendVideo
 }
 
 // NewClient creates a Kling client with the given options.
@@ -70,7 +72,30 @@ func NewClientWithHTTP(httpClient core.HTTPClient) *Client {
 		ImageToVideo:  &ImageToVideo{http: httpClient},
 		AiAvatar:      &AiAvatar{http: httpClient},
 		MotionControl: &MotionControl{http: httpClient},
+		ExtendVideo:   &ExtendVideo{http: httpClient},
 	}
+}
+
+// ExtendVideo continues a completed Kling V2.5 Turbo video.
+type ExtendVideo struct{ http core.HTTPClient }
+
+func (r *ExtendVideo) Create(ctx context.Context, params ExtendVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
+	requestOptions, _ := option.ResolveRequestOptions(opts...)
+	body := core.CompactParams(params)
+	if err := core.ValidateParams(contractSchema["extend-video"], body); err != nil {
+		return nil, err
+	}
+	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, extendVideoPath, body, requestOptions)
+}
+
+func (r *ExtendVideo) Get(ctx context.Context, id string, opts ...option.RequestOption) (*TextToVideoResponse, error) {
+	requestOptions, _ := option.ResolveRequestOptions(opts...)
+	return core.GetJSON[TextToVideoResponse](ctx, r.http, core.ResourcePath(extendVideoPath, id), requestOptions)
+}
+
+func (r *ExtendVideo) Run(ctx context.Context, params ExtendVideoParams, opts ...option.RequestOption) (*TextToVideoResponse, error) {
+	_, pollingOptions := option.ResolveRequestOptions(opts...)
+	return core.RunAsync(ctx, func(ctx context.Context) (*core.TaskCreateResponse, error) { return r.Create(ctx, params, opts...) }, func(ctx context.Context, id string) (*TextToVideoResponse, error) { return r.Get(ctx, id, opts...) }, pollingOptions)
 }
 
 // TextToVideo generates video from a text prompt. Supports multi-shot mode, first/last frame images,
@@ -195,10 +220,16 @@ func validateTextToVideoBody(body map[string]any) error {
 }
 
 func validateImageToVideoBody(body map[string]any) error {
-	if body["model"] != string(ModelV3TurboI2V) {
+	if body["model"] == string(ModelV3TurboI2V) {
+		return rejectUnsupportedFields(body, v3TurboImageToVideoUnsupportedFields, string(ModelV3TurboI2V))
+	}
+	if body["model"] != string(ModelV3OmniI2V) || !fieldPresent(body, "last_frame_image_url") {
 		return nil
 	}
-	return rejectUnsupportedFields(body, v3TurboImageToVideoUnsupportedFields, string(ModelV3TurboI2V))
+	if duration, ok := body["duration_seconds"]; ok && duration != float64(5) {
+		return core.NewError(core.ErrValidation, "last_frame_image_url requires duration_seconds 5 for kling-v3-omni", 400, "", nil, nil)
+	}
+	return nil
 }
 
 func validateV26TextToVideoBody(body map[string]any) error {

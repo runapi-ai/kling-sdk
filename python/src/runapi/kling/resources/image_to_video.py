@@ -13,6 +13,7 @@ from ..types import (
 )
 
 V26_MODEL = "kling-v2.6"
+V3_OMNI_MODEL = "kling-v3-omni"
 V3_TURBO_MODEL = "kling-v3-turbo-image-to-video"
 V3_TURBO_UNSUPPORTED_FIELDS = (
     "aspect_ratio",
@@ -70,12 +71,16 @@ class ImageToVideo(Resource):
         self._reject_unsupported_v3_turbo_fields(params)
         self._validate_contract(CONTRACT["image-to-video"], params)
 
-        # Bespoke: last_frame_image_url is only allowed for select models
-        # (model-gating, not expressible as a contract enum/required rule).
+        # Bespoke last-frame rules that the generated contract cannot express.
         model = params.get("model")
         last_frame_image_url = params.get("last_frame_image_url")
         if model == V26_MODEL:
             self._validate_v26_params(params, last_frame_image_url)
+        elif last_frame_image_url and model == V3_OMNI_MODEL:
+            if params.get("duration_seconds", 5) != 5:
+                raise ValidationError(
+                    f"last_frame_image_url requires duration_seconds 5 for {V3_OMNI_MODEL}"
+                )
         elif last_frame_image_url and model not in (
             "kling-v2.5-turbo-image-to-video-pro",
             "kling-v2.1-pro",

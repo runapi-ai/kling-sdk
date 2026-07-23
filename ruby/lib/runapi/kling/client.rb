@@ -18,6 +18,7 @@ module RunApi
       attr_reader :image_to_video
       # @return [Resources::MotionControl] Motion control operations.
       attr_reader :motion_control
+      attr_reader :extend_video
 
       def initialize(api_key: nil, **options)
         super
@@ -25,6 +26,7 @@ module RunApi
         @ai_avatar = Resources::AiAvatar.new(http)
         @image_to_video = Resources::ImageToVideo.new(http)
         @motion_control = Resources::MotionControl.new(http)
+        @extend_video = Resources::ExtendVideo.new(http)
       end
     end
   end

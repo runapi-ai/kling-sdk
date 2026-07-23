@@ -6,6 +6,14 @@ type TextToVideoModel string
 // ImageToVideoModel selects a Kling image-to-video model variant.
 type ImageToVideoModel string
 
+// ExtendVideoMode selects the Kling continuation quality.
+type ExtendVideoMode string
+
+const (
+	ExtendVideoModeStd ExtendVideoMode = "std"
+	ExtendVideoModePro ExtendVideoMode = "pro"
+)
+
 // KlingTextToVideoOutputResolution controls the output resolution for text-to-video tasks.
 type KlingTextToVideoOutputResolution string
 
@@ -20,28 +28,32 @@ type TaskStatus string
 
 const (
 	// ModelKling30 is the latest-generation model with multi-shot, first/last frame images, sound generation, and Kling elements.
-	ModelKling30 TextToVideoModel = "kling-3.0"
+	ModelKling30 TextToVideoModel = generatedTextToVideoModelKling30
 	// ModelV26T2V supports standard/pro generation modes and optional sound in pro mode.
-	ModelV26T2V TextToVideoModel = "kling-v2.6"
+	ModelV26T2V TextToVideoModel = generatedTextToVideoModelKlingV26
+	// ModelV3OmniT2V supports 720p, 1080p, and 4K generation with optional sound.
+	ModelV3OmniT2V TextToVideoModel = generatedTextToVideoModelKlingV3Omni
 	// ModelV3TurboT2V creates 3-15 second text-to-video clips at 720p or 1080p.
-	ModelV3TurboT2V TextToVideoModel = "kling-v3-turbo-text-to-video"
+	ModelV3TurboT2V TextToVideoModel = generatedTextToVideoModelKlingV3TurboTextToVideo
 	// ModelV25TurboT2VPro is a fast, high-quality V2.5 model. Supports negative prompts and cfg_scale.
-	ModelV25TurboT2VPro TextToVideoModel = "kling-v2.5-turbo-text-to-video-pro"
+	ModelV25TurboT2VPro TextToVideoModel = generatedTextToVideoModelKlingV25TurboTextToVideoPro
 	// ModelV21MasterT2V is the V2.1 master model. Supports negative prompts and cfg_scale.
-	ModelV21MasterT2V TextToVideoModel = "kling-v2.1-master-text-to-video"
+	ModelV21MasterT2V TextToVideoModel = generatedTextToVideoModelKlingV21MasterTextToVideo
 
 	// ModelV3TurboI2V animates one first-frame image at 720p or 1080p.
-	ModelV3TurboI2V ImageToVideoModel = "kling-v3-turbo-image-to-video"
+	ModelV3TurboI2V ImageToVideoModel = generatedImageToVideoModelKlingV3TurboImageToVideo
 	// ModelV26I2V supports standard/pro generation modes, optional sound, and pro final-frame control.
-	ModelV26I2V ImageToVideoModel = "kling-v2.6"
+	ModelV26I2V ImageToVideoModel = generatedImageToVideoModelKlingV26
+	// ModelV3OmniI2V supports 720p, 1080p, and 4K generation with optional sound and final-frame control.
+	ModelV3OmniI2V ImageToVideoModel = generatedImageToVideoModelKlingV3Omni
 	// ModelV25TurboI2VPro is the fast V2.5 image-to-video model with last-frame support.
-	ModelV25TurboI2VPro ImageToVideoModel = "kling-v2.5-turbo-image-to-video-pro"
+	ModelV25TurboI2VPro ImageToVideoModel = generatedImageToVideoModelKlingV25TurboImageToVideoPro
 	// ModelV21Pro balances quality and speed for image-to-video.
-	ModelV21Pro ImageToVideoModel = "kling-v2.1-pro"
+	ModelV21Pro ImageToVideoModel = generatedImageToVideoModelKlingV21Pro
 	// ModelV21Standard is the fastest V2.1 image-to-video variant.
-	ModelV21Standard ImageToVideoModel = "kling-v2.1-standard"
+	ModelV21Standard ImageToVideoModel = generatedImageToVideoModelKlingV21Standard
 	// ModelV21MasterI2V is the highest-quality V2.1 image-to-video variant.
-	ModelV21MasterI2V ImageToVideoModel = "kling-v2.1-master-image-to-video"
+	ModelV21MasterI2V ImageToVideoModel = generatedImageToVideoModelKlingV21MasterImageToVideo
 
 	// TextToVideoOutputResolution720p produces 720p output (fastest).
 	TextToVideoOutputResolution720p KlingTextToVideoOutputResolution = "720p"
@@ -54,6 +66,8 @@ const (
 	ImageToVideoOutputResolution720p KlingImageToVideoOutputResolution = "720p"
 	// ImageToVideoOutputResolution1080p produces 1080p output for V3 Turbo image-to-video.
 	ImageToVideoOutputResolution1080p KlingImageToVideoOutputResolution = "1080p"
+	// ImageToVideoOutputResolution4K produces 4K output for Kling V3 Omni image-to-video.
+	ImageToVideoOutputResolution4K KlingImageToVideoOutputResolution = "4k"
 )
 
 // MultiPromptItem defines a single shot in multi-shot generation mode ([ModelKling30] only).
@@ -79,11 +93,10 @@ type KlingElement struct {
 // Feature availability varies by model: [ModelKling30] supports multi-shot, first/last frame images,
 // sound generation, and Kling elements. V2.x models support NegativePrompt and CfgScale instead.
 type TextToVideoParams struct {
-	Model       TextToVideoModel `json:"model" help:"required; model slug"`
-	Prompt      string           `json:"prompt,omitempty" help:"required unless multi_shots; video description"`
-	CallbackURL string           `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
-	Mode        string           `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
-
+	Model            TextToVideoModel                 `json:"model" help:"required; model slug"`
+	Prompt           string                           `json:"prompt,omitempty" help:"required unless multi_shots; video description"`
+	CallbackURL      string                           `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
+	Mode             string                           `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
 	EnableSound      *bool                            `json:"enable_sound,omitempty" help:"optional; enable sound generation"`
 	DurationSeconds  int                              `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
 	AspectRatio      string                           `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio"`
@@ -108,13 +121,21 @@ type ImageToVideoParams struct {
 	FirstFrameImageURL string                            `json:"first_frame_image_url" help:"required; first frame image URL"`
 	CallbackURL        string                            `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 	Mode               string                            `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
-	EnableSound        *bool                             `json:"enable_sound,omitempty" help:"optional; true requires pro mode for Kling 2.6"`
+	EnableSound        *bool                             `json:"enable_sound,omitempty" help:"optional; enable sound generation; true requires pro mode for Kling 2.6"`
 	DurationSeconds    int                               `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
 	AspectRatio        string                            `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio"`
-	OutputResolution   KlingImageToVideoOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution for V3 Turbo"`
+	OutputResolution   KlingImageToVideoOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution for V3 Turbo or Kling V3 Omni"`
 	NegativePrompt     string                            `json:"negative_prompt,omitempty" help:"optional; negative prompt"`
 	CfgScale           *float64                          `json:"cfg_scale,omitempty" help:"optional; guidance scale"`
 	LastFrameImageURL  string                            `json:"last_frame_image_url,omitempty" help:"optional; final frame image URL for supported image-to-video models"`
+}
+
+// ExtendVideoParams continues a completed Kling V2.5 Turbo video task.
+type ExtendVideoParams struct {
+	SourceTaskID string          `json:"source_task_id" help:"required; completed Kling V2.5 Turbo source task ID"`
+	Mode         ExtendVideoMode `json:"mode,omitempty" help:"optional; std or pro"`
+	Prompt       string          `json:"prompt,omitempty" help:"optional; continuation prompt"`
+	CallbackURL  string          `json:"callback_url,omitempty" help:"optional; webhook URL"`
 }
 
 // AsyncTaskResponse carries the task ID, lifecycle status, and error for all Kling async operations.
@@ -150,13 +171,13 @@ type AiAvatarModel string
 
 const (
 	// ModelAiAvatarPro is the highest-quality avatar model with the most natural lip movements.
-	ModelAiAvatarPro AiAvatarModel = "kling-ai-avatar-pro"
+	ModelAiAvatarPro AiAvatarModel = generatedAvatarModelKlingAiAvatarPro
 	// ModelAiAvatarStandard is faster with slightly less refined lip sync than Pro.
-	ModelAiAvatarStandard AiAvatarModel = "kling-ai-avatar-standard"
+	ModelAiAvatarStandard AiAvatarModel = generatedAvatarModelKlingAiAvatarStandard
 	// ModelAiAvatarV1Pro is the V1-generation pro avatar model.
-	ModelAiAvatarV1Pro AiAvatarModel = "kling-ai-avatar-v1-pro"
+	ModelAiAvatarV1Pro AiAvatarModel = generatedAvatarModelKlingAiAvatarV1Pro
 	// ModelV1AvatarStandard is the V1-generation standard avatar model.
-	ModelV1AvatarStandard AiAvatarModel = "kling-v1-avatar-standard"
+	ModelV1AvatarStandard AiAvatarModel = generatedAvatarModelKlingV1AvatarStandard
 )
 
 // AiAvatarParams configures AI avatar generation, which lip-syncs a face image to an audio track.
