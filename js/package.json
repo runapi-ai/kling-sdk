@@ -3,7 +3,7 @@
   "runapi": {
     "slug": "kling"
   },
-  "version": "0.2.11",
+  "version": "0.2.12",
   "description": "RunAPI Kling SDK for text-to-video, image-to-video, avatar, and motion-control workflows in JavaScript, Python, Ruby, Go, Java, and PHP",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",

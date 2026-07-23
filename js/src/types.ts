@@ -274,25 +274,38 @@ export interface AiAvatarResponse extends AsyncTaskResponse {
   [key: string]: unknown;
 }
 
-/**
- * Transfer motion from a reference video onto a subject image. The subject adopts
- * the movement patterns from the reference while preserving its own appearance.
- */
-export interface MotionControlParams {
-  model: (typeof modelValues.textToVideo.KLING_3_0);
+export type MotionControlModel =
+  (typeof modelValues.motionControl)[keyof typeof modelValues.motionControl];
+
+interface MotionControlCommonParams {
   /** Subject image URL whose appearance is preserved. */
   source_image_url: string;
-  /** Reference video URL whose motion patterns are transferred. */
+  /** Reference video URL whose motion patterns are transferred (Kling 2.6: 3-10 seconds with image orientation or 3-30 seconds with video orientation). */
   reference_video_url: string;
   /** Optional description prompt. */
   prompt?: string;
+  callback_url?: string;
+}
+
+/** Kling 3.0 motion transfer with optional orientation and background controls. */
+export interface Kling3MotionControlParams extends MotionControlCommonParams {
+  model: (typeof modelValues.motionControl.KLING_3_0);
   output_resolution?: '720p' | '1080p';
   /** Whether the character faces the direction from the video or the image. */
   character_orientation?: 'video' | 'image';
   /** Whether the background comes from the video or the image. */
   background_source?: 'video' | 'image';
-  callback_url?: string;
 }
+
+/** Kling 2.6 motion transfer with explicit resolution and character orientation. */
+export interface KlingV26MotionControlParams extends MotionControlCommonParams {
+  model: (typeof modelValues.motionControl.KLING_V2_6);
+  output_resolution: '720p' | '1080p';
+  character_orientation: 'video' | 'image';
+  background_source?: never;
+}
+
+export type MotionControlParams = Kling3MotionControlParams | KlingV26MotionControlParams;
 
 export interface MotionControlResponse extends AsyncTaskResponse {
   videos?: VideoMetadata[];

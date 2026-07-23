@@ -252,7 +252,7 @@ CONTRACT = {
         }]
     },
     "motion-control": {
-        "models": ["kling-3.0"],
+        "models": ["kling-3.0", "kling-v2.6"],
         "fields_by_model": {
             "kling-3.0": {
                 "background_source": {
@@ -273,8 +273,37 @@ CONTRACT = {
                 "source_image_url": {
                     "required": True
                 }
+            },
+            "kling-v2.6": {
+                "character_orientation": {
+                    "enum": ["video", "image"],
+                    "required": True
+                },
+                "model": {
+                    "required": True
+                },
+                "output_resolution": {
+                    "enum": ["720p", "1080p"],
+                    "required": True
+                },
+                "prompt": {
+                    "max": 2500,
+                    "length": True
+                },
+                "reference_video_url": {
+                    "required": True
+                },
+                "source_image_url": {
+                    "required": True
+                }
             }
-        }
+        },
+        "rules": [{
+            "when": {
+                "model": "kling-v2.6"
+            },
+            "forbidden": ["background_source"]
+        }]
     },
     "text-to-video": {
         "models": ["kling-3.0", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro", "kling-v2.6", "kling-v3-omni", "kling-v3-turbo-text-to-video"],

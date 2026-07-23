@@ -685,7 +685,7 @@ func TestImageToVideoGet(t *testing.T) {
 
 // --- Motion Control tests ---
 
-func TestMotionControlCreate(t *testing.T) {
+func TestMotionControlCreateAcceptsLegacyKling30ModelConstant(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
@@ -723,7 +723,7 @@ func TestMotionControlCreateWithAllOptions(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
-		Model:                ModelKling30,
+		Model:                ModelKling30MotionControl,
 		SourceImageURL:       "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		ReferenceVideoURL:    "https://cdn.runapi.ai/public/samples/video.mp4",
 		Prompt:               "a person dancing",
@@ -757,7 +757,7 @@ func TestMotionControlCreateCompactsEmptyFields(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
-		Model:             ModelKling30,
+		Model:             ModelKling30MotionControl,
 		SourceImageURL:    "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
 	})
@@ -776,6 +776,59 @@ func TestMotionControlCreateCompactsEmptyFields(t *testing.T) {
 	}
 	if _, ok := body["background_source"]; ok {
 		t.Fatal("expected empty background_source to be compacted away")
+	}
+}
+
+func TestMotionControlCreateV26(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
+		Model:                ModelV26MotionControl,
+		SourceImageURL:       "https://cdn.runapi.ai/public/samples/portrait.jpg",
+		ReferenceVideoURL:    "https://cdn.runapi.ai/public/samples/video.mp4",
+		OutputResolution:     "1080p",
+		CharacterOrientation: "image",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v2.6" || body["output_resolution"] != "1080p" || body["character_orientation"] != "image" {
+		t.Fatalf("unexpected Kling 2.6 motion body: %#v", body)
+	}
+}
+
+func TestMotionControlV26RequiresModelFields(t *testing.T) {
+	for _, tc := range []struct {
+		name   string
+		params MotionControlParams
+		want   string
+	}{
+		{"output resolution", MotionControlParams{Model: ModelV26MotionControl, SourceImageURL: "https://x/s.jpg", ReferenceVideoURL: "https://x/r.mp4", CharacterOrientation: "video"}, "output_resolution is required"},
+		{"character orientation", MotionControlParams{Model: ModelV26MotionControl, SourceImageURL: "https://x/s.jpg", ReferenceVideoURL: "https://x/r.mp4", OutputResolution: "720p"}, "character_orientation is required"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			client := NewClientWithHTTP(&stubHTTPClient{})
+			_, err := client.MotionControl.Create(context.Background(), tc.params)
+			if err == nil || err.Error() != tc.want {
+				t.Fatalf("expected %q, got %v", tc.want, err)
+			}
+		})
+	}
+}
+
+func TestMotionControlV26RejectsBackgroundSource(t *testing.T) {
+	client := NewClientWithHTTP(&stubHTTPClient{})
+	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
+		Model:                ModelV26MotionControl,
+		SourceImageURL:       "https://x/s.jpg",
+		ReferenceVideoURL:    "https://x/r.mp4",
+		OutputResolution:     "720p",
+		CharacterOrientation: "video",
+		BackgroundSource:     "video",
+	})
+	if err == nil || err.Error() != "background_source is not allowed when model is kling-v2.6" {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
 

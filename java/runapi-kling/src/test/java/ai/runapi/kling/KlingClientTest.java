@@ -583,6 +583,50 @@ class KlingClientTest {
     }
 
     @Test
+    void createsV26MotionControlAndValidatesConditionalFields() throws Exception {
+      CapturingTransport transport = new CapturingTransport("{\"id\":\"task_motion_v26\",\"status\":\"processing\"}");
+      KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+      client.motionControl().create(
+          MotionControlParams.builder()
+              .model(MotionControlModel.KLING_V2_6)
+              .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
+              .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+              .outputResolution("1080p")
+              .characterOrientation("image")
+              .build());
+
+      JsonNode body = bodyJson(transport.request);
+      assertEquals("kling-v2.6", body.get("model").asText());
+      assertEquals("1080p", body.get("output_resolution").asText());
+      assertEquals("image", body.get("character_orientation").asText());
+
+      ValidationException missing = assertThrows(
+          ValidationException.class,
+          () -> client.motionControl().create(
+              MotionControlParams.builder()
+                  .model(MotionControlModel.KLING_V2_6)
+                  .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
+                  .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                  .characterOrientation("video")
+                  .build()));
+      assertEquals("output_resolution is required", missing.getMessage());
+
+      ValidationException forbidden = assertThrows(
+          ValidationException.class,
+          () -> client.motionControl().create(
+              MotionControlParams.builder()
+                  .model(MotionControlModel.KLING_V2_6)
+                  .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
+                  .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                  .outputResolution("720p")
+                  .characterOrientation("video")
+                  .backgroundSource("video")
+                  .build()));
+      assertEquals("background_source is not allowed when model is kling-v2.6", forbidden.getMessage());
+    }
+
+    @Test
     void coversTexttovideoResourceMethods() {
       CapturingTransport createTransport = new CapturingTransport("{\"id\":\"task_text_to_video\",\"status\":\"processing\"}");
       KlingClient createClient = KlingClient.builder().apiKey("sk-test").transport(createTransport).build();

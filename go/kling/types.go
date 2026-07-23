@@ -6,6 +6,10 @@ type TextToVideoModel string
 // ImageToVideoModel selects a Kling image-to-video model variant.
 type ImageToVideoModel string
 
+// MotionControlModel selects a Kling motion-control model variant.
+// It remains an alias so existing ModelKling30 motion-control callers compile.
+type MotionControlModel = TextToVideoModel
+
 // ExtendVideoMode selects the Kling continuation quality.
 type ExtendVideoMode string
 
@@ -54,6 +58,11 @@ const (
 	ModelV21Standard ImageToVideoModel = generatedImageToVideoModelKlingV21Standard
 	// ModelV21MasterI2V is the highest-quality V2.1 image-to-video variant.
 	ModelV21MasterI2V ImageToVideoModel = generatedImageToVideoModelKlingV21MasterImageToVideo
+
+	// ModelKling30MotionControl supports optional orientation and background controls.
+	ModelKling30MotionControl MotionControlModel = generatedMotionControlModelKling30
+	// ModelV26MotionControl requires output resolution and character orientation.
+	ModelV26MotionControl MotionControlModel = generatedMotionControlModelKlingV26
 
 	// TextToVideoOutputResolution720p produces 720p output (fastest).
 	TextToVideoOutputResolution720p KlingTextToVideoOutputResolution = "720p"
@@ -199,13 +208,13 @@ type AiAvatarResponse struct {
 // MotionControlParams configures motion transfer from a reference video onto a subject image.
 // The subject in SourceImageURL adopts the motion patterns from ReferenceVideoURL.
 type MotionControlParams struct {
-	Model                TextToVideoModel              `json:"model" help:"required; model slug"`
+	Model                MotionControlModel            `json:"model" help:"required; model slug"`
 	SourceImageURL       string                        `json:"source_image_url" help:"required; subject image URL"`
-	ReferenceVideoURL    string                        `json:"reference_video_url" help:"required; reference motion video URL"`
+	ReferenceVideoURL    string                        `json:"reference_video_url" help:"required; reference motion video URL; kling-v2.6 allows 3-10 seconds with image orientation or 3-30 seconds with video orientation"`
 	Prompt               string                        `json:"prompt,omitempty" help:"optional; description prompt"`
-	OutputResolution     MotionControlOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution"`
-	CharacterOrientation string                        `json:"character_orientation,omitempty" help:"optional; character orientation"`
-	BackgroundSource     string                        `json:"background_source,omitempty" help:"optional; background source"`
+	OutputResolution     MotionControlOutputResolution `json:"output_resolution,omitempty" help:"required for kling-v2.6; optional for kling-3.0; output resolution"`
+	CharacterOrientation string                        `json:"character_orientation,omitempty" help:"required for kling-v2.6; optional for kling-3.0; character orientation"`
+	BackgroundSource     string                        `json:"background_source,omitempty" help:"optional for kling-3.0; not supported by kling-v2.6; background source"`
 	CallbackURL          string                        `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 }
 

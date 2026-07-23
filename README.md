@@ -39,7 +39,7 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("ai.runapi:runapi-kling:0.1.4")
+  implementation("ai.runapi:runapi-kling:0.1.5")
 }
 ```
 
@@ -49,7 +49,7 @@ Maven:
 <dependency>
   <groupId>ai.runapi</groupId>
   <artifactId>runapi-kling</artifactId>
-  <version>0.1.4</version>
+  <version>0.1.5</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Use the Java BOM when installing multiple RunAPI Java modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("ai.runapi:runapi-bom:0.2.5"))
+  implementation(platform("ai.runapi:runapi-bom:0.2.6"))
   implementation("ai.runapi:runapi-kling")
 }
 ```
@@ -99,7 +99,7 @@ Java packages target Java 8 bytecode and are tested on Java 8, 11, 17, and 21. E
 
 ## Kling 2.6
 
-Use `kling-v2.6` for text-to-video or image-to-video requests. Sound requires `mode: "pro"`; an image-to-video final frame additionally requires a five-second request.
+Use `kling-v2.6` for text-to-video, image-to-video, or motion-control requests. Sound requires `mode: "pro"`; an image-to-video final frame additionally requires a five-second request. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation, and it does not accept `background_source`.
 
 ```typescript
 const result = await client.imageToVideo.run({

@@ -784,6 +784,63 @@ def test_motion_control_create_posts_body():
     assert isinstance(result, MotionControlResponse)
 
 
+def test_motion_control_create_posts_v26_body():
+    fake = FakeHttp({"id": "t26", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+    client.motion_control.create(
+        model="kling-v2.6",
+        source_image_url="https://x/s.jpg",
+        reference_video_url="https://x/r.mp4",
+        output_resolution="1080p",
+        character_orientation="image",
+    )
+    assert fake.calls[0][2]["model"] == "kling-v2.6"
+    assert fake.calls[0][2]["output_resolution"] == "1080p"
+    assert fake.calls[0][2]["character_orientation"] == "image"
+
+
+@pytest.mark.parametrize(
+    ("missing", "message"),
+    [
+        ("output_resolution", "output_resolution is required"),
+        ("character_orientation", "character_orientation is required"),
+    ],
+)
+def test_motion_control_v26_requires_model_fields(missing, message):
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+    params = {
+        "model": "kling-v2.6",
+        "source_image_url": "https://x/s.jpg",
+        "reference_video_url": "https://x/r.mp4",
+        "output_resolution": "720p",
+        "character_orientation": "video",
+    }
+    del params[missing]
+
+    with pytest.raises(ValidationError, match=message):
+        client.motion_control.create(**params)
+    assert fake.calls == []
+
+
+def test_motion_control_v26_rejects_background_source():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+    with pytest.raises(
+        ValidationError,
+        match="background_source is not allowed when model is kling-v2.6",
+    ):
+        client.motion_control.create(
+            model="kling-v2.6",
+            source_image_url="https://x/s.jpg",
+            reference_video_url="https://x/r.mp4",
+            output_resolution="720p",
+            character_orientation="video",
+            background_source="video",
+        )
+    assert fake.calls == []
+
+
 def test_motion_control_get_fetches_by_id():
     fake = FakeHttp({"id": "t1", "status": "processing"})
     client = KlingClient(api_key="k", http_client=fake)

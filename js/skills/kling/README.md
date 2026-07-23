@@ -58,7 +58,7 @@ const result = await client.textToVideo.run({
 const url = result.videos[0].url;
 ```
 
-Kling 2.6 uses `model: 'kling-v2.6'` for both text-to-video and image-to-video. Set `mode: 'pro'` before enabling sound; final-frame image-to-video requests also use `duration_seconds: 5`.
+Kling 2.6 uses `model: 'kling-v2.6'` for text-to-video, image-to-video, and motion control. Set `mode: 'pro'` before enabling sound; final-frame image-to-video requests also use `duration_seconds: 5`. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation. Omit `background_source`.
 Kling V3 Omni uses `model: 'kling-v3-omni'` for both text-to-video and image-to-video. Image-to-video requires `first_frame_image_url`; final-frame requests also use `duration_seconds: 5`.
 
 ## Routing

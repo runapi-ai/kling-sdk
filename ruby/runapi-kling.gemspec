@@ -4,7 +4,7 @@ Dir.chdir(__dir__) do
 
   Gem::Specification.new do |spec|
     spec.name = "runapi-kling"
-    spec.version = "0.2.11"
+    spec.version = "0.2.12"
     spec.metadata["runapi_slug"] = "kling"
     spec.authors = ["RunAPI"]
     spec.email = ["contact@runapi.ai"]

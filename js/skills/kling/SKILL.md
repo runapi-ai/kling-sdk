@@ -69,7 +69,7 @@ Available commands: `text-to-video`, `avatar`, `image-to-video`, `motion-control
 For Kling 3.0 text-to-video requests, keep `model: "kling-3.0"` and choose `output_resolution: "720p"`, `"1080p"`, or `"4k"` as needed.
 For V3 Turbo text-to-video requests, use `model: "kling-v3-turbo-text-to-video"` with `output_resolution: "720p"` or `"1080p"`.
 For V3 Turbo image-to-video requests, use `model: "kling-v3-turbo-image-to-video"` and provide `first_frame_image_url`.
-For Kling 2.6 text-to-video or image-to-video requests, use `model: "kling-v2.6"`; `enable_sound: true` requires `mode: "pro"`, and `last_frame_image_url` additionally requires `duration_seconds: 5`.
+For Kling 2.6 text-to-video, image-to-video, or motion-control requests, use `model: "kling-v2.6"`; `enable_sound: true` requires `mode: "pro"`, and `last_frame_image_url` additionally requires `duration_seconds: 5`. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation. Do not send `background_source`.
 For Kling V3 Omni text-to-video or image-to-video requests, use `model: "kling-v3-omni"`; image-to-video requires `first_frame_image_url`, and `last_frame_image_url` requires `duration_seconds: 5`.
 
 ## Generated file storage

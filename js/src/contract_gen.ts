@@ -369,7 +369,8 @@ export const contract = {
   },
   "motion-control": {
     "models": [
-      "kling-3.0"
+      "kling-3.0",
+      "kling-v2.6"
     ],
     "fields_by_model": {
       "kling-3.0": {
@@ -400,8 +401,47 @@ export const contract = {
         "source_image_url": {
           "required": true
         }
+      },
+      "kling-v2.6": {
+        "character_orientation": {
+          "enum": [
+            "video",
+            "image"
+          ],
+          "required": true
+        },
+        "model": {
+          "required": true
+        },
+        "output_resolution": {
+          "enum": [
+            "720p",
+            "1080p"
+          ],
+          "required": true
+        },
+        "prompt": {
+          "max": 2500,
+          "length": true
+        },
+        "reference_video_url": {
+          "required": true
+        },
+        "source_image_url": {
+          "required": true
+        }
       }
-    }
+    },
+    "rules": [
+      {
+        "when": {
+          "model": "kling-v2.6"
+        },
+        "forbidden": [
+          "background_source"
+        ]
+      }
+    ]
   },
   "text-to-video": {
     "models": [
@@ -685,5 +725,9 @@ export const modelValues = {
     "KLING_AI_AVATAR_STANDARD": "kling-ai-avatar-standard",
     "KLING_AI_AVATAR_V1_PRO": "kling-ai-avatar-v1-pro",
     "KLING_V1_AVATAR_STANDARD": "kling-v1-avatar-standard"
+  },
+  "motionControl": {
+    "KLING_3_0": "kling-3.0",
+    "KLING_V2_6": "kling-v2.6"
   }
 } as const;
