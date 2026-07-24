@@ -1,5 +1,11 @@
 # Changelog
 
+## [python/v0.2.0](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.2.0) - 2026-07-24
+
+### Added
+- Expose shared Files, Account, and Pricing resources plus typed Task Billing Facts through the Provider Client.
+
+
 ## [js/v0.2.12](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.2.12), [ruby/v0.2.12](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.2.12), [go/v0.2.12](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.2.12), [python/v0.1.4](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.1.4), [java/v0.1.5](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.1.5) - 2026-07-23
 
 ### Added
