@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonCreator;
 
 /** Model slug for image to video operations. */
 public final class ImageToVideoModel extends KlingValue {
+  /** kling-o1 model slug. */
+  public static final ImageToVideoModel KLING_O1 = new ImageToVideoModel(GeneratedModels.IMAGE_TO_VIDEO_KLING_O1);
   /** kling-v2.6 model slug. */
   public static final ImageToVideoModel KLING_V2_6 = new ImageToVideoModel("kling-v2.6");
   /** kling-v3-omni model slug. */

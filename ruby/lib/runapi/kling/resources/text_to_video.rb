@@ -7,6 +7,7 @@ module RunApi
       # Generate videos from text prompts.
       class TextToVideo
         include RunApi::Core::ResourceHelpers
+        include O1ReferenceValidation
 
         ENDPOINT = "/api/v1/kling/text_to_video"
 
@@ -62,6 +63,7 @@ module RunApi
           reject_unsupported_v3_turbo_fields!(params)
           validate_contract!(CONTRACT["text-to-video"], params)
           validate_v26_params!(params)
+          validate_kling_o1_references!(params)
 
           # Bespoke cross-field rules the contract cannot express.
           multi_shots = param(params, :multi_shots) == true

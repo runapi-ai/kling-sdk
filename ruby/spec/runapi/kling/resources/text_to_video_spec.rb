@@ -146,6 +146,63 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
       end.to raise_error(RunApi::Core::ValidationError, /enable_sound requires mode pro for kling-v2.6/)
     end
 
+    it "passes through Kling O1 image and video references" do
+      params = {
+        model: "kling-o1",
+        prompt: "Keep <<<image_1>>> beside <<<video_1>>>",
+        reference_image_urls: ["https://cdn.runapi.ai/public/samples/portrait.jpg"],
+        reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
+        reference_video_type: "feature",
+        preserve_reference_video_audio: true,
+        duration_seconds: 5
+      }
+      expect(http).to receive(:request).with(:post, endpoint, body: params)
+        .and_return("id" => "task-o1")
+
+      expect(text_to_video.create(**params).id).to eq("task-o1")
+    end
+
+    it "rejects Kling O1 references without matching prompt markers" do
+      expect do
+        text_to_video.create(
+          model: "kling-o1",
+          prompt: "Keep the same subject",
+          reference_image_urls: ["https://cdn.runapi.ai/public/samples/portrait.jpg"]
+        )
+      end.to raise_error(
+        RunApi::Core::ValidationError,
+        /prompt must reference reference_image_urls\[0\] as <<<image_1>>>/
+      )
+    end
+
+    it "rejects Kling O1 video markers without a reference video" do
+      expect do
+        text_to_video.create(model: "kling-o1", prompt: "Follow <<<video_1>>>")
+      end.to raise_error(RunApi::Core::ValidationError, /prompt references missing video_1/)
+    end
+
+    it "rejects non-HTTP Kling O1 reference media" do
+      [
+        "mailto:reference@example.com.png",
+        "http://localhost/reference.jpg",
+        "http://127.0.0.1/reference.jpg",
+        "http://169.254.169.254/reference.jpg",
+        "http://[::ffff:127.0.0.1]/reference.jpg",
+        "http://2130706433/reference.jpg",
+        "http://127.1/reference.jpg",
+        "http://0177.0.0.1/reference.jpg",
+        "http://0x7f000001/reference.jpg"
+      ].each do |reference_url|
+        expect do
+          text_to_video.create(
+            model: "kling-o1",
+            prompt: "Use <<<image_1>>>",
+            reference_image_urls: [reference_url]
+          )
+        end.to raise_error(RunApi::Core::ValidationError, /must be a public HTTP or HTTPS URL/)
+      end
+    end
+
     it "accepts Kling V3 Omni resolution and sound fields" do
       params = {
         model: "kling-v3-omni",

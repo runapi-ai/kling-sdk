@@ -1,5 +1,7 @@
 package kling
 
+import "github.com/runapi-ai/core-sdk/go/core"
+
 // TextToVideoModel identifies a Kling text-to-video model variant.
 type TextToVideoModel string
 
@@ -35,6 +37,8 @@ const (
 	ModelKling30 TextToVideoModel = generatedTextToVideoModelKling30
 	// ModelV26T2V supports standard/pro generation modes and optional sound in pro mode.
 	ModelV26T2V TextToVideoModel = generatedTextToVideoModelKlingV26
+	// ModelO1T2V supports image and video references in five-second text-to-video requests.
+	ModelO1T2V TextToVideoModel = generatedTextToVideoModelKlingO1
 	// ModelV3OmniT2V supports 720p, 1080p, and 4K generation with optional sound.
 	ModelV3OmniT2V TextToVideoModel = generatedTextToVideoModelKlingV3Omni
 	// ModelV3TurboT2V creates 3-15 second text-to-video clips at 720p or 1080p.
@@ -48,6 +52,8 @@ const (
 	ModelV3TurboI2V ImageToVideoModel = generatedImageToVideoModelKlingV3TurboImageToVideo
 	// ModelV26I2V supports standard/pro generation modes, optional sound, and pro final-frame control.
 	ModelV26I2V ImageToVideoModel = generatedImageToVideoModelKlingV26
+	// ModelO1I2V supports first/final frames plus image and feature-video references.
+	ModelO1I2V ImageToVideoModel = generatedImageToVideoModelKlingO1
 	// ModelV3OmniI2V supports 720p, 1080p, and 4K generation with optional sound and final-frame control.
 	ModelV3OmniI2V ImageToVideoModel = generatedImageToVideoModelKlingV3Omni
 	// ModelV25TurboI2VPro is the fast V2.5 image-to-video model with last-frame support.
@@ -105,7 +111,7 @@ type TextToVideoParams struct {
 	Model            TextToVideoModel                 `json:"model" help:"required; model slug"`
 	Prompt           string                           `json:"prompt,omitempty" help:"required unless multi_shots; video description"`
 	CallbackURL      string                           `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
-	Mode             string                           `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
+	Mode             string                           `json:"mode,omitempty" help:"optional; std or pro; defaults to std"`
 	EnableSound      *bool                            `json:"enable_sound,omitempty" help:"optional; enable sound generation"`
 	DurationSeconds  int                              `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
 	AspectRatio      string                           `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio"`
@@ -120,23 +126,32 @@ type TextToVideoParams struct {
 	LastFrameImageURL  string            `json:"last_frame_image_url,omitempty" help:"optional; last frame image URL for Kling 3.0 single-shot mode"`
 
 	KlingElements []KlingElement `json:"kling_elements,omitempty" help:"optional; element references for generation"`
+
+	ReferenceImageURLs          []string `json:"reference_image_urls,omitempty" help:"optional for Kling O1; ordered public HTTP(S) JPG, JPEG, or PNG reference image URLs; use matching image markers in prompt"`
+	ReferenceVideoURL           string   `json:"reference_video_url,omitempty" help:"optional for Kling O1; public HTTP(S) MP4 or MOV reference video URL; use video_1 marker in prompt"`
+	ReferenceVideoType          string   `json:"reference_video_type,omitempty" help:"optional for Kling O1; base or feature; defaults to base"`
+	PreserveReferenceVideoAudio *bool    `json:"preserve_reference_video_audio,omitempty" help:"optional for Kling O1; preserve the reference video's original audio; requires reference_video_url"`
 }
 
 // ImageToVideoParams configures Kling image-to-video generation.
 // A first-frame image is required. LastFrameImageURL is supported by select models.
 type ImageToVideoParams struct {
-	Model              ImageToVideoModel                 `json:"model" help:"required; model slug"`
-	Prompt             string                            `json:"prompt" help:"required; video description"`
-	FirstFrameImageURL string                            `json:"first_frame_image_url" help:"required; first frame image URL"`
-	CallbackURL        string                            `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
-	Mode               string                            `json:"mode,omitempty" help:"optional; std or pro; defaults to std for Kling 2.6"`
-	EnableSound        *bool                             `json:"enable_sound,omitempty" help:"optional; enable sound generation; true requires pro mode for Kling 2.6"`
-	DurationSeconds    int                               `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
-	AspectRatio        string                            `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio"`
-	OutputResolution   KlingImageToVideoOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution for V3 Turbo or Kling V3 Omni"`
-	NegativePrompt     string                            `json:"negative_prompt,omitempty" help:"optional; negative prompt"`
-	CfgScale           *float64                          `json:"cfg_scale,omitempty" help:"optional; guidance scale"`
-	LastFrameImageURL  string                            `json:"last_frame_image_url,omitempty" help:"optional; final frame image URL for supported image-to-video models"`
+	Model                       ImageToVideoModel                 `json:"model" help:"required; model slug"`
+	Prompt                      string                            `json:"prompt" help:"required; video description"`
+	FirstFrameImageURL          string                            `json:"first_frame_image_url" help:"required; first frame image URL"`
+	CallbackURL                 string                            `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
+	Mode                        string                            `json:"mode,omitempty" help:"optional; std or pro; defaults to std"`
+	EnableSound                 *bool                             `json:"enable_sound,omitempty" help:"optional; enable sound generation; true requires pro mode for Kling 2.6"`
+	DurationSeconds             int                               `json:"duration_seconds,omitempty" help:"optional; duration in seconds"`
+	AspectRatio                 string                            `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio"`
+	OutputResolution            KlingImageToVideoOutputResolution `json:"output_resolution,omitempty" help:"optional; output resolution for V3 Turbo or Kling V3 Omni"`
+	NegativePrompt              string                            `json:"negative_prompt,omitempty" help:"optional; negative prompt"`
+	CfgScale                    *float64                          `json:"cfg_scale,omitempty" help:"optional; guidance scale"`
+	LastFrameImageURL           string                            `json:"last_frame_image_url,omitempty" help:"optional; final frame image URL; for Kling O1, cannot be combined with reference_image_urls or reference_video_url"`
+	ReferenceImageURLs          []string                          `json:"reference_image_urls,omitempty" help:"optional for Kling O1; ordered public HTTP(S) JPG, JPEG, or PNG reference image URLs; use matching image markers in prompt; cannot be combined with last_frame_image_url"`
+	ReferenceVideoURL           string                            `json:"reference_video_url,omitempty" help:"optional for Kling O1; public HTTP(S) MP4 or MOV reference video URL; use video_1 marker in prompt; cannot be combined with last_frame_image_url"`
+	ReferenceVideoType          string                            `json:"reference_video_type,omitempty" help:"optional for Kling O1; base or feature; defaults to base"`
+	PreserveReferenceVideoAudio *bool                             `json:"preserve_reference_video_audio,omitempty" help:"optional for Kling O1; preserve the reference video's original audio; requires reference_video_url"`
 }
 
 // ExtendVideoParams continues a completed Kling V2.5 Turbo video task.
@@ -149,6 +164,7 @@ type ExtendVideoParams struct {
 
 // AsyncTaskResponse carries the task ID, lifecycle status, and error for all Kling async operations.
 type AsyncTaskResponse struct {
+	core.TaskBillingFacts
 	ID     string     `json:"id"`
 	Status TaskStatus `json:"status"`
 	Error  string     `json:"error,omitempty"`

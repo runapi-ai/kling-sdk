@@ -2,11 +2,13 @@ package kling
 
 const (
 	generatedTextToVideoModelKling30                       TextToVideoModel   = "kling-3.0"
+	generatedTextToVideoModelKlingO1                       TextToVideoModel   = "kling-o1"
 	generatedTextToVideoModelKlingV21MasterTextToVideo     TextToVideoModel   = "kling-v2.1-master-text-to-video"
 	generatedTextToVideoModelKlingV25TurboTextToVideoPro   TextToVideoModel   = "kling-v2.5-turbo-text-to-video-pro"
 	generatedTextToVideoModelKlingV26                      TextToVideoModel   = "kling-v2.6"
 	generatedTextToVideoModelKlingV3Omni                   TextToVideoModel   = "kling-v3-omni"
 	generatedTextToVideoModelKlingV3TurboTextToVideo       TextToVideoModel   = "kling-v3-turbo-text-to-video"
+	generatedImageToVideoModelKlingO1                      ImageToVideoModel  = "kling-o1"
 	generatedImageToVideoModelKlingV21MasterImageToVideo   ImageToVideoModel  = "kling-v2.1-master-image-to-video"
 	generatedImageToVideoModelKlingV21Pro                  ImageToVideoModel  = "kling-v2.1-pro"
 	generatedImageToVideoModelKlingV21Standard             ImageToVideoModel  = "kling-v2.1-standard"

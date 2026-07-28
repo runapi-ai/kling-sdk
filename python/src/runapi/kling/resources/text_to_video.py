@@ -13,6 +13,7 @@ from ..types import (
     CompletedTextToVideoResponse,
     TextToVideoResponse,
 )
+from .o1_reference_validation import validate_kling_o1_references
 
 V26_MODEL = "kling-v2.6"
 V3_TURBO_MODEL = "kling-v3-turbo-text-to-video"
@@ -76,6 +77,7 @@ class TextToVideo(Resource):
         self._reject_unsupported_v3_turbo_fields(params)
         self._validate_contract(CONTRACT["text-to-video"], params)
         self._validate_v26_params(params)
+        validate_kling_o1_references(params)
 
         # Bespoke cross-field rules the contract cannot express.
         multi_shots = params.get("multi_shots") is True

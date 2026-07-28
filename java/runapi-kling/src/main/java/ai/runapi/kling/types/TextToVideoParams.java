@@ -22,6 +22,10 @@ public final class TextToVideoParams {
   private final String firstFrameImageUrl;
   private final String lastFrameImageUrl;
   private final List<KlingElement> klingElements;
+  private final List<String> referenceImageUrls;
+  private final String referenceVideoUrl;
+  private final String referenceVideoType;
+  private final Boolean preserveReferenceVideoAudio;
 
   private TextToVideoParams(Builder builder) {
     this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
@@ -39,6 +43,10 @@ public final class TextToVideoParams {
     this.firstFrameImageUrl = builder.firstFrameImageUrl;
     this.lastFrameImageUrl = builder.lastFrameImageUrl;
     this.klingElements = KlingParamUtils.list(builder.klingElements, "klingElements");
+    this.referenceImageUrls = KlingParamUtils.strings(builder.referenceImageUrls);
+    this.referenceVideoUrl = builder.referenceVideoUrl;
+    this.referenceVideoType = builder.referenceVideoType;
+    this.preserveReferenceVideoAudio = builder.preserveReferenceVideoAudio;
   }
 
   /** Creates a new TextToVideoParams builder. */
@@ -69,6 +77,10 @@ public final class TextToVideoParams {
     raw.put("first_frame_image_url", KlingParamUtils.wireValue(firstFrameImageUrl));
     raw.put("last_frame_image_url", KlingParamUtils.wireValue(lastFrameImageUrl));
     raw.put("kling_elements", klingElementsToMaps(klingElements));
+    raw.put("reference_image_urls", KlingParamUtils.wireValue(referenceImageUrls));
+    raw.put("reference_video_url", KlingParamUtils.wireValue(referenceVideoUrl));
+    raw.put("reference_video_type", KlingParamUtils.wireValue(referenceVideoType));
+    raw.put("preserve_reference_video_audio", KlingParamUtils.wireValue(preserveReferenceVideoAudio));
     return KlingParamUtils.compact(raw);
   }
 
@@ -111,6 +123,10 @@ public final class TextToVideoParams {
     private String firstFrameImageUrl;
     private String lastFrameImageUrl;
     private List<KlingElement> klingElements;
+    private List<String> referenceImageUrls;
+    private String referenceVideoUrl;
+    private String referenceVideoType;
+    private Boolean preserveReferenceVideoAudio;
 
     private Builder() {}
 
@@ -139,7 +155,7 @@ public final class TextToVideoParams {
       return this;
     }
 
-    /** Sets the Kling 2.6 generation mode (std or pro). */
+    /** Sets the generation mode (std or pro) for supported models. */
     public Builder mode(String value) {
       this.mode = KlingParamUtils.requireNonBlank(value, "mode");
       return this;
@@ -208,6 +224,30 @@ public final class TextToVideoParams {
     /** Sets the kling elements. */
     public Builder klingElements(List<KlingElement> value) {
       this.klingElements = value;
+      return this;
+    }
+
+    /** Sets the ordered reference image URLs. */
+    public Builder referenceImageUrls(List<String> value) {
+      this.referenceImageUrls = value;
+      return this;
+    }
+
+    /** Sets the reference video URL. */
+    public Builder referenceVideoUrl(String value) {
+      this.referenceVideoUrl = KlingParamUtils.requireNonBlank(value, "referenceVideoUrl");
+      return this;
+    }
+
+    /** Sets whether the reference video is a base edit or feature reference. */
+    public Builder referenceVideoType(String value) {
+      this.referenceVideoType = KlingParamUtils.requireNonBlank(value, "referenceVideoType");
+      return this;
+    }
+
+    /** Sets whether to preserve the reference video's original audio. */
+    public Builder preserveReferenceVideoAudio(boolean value) {
+      this.preserveReferenceVideoAudio = value;
       return this;
     }
 

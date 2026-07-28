@@ -26,6 +26,22 @@ task, err := client.TextToVideo.Create(context.Background(), kling.TextToVideoPa
 status, err := client.TextToVideo.Get(context.Background(), task.ID)
 ```
 
+## Kling O1 reference media
+
+```go
+result, err := client.TextToVideo.Run(context.Background(), kling.TextToVideoParams{
+  Model:              kling.ModelO1T2V,
+  Prompt:             "Keep <<<image_1>>> beside the performer from <<<video_1>>>",
+  ReferenceImageURLs: []string{"https://cdn.runapi.ai/public/samples/portrait.jpg"},
+  ReferenceVideoURL:  "https://cdn.runapi.ai/public/samples/video.mp4",
+  ReferenceVideoType: "feature",
+  Mode:               "pro",
+  DurationSeconds:    5,
+})
+```
+
+Number reference images in prompt order as `<<<image_1>>>`, `<<<image_2>>>`, and so on; the optional video is `<<<video_1>>>`. With a video, send at most four images. Do not combine `last_frame_image_url` with reference images or a reference video. A `feature` reference video may be used with the required first frame; `base` cannot be combined with frame inputs. O1 requests are five seconds and keep sound disabled. Pricing and limits: https://runapi.ai/models/kling/o1.
+
 Use `create` when you want to submit a task and return quickly, `get` when you need the latest task state, and `run` when a script should create and poll until completion. In web request handlers, prefer `create` plus webhook or later `get` polling so a worker is not held open.
 
 RunAPI-generated file URLs are temporary. Download and store generated images, videos, audio, or other files in your own durable storage within 7 days; do not treat returned URLs as long-term assets.

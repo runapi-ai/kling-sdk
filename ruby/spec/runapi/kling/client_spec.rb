@@ -7,7 +7,16 @@ RSpec.describe RunApi::Kling::Client do
     allow(ConnectionPool).to receive(:new).and_return(instance_double(ConnectionPool))
   end
 
-  after { RunApi.api_key = nil }
+  around do |example|
+    previous_env = ENV.delete("RUNAPI_API_KEY")
+    previous_global = RunApi.api_key
+    RunApi.api_key = nil
+
+    example.run
+  ensure
+    ENV["RUNAPI_API_KEY"] = previous_env
+    RunApi.api_key = previous_global
+  end
 
   it "accepts api_key as parameter" do
     client = described_class.new(api_key: "param-key")
@@ -20,8 +29,8 @@ RSpec.describe RunApi::Kling::Client do
     expect(client).to be_a(described_class)
   end
 
-  it "raises AuthenticationError without api_key" do
-    expect { described_class.new }.to raise_error(RunApi::Core::AuthenticationError, /API key is required/)
+  it "fails fast when no API key is configured" do
+    expect { described_class.new }.to raise_error(RunApi::Core::AuthenticationError, /RUNAPI_API_KEY/)
   end
 
   context "with custom http_client" do
@@ -67,6 +76,11 @@ RSpec.describe RunApi::Kling::Client do
     it "exposes account" do
       client = described_class.new(api_key: "test-key")
       expect(client.account).to be_a(RunApi::Core::Account)
+    end
+
+    it "exposes pricing" do
+      client = described_class.new(api_key: "test-key")
+      expect(client.pricing).to be_a(RunApi::Core::Pricing)
     end
   end
 end

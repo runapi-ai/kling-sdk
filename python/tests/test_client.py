@@ -410,6 +410,57 @@ def test_text_to_video_v26_rejects_sound_outside_pro_mode():
     assert fake.calls == []
 
 
+def test_text_to_video_o1_posts_reference_fields():
+    fake = FakeHttp({"id": "t1", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+
+    client.text_to_video.create(
+        model="kling-o1",
+        prompt="Keep <<<image_1>>> beside <<<video_1>>>",
+        reference_image_urls=["https://cdn.runapi.ai/public/samples/portrait.jpg"],
+        reference_video_url="https://cdn.runapi.ai/public/samples/video.mp4",
+        reference_video_type="feature",
+        preserve_reference_video_audio=True,
+        duration_seconds=5,
+    )
+
+    assert fake.calls == [
+        (
+            "post",
+            "/api/v1/kling/text_to_video",
+            {
+                "model": "kling-o1",
+                "prompt": "Keep <<<image_1>>> beside <<<video_1>>>",
+                "reference_image_urls": [
+                    "https://cdn.runapi.ai/public/samples/portrait.jpg"
+                ],
+                "reference_video_url": "https://cdn.runapi.ai/public/samples/video.mp4",
+                "reference_video_type": "feature",
+                "preserve_reference_video_audio": True,
+                "duration_seconds": 5,
+            },
+        )
+    ]
+
+
+def test_text_to_video_o1_rejects_reference_without_prompt_marker():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(
+        ValidationError,
+        match=r"prompt must reference reference_image_urls\[0\] as <<<image_1>>>",
+    ):
+        client.text_to_video.create(
+            model="kling-o1",
+            prompt="Keep the same subject",
+            reference_image_urls=[
+                "https://cdn.runapi.ai/public/samples/portrait.jpg"
+            ],
+        )
+    assert fake.calls == []
+
+
 # --- ai_avatar ------------------------------------------------------------
 
 
@@ -755,6 +806,83 @@ def test_image_to_video_v3_omni_rejects_final_frame_outside_five_seconds():
             first_frame_image_url="https://cdn.runapi.ai/public/samples/portrait.jpg",
             last_frame_image_url="https://cdn.runapi.ai/public/samples/image.jpg",
             duration_seconds=7,
+        )
+
+
+def test_image_to_video_o1_rejects_base_video_with_frame_input():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(
+        ValidationError,
+        match="reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url",
+    ):
+        client.image_to_video.create(
+            model="kling-o1",
+            prompt="Use <<<video_1>>> as the base",
+            first_frame_image_url="https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+            reference_video_url="https://cdn.runapi.ai/public/samples/video.mp4",
+            reference_video_type="base",
+        )
+    assert fake.calls == []
+
+
+def test_image_to_video_o1_rejects_tail_frame_with_reference_media():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(
+        ValidationError,
+        match="last_frame_image_url cannot be combined with reference_image_urls or reference_video_url",
+    ):
+        client.image_to_video.create(
+            model="kling-o1",
+            prompt="Move toward <<<image_1>>>",
+            first_frame_image_url="https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+            last_frame_image_url="https://cdn.runapi.ai/public/samples/last-frame.jpg",
+            reference_image_urls=["https://cdn.runapi.ai/public/samples/portrait.jpg"],
+        )
+    assert fake.calls == []
+
+
+def test_text_to_video_o1_rejects_missing_video_reference():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(ValidationError, match="prompt references missing video_1"):
+        client.text_to_video.create(
+            model="kling-o1",
+            prompt="Follow <<<video_1>>>",
+        )
+    assert fake.calls == []
+
+
+@pytest.mark.parametrize(
+    "reference_url",
+    [
+        "file:///etc/passwd.jpg",
+        "http://localhost/reference.jpg",
+        "http://127.0.0.1/reference.jpg",
+        "http://169.254.169.254/reference.jpg",
+        "http://[::ffff:127.0.0.1]/reference.jpg",
+        "http://2130706433/reference.jpg",
+        "http://127.1/reference.jpg",
+        "http://0177.0.0.1/reference.jpg",
+        "http://0x7f000001/reference.jpg",
+    ],
+)
+def test_text_to_video_o1_rejects_non_public_reference_media(reference_url):
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+
+    with pytest.raises(
+        ValidationError,
+        match=r"reference_image_urls\[0\] must be a public HTTP or HTTPS URL",
+    ):
+        client.text_to_video.create(
+            model="kling-o1",
+            prompt="Use <<<image_1>>>",
+            reference_image_urls=[reference_url],
         )
     assert fake.calls == []
 

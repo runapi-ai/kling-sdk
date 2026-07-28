@@ -2,6 +2,7 @@ import type { HttpClient, RequestOptions, PollingOptions, ActionSchema } from '@
 import { ValidationError, compactParams, validateParams } from '@runapi.ai/core';
 import { pollUntilComplete } from '@runapi.ai/core/internal';
 import { contract } from '../contract_gen';
+import { validateKlingO1References } from './o1-reference-validation';
 import type {
   CompletedImageToVideoResponse,
   ImageToVideoParams,
@@ -51,6 +52,7 @@ export class ImageToVideo {
     validateParams(contract['image-to-video'] as ActionSchema, body as Record<string, unknown>);
     validateV26Params(body as Record<string, unknown>);
     validateV3OmniFields(body as Record<string, unknown>);
+    validateKlingO1References(body as Record<string, unknown>);
     return this.http.request<TaskCreateResponse>('POST', ENDPOINT, {
       body,
       ...options,

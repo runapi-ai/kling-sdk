@@ -11,6 +11,7 @@ from ..types import (
     CompletedImageToVideoResponse,
     ImageToVideoResponse,
 )
+from .o1_reference_validation import O1_MODEL, validate_kling_o1_references
 
 V26_MODEL = "kling-v2.6"
 V3_OMNI_MODEL = "kling-v3-omni"
@@ -70,6 +71,7 @@ class ImageToVideo(Resource):
     def _validate_params(self, params: Dict[str, Any]) -> None:
         self._reject_unsupported_v3_turbo_fields(params)
         self._validate_contract(CONTRACT["image-to-video"], params)
+        validate_kling_o1_references(params)
 
         # Bespoke last-frame rules that the generated contract cannot express.
         model = params.get("model")
@@ -82,6 +84,7 @@ class ImageToVideo(Resource):
                     f"last_frame_image_url requires duration_seconds 5 for {V3_OMNI_MODEL}"
                 )
         elif last_frame_image_url and model not in (
+            O1_MODEL,
             "kling-v2.5-turbo-image-to-video-pro",
             "kling-v2.1-pro",
         ):

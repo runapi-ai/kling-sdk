@@ -115,6 +115,9 @@ func (r *TextToVideo) Create(ctx context.Context, params TextToVideoParams, opts
 	if err := validateV26TextToVideoBody(body); err != nil {
 		return nil, err
 	}
+	if err := validateKlingO1References(body); err != nil {
+		return nil, err
+	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, textToVideoPath, body, requestOptions)
 }
 
@@ -144,6 +147,9 @@ func (r *ImageToVideo) Create(ctx context.Context, params ImageToVideoParams, op
 		return nil, err
 	}
 	if err := validateV26ImageToVideoBody(body); err != nil {
+		return nil, err
+	}
+	if err := validateKlingO1References(body); err != nil {
 		return nil, err
 	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, imageToVideoPath, body, requestOptions)

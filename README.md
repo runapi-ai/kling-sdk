@@ -39,7 +39,7 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("ai.runapi:runapi-kling:0.1.5")
+  implementation("ai.runapi:runapi-kling:0.1.6")
 }
 ```
 
@@ -49,7 +49,7 @@ Maven:
 <dependency>
   <groupId>ai.runapi</groupId>
   <artifactId>runapi-kling</artifactId>
-  <version>0.1.5</version>
+  <version>0.1.6</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Use the Java BOM when installing multiple RunAPI Java modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("ai.runapi:runapi-bom:0.2.6"))
+  implementation(platform("ai.runapi:runapi-bom:0.2.7"))
   implementation("ai.runapi:runapi-kling")
 }
 ```
@@ -110,6 +110,26 @@ const result = await client.imageToVideo.run({
   duration_seconds: 5,
   enable_sound: true,
   last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+});
+```
+
+## Kling O1 reference media
+
+Use `kling-o1` with ordered public HTTP(S) JPG, JPEG, or PNG reference images and an optional public HTTP(S) MP4 or MOV reference video. Mention every reference in `prompt` as `<<<image_1>>>`, `<<<image_2>>>`, and `<<<video_1>>>`. When a video is present, up to four reference images are allowed. Do not combine `last_frame_image_url` with reference images or a reference video. A `feature` reference video may be used with the required first frame; a `base` reference video cannot be combined with frame inputs. O1 requests are five seconds, use `std` or `pro`, and keep sound disabled.
+
+```typescript
+const result = await client.textToVideo.run({
+  model: 'kling-o1',
+  prompt: 'Keep <<<image_1>>> beside the performer from <<<video_1>>>',
+  reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+  reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
+  reference_video_type: 'feature',
+  preserve_reference_video_audio: true,
+  mode: 'pro',
+  duration_seconds: 5,
+});
+```
+
 ## Kling V3 Omni
 
 Use `kling-v3-omni` for text-to-video or image-to-video requests with `720p`, `1080p`, or `4k` output resolution and optional synchronized sound. Image-to-video requires a first frame; a final frame can be used only with a five-second request.
@@ -153,6 +173,7 @@ Most media endpoints are asynchronous. `create()` submits a task and returns its
 
 Use the most specific Kling variant page for pricing, rate limits, and commercial usage:
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
+- [Kling O1](https://runapi.ai/models/kling/o1)
 - [Kling 2.6](https://runapi.ai/models/kling/v2.6)
 - [Kling V3 Omni](https://runapi.ai/models/kling/v3-omni)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)

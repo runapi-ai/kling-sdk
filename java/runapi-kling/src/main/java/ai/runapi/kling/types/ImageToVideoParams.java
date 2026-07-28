@@ -18,6 +18,10 @@ public final class ImageToVideoParams {
   private final Double cfgScale;
   private final String lastFrameImageUrl;
   private final String aspectRatio;
+  private final List<String> referenceImageUrls;
+  private final String referenceVideoUrl;
+  private final String referenceVideoType;
+  private final Boolean preserveReferenceVideoAudio;
 
   private ImageToVideoParams(Builder builder) {
     this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
@@ -32,6 +36,10 @@ public final class ImageToVideoParams {
     this.cfgScale = builder.cfgScale;
     this.lastFrameImageUrl = builder.lastFrameImageUrl;
     this.aspectRatio = builder.aspectRatio;
+    this.referenceImageUrls = KlingParamUtils.strings(builder.referenceImageUrls);
+    this.referenceVideoUrl = builder.referenceVideoUrl;
+    this.referenceVideoType = builder.referenceVideoType;
+    this.preserveReferenceVideoAudio = builder.preserveReferenceVideoAudio;
   }
 
   /** Creates a new ImageToVideoParams builder. */
@@ -59,6 +67,10 @@ public final class ImageToVideoParams {
     raw.put("cfg_scale", KlingParamUtils.wireValue(cfgScale));
     raw.put("last_frame_image_url", KlingParamUtils.wireValue(lastFrameImageUrl));
     raw.put("aspect_ratio", KlingParamUtils.wireValue(aspectRatio));
+    raw.put("reference_image_urls", KlingParamUtils.wireValue(referenceImageUrls));
+    raw.put("reference_video_url", KlingParamUtils.wireValue(referenceVideoUrl));
+    raw.put("reference_video_type", KlingParamUtils.wireValue(referenceVideoType));
+    raw.put("preserve_reference_video_audio", KlingParamUtils.wireValue(preserveReferenceVideoAudio));
     return KlingParamUtils.compact(raw);
   }
 
@@ -78,6 +90,10 @@ public final class ImageToVideoParams {
     private Double cfgScale;
     private String lastFrameImageUrl;
     private String aspectRatio;
+    private List<String> referenceImageUrls;
+    private String referenceVideoUrl;
+    private String referenceVideoType;
+    private Boolean preserveReferenceVideoAudio;
 
     private Builder() {}
 
@@ -112,7 +128,7 @@ public final class ImageToVideoParams {
       return this;
     }
 
-    /** Sets the Kling 2.6 generation mode (std or pro). */
+    /** Sets the generation mode (std or pro) for supported models. */
     public Builder mode(String value) {
       this.mode = KlingParamUtils.requireNonBlank(value, "mode");
       return this;
@@ -148,7 +164,7 @@ public final class ImageToVideoParams {
       return this;
     }
 
-    /** Sets the last frame image URL. */
+    /** Sets the last frame image URL. Kling O1 cannot combine it with reference image or video fields. */
     public Builder lastFrameImageUrl(String value) {
       this.lastFrameImageUrl = KlingParamUtils.requireNonBlank(value, "lastFrameImageUrl");
       return this;
@@ -157,6 +173,30 @@ public final class ImageToVideoParams {
     /** Sets the output aspect ratio. */
     public Builder aspectRatio(String value) {
       this.aspectRatio = KlingParamUtils.requireNonBlank(value, "aspectRatio");
+      return this;
+    }
+
+    /** Sets the ordered reference image URLs. Kling O1 cannot combine them with a last frame. */
+    public Builder referenceImageUrls(List<String> value) {
+      this.referenceImageUrls = value;
+      return this;
+    }
+
+    /** Sets the reference video URL. Kling O1 cannot combine it with a last frame. */
+    public Builder referenceVideoUrl(String value) {
+      this.referenceVideoUrl = KlingParamUtils.requireNonBlank(value, "referenceVideoUrl");
+      return this;
+    }
+
+    /** Sets whether the reference video is a base edit or feature reference. */
+    public Builder referenceVideoType(String value) {
+      this.referenceVideoType = KlingParamUtils.requireNonBlank(value, "referenceVideoType");
+      return this;
+    }
+
+    /** Sets whether to preserve the reference video's original audio. */
+    public Builder preserveReferenceVideoAudio(boolean value) {
+      this.preserveReferenceVideoAudio = value;
       return this;
     }
 

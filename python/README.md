@@ -31,6 +31,23 @@ avatar = client.ai_avatar.create(
 )
 ```
 
+## Kling O1 reference media
+
+```python
+result = client.text_to_video.run(
+    model="kling-o1",
+    prompt="Keep <<<image_1>>> beside the performer from <<<video_1>>>",
+    reference_image_urls=["https://cdn.runapi.ai/public/samples/portrait.jpg"],
+    reference_video_url="https://cdn.runapi.ai/public/samples/video.mp4",
+    reference_video_type="feature",
+    preserve_reference_video_audio=True,
+    mode="pro",
+    duration_seconds=5,
+)
+```
+
+Number reference images in prompt order as `<<<image_1>>>`, `<<<image_2>>>`, and so on; the optional video is `<<<video_1>>>`. With a video, send at most four images. Do not combine `last_frame_image_url` with reference images or a reference video. A `feature` reference video may be used with the required first frame; `base` cannot be combined with frame inputs. O1 requests are five seconds and keep sound disabled. Pricing and limits: https://runapi.ai/models/kling/o1.
+
 Use `create` when you want to submit a task and return quickly, `get` when you need the latest task state, and `run` when a script should create and poll until completion:
 
 ```python

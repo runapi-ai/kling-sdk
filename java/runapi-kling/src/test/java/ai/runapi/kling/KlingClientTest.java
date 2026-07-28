@@ -209,6 +209,138 @@ class KlingClientTest {
   }
 
   @Test
+  void createSendsO1TextToVideoReferences() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\",\"status\":\"processing\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    client.textToVideo().create(
+        TextToVideoParams.builder()
+            .model(TextToVideoModel.KLING_O1)
+            .prompt("Keep <<<image_1>>> beside <<<video_1>>>")
+            .referenceImageUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/portrait.jpg"))
+            .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+            .referenceVideoType("feature")
+            .preserveReferenceVideoAudio(true)
+            .durationSeconds(5)
+            .build());
+
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("kling-o1", body.get("model").asText());
+    assertEquals("https://cdn.runapi.ai/public/samples/portrait.jpg", body.get("reference_image_urls").get(0).asText());
+    assertEquals("https://cdn.runapi.ai/public/samples/video.mp4", body.get("reference_video_url").asText());
+    assertEquals("feature", body.get("reference_video_type").asText());
+    assertTrue(body.get("preserve_reference_video_audio").asBoolean());
+  }
+
+  @Test
+  void createRejectsO1PromptMissingImageMarker() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.textToVideo().create(
+            TextToVideoParams.builder()
+                .model(TextToVideoModel.KLING_O1)
+                .prompt("Keep the same subject")
+                .referenceImageUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/portrait.jpg"))
+                .build()));
+
+    assertEquals("prompt must reference reference_image_urls[0] as <<<image_1>>>", error.getMessage());
+    assertNull(transport.request);
+  }
+
+  @Test
+  void createRejectsO1BaseVideoWithFrameInput() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_O1)
+                .prompt("Use <<<video_1>>> as the base")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                .referenceVideoType("base")
+                .build()));
+
+    assertEquals(
+        "reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url",
+        error.getMessage());
+    assertNull(transport.request);
+  }
+
+  @Test
+  void createRejectsO1TailFrameWithReferenceMedia() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_O1)
+                .prompt("Move toward <<<image_1>>>")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
+                .referenceImageUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/portrait.jpg"))
+                .build()));
+
+    assertEquals(
+        "last_frame_image_url cannot be combined with reference_image_urls or reference_video_url",
+        error.getMessage());
+    assertNull(transport.request);
+  }
+
+  @Test
+  void createRejectsO1MissingVideoReference() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    ValidationException error = assertThrows(
+        ValidationException.class,
+        () -> client.textToVideo().create(
+            TextToVideoParams.builder()
+                .model(TextToVideoModel.KLING_O1)
+                .prompt("Follow <<<video_1>>>")
+                .build()));
+
+    assertEquals("prompt references missing video_1", error.getMessage());
+    assertNull(transport.request);
+  }
+
+  @Test
+  void createRejectsNonPublicO1ReferenceMedia() {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+
+    for (String referenceUrl : Arrays.asList(
+        "file:///etc/passwd.jpg",
+        "http://localhost/reference.jpg",
+        "http://127.0.0.1/reference.jpg",
+        "http://169.254.169.254/reference.jpg",
+        "http://[::ffff:127.0.0.1]/reference.jpg",
+        "http://2130706433/reference.jpg",
+        "http://127.1/reference.jpg",
+        "http://0177.0.0.1/reference.jpg",
+        "http://0x7f000001/reference.jpg")) {
+      ValidationException error = assertThrows(
+          ValidationException.class,
+          () -> client.textToVideo().create(
+              TextToVideoParams.builder()
+                  .model(TextToVideoModel.KLING_O1)
+                  .prompt("Use <<<image_1>>>")
+                  .referenceImageUrls(Arrays.asList(referenceUrl))
+                  .build()));
+
+      assertEquals("reference_image_urls[0] must be a public HTTP or HTTPS URL", error.getMessage());
+      assertNull(transport.request);
+    }
+  }
+
+  @Test
   void createSendsV3TurboImageToVideoShape() throws Exception {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_i2v\",\"status\":\"processing\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();

@@ -70,6 +70,7 @@ For Kling 3.0 text-to-video requests, keep `model: "kling-3.0"` and choose `outp
 For V3 Turbo text-to-video requests, use `model: "kling-v3-turbo-text-to-video"` with `output_resolution: "720p"` or `"1080p"`.
 For V3 Turbo image-to-video requests, use `model: "kling-v3-turbo-image-to-video"` and provide `first_frame_image_url`.
 For Kling 2.6 text-to-video, image-to-video, or motion-control requests, use `model: "kling-v2.6"`; `enable_sound: true` requires `mode: "pro"`, and `last_frame_image_url` additionally requires `duration_seconds: 5`. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation. Do not send `background_source`.
+For Kling O1 text-to-video or image-to-video requests, use `model: "kling-o1"`. Reference ordered images with public HTTP(S) `reference_image_urls` and `<<<image_1>>>`, `<<<image_2>>>`, and so on in `prompt`; reference the optional public HTTP(S) `reference_video_url` as `<<<video_1>>>`. With a video, send no more than four images. Do not combine `last_frame_image_url` with reference images or a reference video. Use `reference_video_type: "feature"` with the required first frame; `"base"` cannot be combined with frame inputs. Use `duration_seconds: 5`, `mode: "std"` or `"pro"`, and keep `enable_sound: false`.
 For Kling V3 Omni text-to-video or image-to-video requests, use `model: "kling-v3-omni"`; image-to-video requires `first_frame_image_url`, and `last_frame_image_url` requires `duration_seconds: 5`.
 
 ## Generated file storage
@@ -85,6 +86,7 @@ RunAPI-generated file URLs are temporary. Download and store generated images, v
 ## Variants
 
 - [Kling 3.0](https://runapi.ai/models/kling/3.0.md)
+- [Kling O1](https://runapi.ai/models/kling/o1.md)
 - [Kling 2.6](https://runapi.ai/models/kling/v2.6.md)
 - [Kling V3 Omni](https://runapi.ai/models/kling/v3-omni.md)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video.md)

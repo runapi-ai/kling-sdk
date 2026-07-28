@@ -59,6 +59,7 @@ const url = result.videos[0].url;
 ```
 
 Kling 2.6 uses `model: 'kling-v2.6'` for text-to-video, image-to-video, and motion control. Set `mode: 'pro'` before enabling sound; final-frame image-to-video requests also use `duration_seconds: 5`. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation. Omit `background_source`.
+Kling O1 uses `model: 'kling-o1'` with ordered public HTTP(S) `reference_image_urls` and an optional public HTTP(S) `reference_video_url`. Mention every supplied item in `prompt` as `<<<image_1>>>`, `<<<image_2>>>`, or `<<<video_1>>>`. With a video, at most four images are allowed. Do not combine `last_frame_image_url` with reference images or a reference video. Use `feature` with the required first frame; `base` cannot be combined with frame inputs. Use a five-second request and keep sound disabled.
 Kling V3 Omni uses `model: 'kling-v3-omni'` for both text-to-video and image-to-video. Image-to-video requires `first_frame_image_url`; final-frame requests also use `duration_seconds: 5`.
 
 ## Routing
@@ -74,6 +75,7 @@ Kling V3 Omni uses `model: 'kling-v3-omni'` for both text-to-video and image-to-
 ## Variants
 
 - [Kling 3.0](https://runapi.ai/models/kling/3.0)
+- [Kling O1](https://runapi.ai/models/kling/o1)
 - [Kling 2.6](https://runapi.ai/models/kling/v2.6)
 - [Kling V3 Omni](https://runapi.ai/models/kling/v3-omni)
 - [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video)

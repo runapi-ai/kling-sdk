@@ -55,6 +55,28 @@ func TestTextToVideoCreateSingleShot(t *testing.T) {
 	}
 }
 
+func TestTaskResponseParsesBillingFacts(t *testing.T) {
+	var response TextToVideoResponse
+	err := json.Unmarshal([]byte(`{"id":"task_123","status":"completed","billing":{"reservation":{"amount_cents":10},"settlement":{"charged_amount_cents":9,"amount_micro_cents":950000},"refund":{"refunded_at":"2026-07-23T00:00:00.000000Z"}}}`), &response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.Billing == nil || response.Billing.Reservation == nil || response.Billing.Settlement == nil || response.Billing.Refund == nil {
+		t.Fatalf("expected complete billing facts: %#v", response.Billing)
+	}
+	if response.Billing.Reservation.AmountCents != 10 || response.Billing.Settlement.AmountMicroCents != 950000 || response.Billing.Refund.RefundedAt == "" {
+		t.Fatalf("unexpected billing facts: %#v", response.Billing)
+	}
+
+	err = json.Unmarshal([]byte(`{"id":"legacy_task","status":"completed","billing":{"reservation":null,"settlement":null,"refund":null}}`), &response)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.Billing == nil || response.Billing.Reservation != nil || response.Billing.Settlement != nil || response.Billing.Refund != nil {
+		t.Fatalf("expected nil billing facts when none were recorded: %#v", response.Billing)
+	}
+}
+
 func TestTextToVideoCreate4KOutputResolution(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
@@ -281,6 +303,28 @@ func TestTextToVideoCreateV3Omni(t *testing.T) {
 	}
 }
 
+func TestTextToVideoCreateO1References(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	preserveAudio := true
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:                       ModelO1T2V,
+		Prompt:                      "Keep <<<image_1>>> beside <<<video_1>>>",
+		ReferenceImageURLs:          []string{"https://cdn.runapi.ai/public/samples/portrait.jpg"},
+		ReferenceVideoURL:           "https://cdn.runapi.ai/public/samples/video.mp4",
+		ReferenceVideoType:          "feature",
+		PreserveReferenceVideoAudio: &preserveAudio,
+		DurationSeconds:             5,
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-o1" || body["reference_video_type"] != "feature" || body["preserve_reference_video_audio"] != true {
+		t.Fatalf("unexpected Kling O1 body: %v", body)
+	}
+}
+
 func TestTextToVideoRejectsV26SoundOutsideProMode(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
@@ -295,6 +339,36 @@ func TestTextToVideoRejectsV26SoundOutsideProMode(t *testing.T) {
 	}
 	if stub.body != nil {
 		t.Fatalf("expected no request body, got: %v", stub.body)
+	}
+}
+
+func TestTextToVideoRejectsNonPublicO1ReferenceMedia(t *testing.T) {
+	for _, referenceURL := range []string{
+		"file:///etc/passwd.jpg",
+		"http://localhost/reference.jpg",
+		"http://127.0.0.1/reference.jpg",
+		"http://169.254.169.254/reference.jpg",
+		"http://[::ffff:127.0.0.1]/reference.jpg",
+		"http://2130706433/reference.jpg",
+		"http://127.1/reference.jpg",
+		"http://0177.0.0.1/reference.jpg",
+		"http://0x7f000001/reference.jpg",
+	} {
+		t.Run(referenceURL, func(t *testing.T) {
+			stub := &stubHTTPClient{}
+			client := NewClientWithHTTP(stub)
+			_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+				Model:              ModelO1T2V,
+				Prompt:             "Use <<<image_1>>>",
+				ReferenceImageURLs: []string{referenceURL},
+			})
+			if err == nil || !strings.Contains(err.Error(), "reference_image_urls[0] must be a public HTTP or HTTPS URL") {
+				t.Fatalf("unexpected error: %v", err)
+			}
+			if stub.body != nil {
+				t.Fatalf("expected no request body, got: %v", stub.body)
+			}
+		})
 	}
 }
 
@@ -628,6 +702,56 @@ func TestImageToVideoRejectsV26ConditionalFields(t *testing.T) {
 				t.Fatalf("expected no request body, got: %v", stub.body)
 			}
 		})
+	}
+}
+
+func TestImageToVideoRejectsO1BaseVideoWithFrame(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
+		Model:              ModelO1I2V,
+		Prompt:             "Use <<<video_1>>> as the base",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+		ReferenceVideoURL:  "https://cdn.runapi.ai/public/samples/video.mp4",
+		ReferenceVideoType: "base",
+	})
+	if err == nil || !strings.Contains(err.Error(), "reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if stub.body != nil {
+		t.Fatalf("expected no request body, got: %v", stub.body)
+	}
+}
+
+func TestImageToVideoRejectsO1TailFrameWithReferenceMedia(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.ImageToVideo.Create(context.Background(), ImageToVideoParams{
+		Model:              ModelO1I2V,
+		Prompt:             "Move toward <<<image_1>>>",
+		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
+		ReferenceImageURLs: []string{"https://cdn.runapi.ai/public/samples/portrait.jpg"},
+	})
+	if err == nil || !strings.Contains(err.Error(), "last_frame_image_url cannot be combined with reference_image_urls or reference_video_url") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if stub.body != nil {
+		t.Fatalf("expected no request body, got: %v", stub.body)
+	}
+}
+
+func TestTextToVideoRejectsO1MissingVideoReference(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model: ModelO1T2V, Prompt: "Follow <<<video_1>>>",
+	})
+	if err == nil || !strings.Contains(err.Error(), "prompt references missing video_1") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if stub.body != nil {
+		t.Fatalf("expected no request body, got: %v", stub.body)
 	}
 }
 

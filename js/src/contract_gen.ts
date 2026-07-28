@@ -97,6 +97,7 @@ export const contract = {
   },
   "image-to-video": {
     "models": [
+      "kling-o1",
       "kling-v2.1-master-image-to-video",
       "kling-v2.1-pro",
       "kling-v2.1-standard",
@@ -106,6 +107,49 @@ export const contract = {
       "kling-v3-turbo-image-to-video"
     ],
     "fields_by_model": {
+      "kling-o1": {
+        "aspect_ratio": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "duration_seconds": {
+          "enum": [
+            5
+          ],
+          "type": "integer"
+        },
+        "first_frame_image_url": {
+          "required": true
+        },
+        "mode": {
+          "enum": [
+            "std",
+            "pro"
+          ]
+        },
+        "model": {
+          "required": true
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        },
+        "reference_image_urls": {
+          "min_items": 1,
+          "max_items": 7
+        },
+        "reference_video_type": {
+          "enum": [
+            "base",
+            "feature"
+          ]
+        }
+      },
       "kling-v2.1-master-image-to-video": {
         "duration_seconds": {
           "enum": [
@@ -300,11 +344,25 @@ export const contract = {
     "rules": [
       {
         "when": {
+          "model": "kling-o1"
+        },
+        "forbidden": [
+          "output_resolution",
+          "negative_prompt",
+          "cfg_scale"
+        ]
+      },
+      {
+        "when": {
           "model": "kling-v2.1-master-image-to-video"
         },
         "forbidden": [
           "output_resolution",
-          "enable_sound"
+          "enable_sound",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -313,7 +371,11 @@ export const contract = {
         },
         "forbidden": [
           "output_resolution",
-          "enable_sound"
+          "enable_sound",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -322,7 +384,11 @@ export const contract = {
         },
         "forbidden": [
           "output_resolution",
-          "enable_sound"
+          "enable_sound",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -331,7 +397,11 @@ export const contract = {
         },
         "forbidden": [
           "output_resolution",
-          "enable_sound"
+          "enable_sound",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -341,7 +411,11 @@ export const contract = {
         "forbidden": [
           "output_resolution",
           "negative_prompt",
-          "cfg_scale"
+          "cfg_scale",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -350,7 +424,11 @@ export const contract = {
         },
         "forbidden": [
           "negative_prompt",
-          "cfg_scale"
+          "cfg_scale",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -362,7 +440,11 @@ export const contract = {
           "aspect_ratio",
           "negative_prompt",
           "cfg_scale",
-          "last_frame_image_url"
+          "last_frame_image_url",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       }
     ]
@@ -446,6 +528,7 @@ export const contract = {
   "text-to-video": {
     "models": [
       "kling-3.0",
+      "kling-o1",
       "kling-v2.1-master-text-to-video",
       "kling-v2.5-turbo-text-to-video-pro",
       "kling-v2.6",
@@ -487,6 +570,46 @@ export const contract = {
             "720p",
             "1080p",
             "4k"
+          ]
+        }
+      },
+      "kling-o1": {
+        "aspect_ratio": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "duration_seconds": {
+          "enum": [
+            5
+          ],
+          "type": "integer"
+        },
+        "mode": {
+          "enum": [
+            "std",
+            "pro"
+          ]
+        },
+        "model": {
+          "required": true
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        },
+        "reference_image_urls": {
+          "min_items": 1,
+          "max_items": 7
+        },
+        "reference_video_type": {
+          "enum": [
+            "base",
+            "feature"
           ]
         }
       },
@@ -648,15 +771,18 @@ export const contract = {
     "rules": [
       {
         "when": {
-          "model": "kling-v2.5-turbo-text-to-video-pro"
+          "model": "kling-3.0"
         },
         "forbidden": [
-          "mode"
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
         "when": {
-          "model": "kling-v2.6"
+          "model": "kling-o1"
         },
         "forbidden": [
           "output_resolution",
@@ -671,6 +797,49 @@ export const contract = {
       },
       {
         "when": {
+          "model": "kling-v2.1-master-text-to-video"
+        },
+        "forbidden": [
+          "mode",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v2.5-turbo-text-to-video-pro"
+        },
+        "forbidden": [
+          "mode",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v2.6"
+        },
+        "forbidden": [
+          "output_resolution",
+          "negative_prompt",
+          "cfg_scale",
+          "multi_shots",
+          "multi_prompt",
+          "first_frame_image_url",
+          "last_frame_image_url",
+          "kling_elements",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
+        ]
+      },
+      {
+        "when": {
           "model": "kling-v3-omni"
         },
         "forbidden": [
@@ -680,7 +849,11 @@ export const contract = {
           "multi_prompt",
           "first_frame_image_url",
           "last_frame_image_url",
-          "kling_elements"
+          "kling_elements",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       },
       {
@@ -695,7 +868,11 @@ export const contract = {
           "multi_prompt",
           "first_frame_image_url",
           "last_frame_image_url",
-          "kling_elements"
+          "kling_elements",
+          "reference_image_urls",
+          "reference_video_url",
+          "reference_video_type",
+          "preserve_reference_video_audio"
         ]
       }
     ]
@@ -705,6 +882,7 @@ export const contract = {
 export const modelValues = {
   "textToVideo": {
     "KLING_3_0": "kling-3.0",
+    "KLING_O1": "kling-o1",
     "KLING_V2_1_MASTER_TEXT_TO_VIDEO": "kling-v2.1-master-text-to-video",
     "KLING_V2_5_TURBO_TEXT_TO_VIDEO_PRO": "kling-v2.5-turbo-text-to-video-pro",
     "KLING_V2_6": "kling-v2.6",
@@ -712,6 +890,7 @@ export const modelValues = {
     "KLING_V3_TURBO_TEXT_TO_VIDEO": "kling-v3-turbo-text-to-video"
   },
   "imageToVideo": {
+    "KLING_O1": "kling-o1",
     "KLING_V2_1_MASTER_IMAGE_TO_VIDEO": "kling-v2.1-master-image-to-video",
     "KLING_V2_1_PRO": "kling-v2.1-pro",
     "KLING_V2_1_STANDARD": "kling-v2.1-standard",

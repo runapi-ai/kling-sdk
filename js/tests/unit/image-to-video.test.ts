@@ -216,6 +216,65 @@ describe('ImageToVideo', () => {
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
 
+    it('sends Kling O1 first-frame and reference-image fields', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-o1-i2v' });
+
+      const imageToVideo = new ImageToVideo(mockHttp);
+      await imageToVideo.create({
+        model: 'kling-o1',
+        prompt: 'Move from the opening frame toward <<<image_1>>>',
+        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+        reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+        mode: 'pro',
+        duration_seconds: 5,
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith('POST', '/api/v1/kling/image_to_video', {
+        body: {
+          model: 'kling-o1',
+          prompt: 'Move from the opening frame toward <<<image_1>>>',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+          reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+          mode: 'pro',
+          duration_seconds: 5,
+        },
+      });
+    });
+
+    it('rejects Kling O1 tail frames combined with reference media', async () => {
+      const imageToVideo = new ImageToVideo(mockHttp);
+
+      await expect(
+        imageToVideo.create({
+          model: 'kling-o1',
+          prompt: 'Move from the opening frame toward <<<image_1>>>',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
+          reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+        })
+      ).rejects.toThrow(
+        'last_frame_image_url cannot be combined with reference_image_urls or reference_video_url'
+      );
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
+    it('rejects Kling O1 base video references combined with frame inputs', async () => {
+      const imageToVideo = new ImageToVideo(mockHttp);
+
+      await expect(
+        imageToVideo.create({
+          model: 'kling-o1',
+          prompt: 'Use <<<video_1>>> as the base',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+          reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
+          reference_video_type: 'base',
+        })
+      ).rejects.toThrow(
+        'reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url'
+      );
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
   });
 
   describe('get', () => {

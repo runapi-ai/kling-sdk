@@ -7,6 +7,7 @@ module RunApi
       # Generate videos from an input image.
       class ImageToVideo
         include RunApi::Core::ResourceHelpers
+        include O1ReferenceValidation
 
         ENDPOINT = "/api/v1/kling/image_to_video"
 
@@ -58,6 +59,7 @@ module RunApi
         def validate_params!(params)
           reject_unsupported_v3_turbo_fields!(params)
           validate_contract!(CONTRACT["image-to-video"], params)
+          validate_kling_o1_references!(params)
 
           # Bespoke last-frame rules that the generated contract cannot express.
           model = param(params, :model)
@@ -69,7 +71,7 @@ module RunApi
             return if duration_seconds.to_i == 5
 
             raise Core::ValidationError, "last_frame_image_url requires duration_seconds 5 for #{V3_OMNI_MODEL}"
-          elsif last_frame_image_url && !%w[kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
+          elsif last_frame_image_url && !%w[kling-o1 kling-v2.5-turbo-image-to-video-pro kling-v2.1-pro].include?(model)
             raise Core::ValidationError, "last_frame_image_url is only supported by kling-v2.5-turbo-image-to-video-pro and kling-v2.1-pro"
           end
         end

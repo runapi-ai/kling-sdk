@@ -247,6 +247,109 @@ describe('TextToVideo', () => {
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
 
+    it('sends Kling O1 reference images and video fields', async () => {
+      vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-o1' });
+
+      const textToVideo = new TextToVideo(mockHttp);
+      await textToVideo.create({
+        model: 'kling-o1',
+        prompt: 'Keep <<<image_1>>> beside <<<video_1>>>',
+        reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+        reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
+        reference_video_type: 'feature',
+        preserve_reference_video_audio: true,
+        duration_seconds: 5,
+        enable_sound: false,
+      });
+
+      expect(mockHttp.request).toHaveBeenCalledWith('POST', '/api/v1/kling/text_to_video', {
+        body: {
+          model: 'kling-o1',
+          prompt: 'Keep <<<image_1>>> beside <<<video_1>>>',
+          reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+          reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
+          reference_video_type: 'feature',
+          preserve_reference_video_audio: true,
+          duration_seconds: 5,
+          enable_sound: false,
+        },
+      });
+    });
+
+    it('rejects Kling O1 references without matching prompt markers', async () => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-o1',
+          prompt: 'Keep the same subject',
+          reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
+        })
+      ).rejects.toThrow('prompt must reference reference_image_urls[0] as <<<image_1>>>');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
+    it('rejects Kling O1 video markers without a reference video', async () => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-o1',
+          prompt: 'Follow <<<video_custom>>>',
+        })
+      ).rejects.toThrow('prompt references missing video_custom');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      'file:///etc/passwd.jpg',
+      'http://localhost/reference.jpg',
+      'http://127.0.0.1/reference.jpg',
+      'http://169.254.169.254/reference.jpg',
+      'http://[::ffff:127.0.0.1]/reference.jpg',
+      'http://2130706433/reference.jpg',
+      'http://127.1/reference.jpg',
+      'http://0177.0.0.1/reference.jpg',
+      'http://0x7f000001/reference.jpg',
+    ])('rejects non-public Kling O1 reference media at %s', async (referenceUrl) => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-o1',
+          prompt: 'Use <<<image_1>>>',
+          reference_image_urls: [referenceUrl],
+        })
+      ).rejects.toThrow('reference_image_urls[0] must be a public HTTP or HTTPS URL');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
+    it('rejects non-string Kling O1 reference image items without dropping their index', async () => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-o1',
+          prompt: 'Use <<<image_1>>>',
+          reference_image_urls: [123],
+        } as never)
+      ).rejects.toThrow('reference_image_urls[0] must be a string');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
+    it('rejects Kling O1-only reference fields on legacy models', async () => {
+      const textToVideo = new TextToVideo(mockHttp);
+
+      await expect(
+        textToVideo.create({
+          model: 'kling-v2.5-turbo-text-to-video-pro',
+          prompt: 'A quiet studio scene',
+          reference_video_type: 'feature',
+        })
+      ).rejects.toThrow('reference_video_type is not allowed');
+      expect(mockHttp.request).not.toHaveBeenCalled();
+    });
+
     it('sends Kling V3 Omni text-to-video resolution and sound fields', async () => {
       vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-v3-omni' });
 

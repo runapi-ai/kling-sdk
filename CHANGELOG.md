@@ -1,5 +1,33 @@
 # Changelog
 
+## [go/v0.2.13](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.2.13) - 2026-07-28
+
+### Added
+- Expose persisted billing facts on task responses.
+- Add Kling O1 text-to-video and image-to-video fields for ordered image references, video references, reference roles, and audio preservation.
+- Validate reference markers, media extensions, image counts, video dependencies, sound restrictions, and base-video frame conflicts before submission.
+
+## [js/v0.2.13](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.2.13) - 2026-07-28
+
+### Added
+- Type task billing facts on task responses.
+- Add Kling O1 text-to-video and image-to-video fields for ordered image references, video references, reference roles, and audio preservation.
+- Validate reference markers, media extensions, image counts, video dependencies, sound restrictions, and base-video frame conflicts before submission.
+
+## [ruby/v0.2.13](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.2.13) - 2026-07-28
+
+### Added
+- Expose live pricing through the shared core SDK.
+- Add Kling O1 text-to-video and image-to-video fields for ordered image references, video references, reference roles, and audio preservation.
+- Validate reference markers, media extensions, image counts, video dependencies, sound restrictions, and base-video frame conflicts before submission.
+
+## [python/v0.2.1](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.2.1), [java/v0.1.6](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.1.6) - 2026-07-28
+
+### Added
+- Add Kling O1 text-to-video and image-to-video fields for ordered image references, video references, reference roles, and audio preservation.
+- Validate reference markers, media extensions, image counts, video dependencies, sound restrictions, and base-video frame conflicts before submission.
+
+
 ## [python/v0.2.0](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.2.0) - 2026-07-24
 
 ### Added

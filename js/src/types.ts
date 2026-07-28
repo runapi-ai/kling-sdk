@@ -1,4 +1,4 @@
-import type { AsyncTaskStatus } from '@runapi.ai/core';
+import type { AsyncTaskStatus, TaskBillingResponse, TaskResponse } from '@runapi.ai/core';
 import type { modelValues } from './contract_gen';
 
 /**
@@ -23,6 +23,7 @@ export type KlingAspectRatio = '16:9' | '9:16' | '1:1';
 /** Duration in seconds. Range varies by model: 3-15 for kling-3.0, 5 or 10 for V2.x. */
 export type KlingDuration = number;
 export type KlingV26Mode = 'std' | 'pro';
+export type KlingO1ReferenceVideoType = 'base' | 'feature';
 
 /** A single shot in a multi-shot text-to-video sequence. */
 export interface MultiPromptItem {
@@ -132,6 +133,28 @@ export interface KlingV26TextToVideoParams {
   callback_url?: string;
 }
 
+interface KlingO1ReferenceParams {
+  /** Ordered public HTTP(S) image references; use matching `<<<image_N>>>` markers in prompt. */
+  reference_image_urls?: string[];
+  /** Public HTTP(S) MP4 or MOV reference video; use `<<<video_1>>>` in prompt. */
+  reference_video_url?: string;
+  /** Base edit or feature reference; defaults to base. */
+  reference_video_type?: KlingO1ReferenceVideoType;
+  /** Preserve audio from the reference video. */
+  preserve_reference_video_audio?: boolean;
+}
+
+/** Kling O1 text-to-video with image and video references. */
+export interface KlingO1TextToVideoParams extends KlingO1ReferenceParams {
+  model: (typeof modelValues.textToVideo.KLING_O1);
+  prompt: string;
+  mode?: KlingV26Mode;
+  duration_seconds?: 5;
+  enable_sound?: false;
+  aspect_ratio?: KlingAspectRatio;
+  callback_url?: string;
+}
+
 /** Kling v3 Omni text-to-video with native 4K, synchronized sound, and flexible duration. */
 export interface V3OmniTextToVideoParams {
   model: (typeof modelValues.textToVideo.KLING_V3_OMNI);
@@ -187,6 +210,20 @@ export interface KlingV26ImageToVideoParams {
   callback_url?: string;
 }
 
+/** Kling O1 image-to-video with a first frame plus either a final frame or reference media. */
+export interface KlingO1ImageToVideoParams extends KlingO1ReferenceParams {
+  model: (typeof modelValues.imageToVideo.KLING_O1);
+  prompt: string;
+  first_frame_image_url: string;
+  /** Final frame URL; cannot be combined with reference_image_urls or reference_video_url. */
+  last_frame_image_url?: string;
+  mode?: KlingV26Mode;
+  duration_seconds?: 5;
+  enable_sound?: false;
+  aspect_ratio?: KlingAspectRatio;
+  callback_url?: string;
+}
+
 /** Kling v3 Omni image-to-video from caller-owned first and optional final frames. */
 export interface V3OmniImageToVideoParams {
   model: (typeof modelValues.imageToVideo.KLING_V3_OMNI);
@@ -205,6 +242,7 @@ export type TextToVideoParams =
   | Kling3TextToVideoSingleShotParams
   | Kling3TextToVideoMultiShotParams
   | KlingV26TextToVideoParams
+  | KlingO1TextToVideoParams
   | V25TurboTextToVideoParams
   | V21MasterTextToVideoParams
   | V3TurboTextToVideoParams
@@ -213,6 +251,7 @@ export type TextToVideoParams =
 export type ImageToVideoParams =
   | V2ImageToVideoParams
   | KlingV26ImageToVideoParams
+  | KlingO1ImageToVideoParams
   | V3TurboImageToVideoParams
   | V3OmniImageToVideoParams;
 
@@ -224,12 +263,12 @@ export interface KlingExtendVideoParams {
   callback_url?: string;
 }
 
-export interface AsyncTaskResponse {
+export interface AsyncTaskResponse extends TaskResponse {
   id: string;
   status: AsyncTaskStatus;
 }
 
-export interface TaskCreateResponse {
+export interface TaskCreateResponse extends TaskBillingResponse {
   id: string;
 }
 

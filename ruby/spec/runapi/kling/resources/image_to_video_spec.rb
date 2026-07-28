@@ -123,6 +123,36 @@ RSpec.describe RunApi::Kling::Resources::ImageToVideo do
     end.to raise_error(RunApi::Core::ValidationError, /last_frame_image_url requires duration_seconds 5 for kling-v3-omni/)
   end
 
+  it "rejects Kling O1 base video references combined with frame inputs" do
+    expect do
+      resource.create(
+        model: "kling-o1",
+        prompt: "Use <<<video_1>>> as the base",
+        first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+        reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
+        reference_video_type: "base"
+      )
+    end.to raise_error(
+      RunApi::Core::ValidationError,
+      /reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url/
+    )
+  end
+
+  it "rejects Kling O1 tail frames combined with reference media" do
+    expect do
+      resource.create(
+        model: "kling-o1",
+        prompt: "Move toward <<<image_1>>>",
+        first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+        last_frame_image_url: "https://cdn.runapi.ai/public/samples/last-frame.jpg",
+        reference_image_urls: ["https://cdn.runapi.ai/public/samples/portrait.jpg"]
+      )
+    end.to raise_error(
+      RunApi::Core::ValidationError,
+      /last_frame_image_url cannot be combined with reference_image_urls or reference_video_url/
+    )
+  end
+
   it "requires first_frame_image_url" do
     expect do
       resource.create(model: "kling-v2.5-turbo-image-to-video-pro", prompt: "a flower blooming")

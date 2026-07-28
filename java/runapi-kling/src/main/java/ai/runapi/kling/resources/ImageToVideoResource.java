@@ -61,6 +61,7 @@ public final class ImageToVideoResource extends KlingResource {
 
   @Override
   protected void validateBody(String action, Map<String, Object> body) {
+    O1ReferenceValidation.validate(body);
     if (V26_MODEL.equals(body.get("model"))) {
       validateV26Body(body);
     }

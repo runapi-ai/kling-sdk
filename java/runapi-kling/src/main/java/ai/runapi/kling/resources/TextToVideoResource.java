@@ -64,6 +64,7 @@ public final class TextToVideoResource extends KlingResource {
 
   @Override
   protected void validateBody(String action, Map<String, Object> body) {
+    O1ReferenceValidation.validate(body);
     if (V26_MODEL.equals(body.get("model"))
         && Boolean.TRUE.equals(body.get("enable_sound"))
         && !"pro".equals(body.get("mode"))) {
