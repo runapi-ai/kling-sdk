@@ -65,8 +65,8 @@ Kling V3 Omni uses `model: 'kling-v3-omni'` for both text-to-video and image-to-
 ## Routing
 
 - Model page: https://runapi.ai/models/kling
-- Product docs: https://runapi.ai/docs#kling
-- SDK docs: https://runapi.ai/docs#sdk-kling
+- Product docs: https://runapi.ai/docs/api/kling/text-to-video
+- SDK docs: https://runapi.ai/docs/resources/sdks
 - SDK repository: https://github.com/runapi-ai/kling-sdk
 - Pricing and rate limits: https://runapi.ai/models/kling/3.0
 - Provider comparison: https://runapi.ai/providers/kuaishou

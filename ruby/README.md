@@ -2,7 +2,7 @@
 
 The Kling Ruby SDK is the language-specific package for Kling on RunAPI. Use this package for video generation, animation, and video editing workflows when your application needs request bodies, task status lookup, and consistent RunAPI errors in Ruby.
 
-This README is the Ruby package guide inside the public `kling-sdk` repository. For the repository overview, start at `../README.md`; for model details, use https://runapi.ai/models/kling; for API reference, use https://runapi.ai/docs#kling; for SDK docs, use https://runapi.ai/docs#sdk-kling.
+This README is the Ruby package guide inside the public `kling-sdk` repository. For the repository overview, start at `../README.md`; for model details, use https://runapi.ai/models/kling; for API reference, use https://runapi.ai/docs/api/kling/text-to-video; for SDK docs, use https://runapi.ai/docs/resources/sdks.
 
 ## Install
 
@@ -17,7 +17,7 @@ require "runapi/kling"
 
 client = RunApi::Kling::Client.new
 task = client.text_to_video.create(
-  # Pass the Kling JSON request body from https://runapi.ai/docs#kling.
+  # Pass the Kling JSON request body from https://runapi.ai/docs/api/kling/text-to-video.
 )
 status = client.text_to_video.get(task.id)
 ```
@@ -50,8 +50,8 @@ Use Ruby keyword arguments and the `RunApi::Kling` error classes when building v
 ## Links
 
 - Model page: https://runapi.ai/models/kling
-- SDK docs: https://runapi.ai/docs#sdk-kling
-- Product docs: https://runapi.ai/docs#kling
+- SDK docs: https://runapi.ai/docs/resources/sdks
+- Product docs: https://runapi.ai/docs/api/kling/text-to-video
 - Pricing and rate limits: https://runapi.ai/models/kling/3.0
 - Provider comparison: https://runapi.ai/providers/kuaishou
 - Full catalog: https://runapi.ai/models

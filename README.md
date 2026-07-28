@@ -161,8 +161,8 @@ Most media endpoints are asynchronous. `create()` submits a task and returns its
 ## Public links
 
 - Model page: https://runapi.ai/models/kling
-- SDK docs: https://runapi.ai/docs#sdk-kling
-- Product docs: https://runapi.ai/docs#kling
+- SDK docs: https://runapi.ai/docs/resources/sdks
+- Product docs: https://runapi.ai/docs/api/kling/text-to-video
 - SDK repository: https://github.com/runapi-ai/kling-sdk
 - PHP package repository: https://github.com/runapi-ai/kling-php
 - Skill repository: https://github.com/runapi-ai/kling
