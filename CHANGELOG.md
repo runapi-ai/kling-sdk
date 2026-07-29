@@ -1,5 +1,11 @@
 # Changelog
 
+## [python/v0.2.2](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.2.2) - 2026-07-29
+
+### Fixed
+- Point package documentation metadata to the current RunAPI Developer Docs.
+
+
 ## [go/v0.2.13](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.2.13) - 2026-07-28
 
 ### Added
