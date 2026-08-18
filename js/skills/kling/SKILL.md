@@ -1,6 +1,6 @@
 ---
 name: kling
-description: Generate and edit video with Kling through RunAPI. Use when the user asks an agent to create, edit, or transform video with Kling. Default to the RunAPI CLI for one-off generation; use SDKs only when the user is integrating RunAPI into an app or backend.
+description: "Generate and edit video with Kling through RunAPI. Use when the user asks an agent to create, edit, or transform video with Kling. Default to the RunAPI CLI for one-off generation; use SDKs only when the user is integrating RunAPI into an app or backend."
 documentation: https://runapi.ai/models/kling.md
 provider_page: https://runapi.ai/providers/kuaishou.md
 catalog: https://runapi.ai/models.md
@@ -23,81 +23,108 @@ metadata:
 
 # Kling on RunAPI
 
-Generate and edit video with Kling through RunAPI. The default path for one-off agent tasks is the `runapi` CLI; SDKs are for application integration.
+## Choose route
 
-## Critical: Integration Runtime
+- For a one-off artifact or result, use the registered `kling` service in the `runapi` CLI. If the installed command catalog does not list it, stop and report the missing service instead of inventing a command.
+- For an app, backend, worker, library, webhook pipeline, or production codebase, go directly to **Integrate with SDK**. Never shell out to the CLI as the production runtime.
 
-- Integration work (app, backend, worker, library, Rails service, Node service, Go service, webhook pipeline, or production codebase) uses the **SDK integration path** for the target language.
-- One-off generation, editing, transformation, manual smoke tests, debugging, or user-requested CLI runs use the **CLI path** with the `runapi` binary. For full CLI-specific agent guidance, see https://github.com/runapi-ai/cli-skill.
-- Never shell out to the `runapi` CLI as the production runtime integration layer.
+## Discover contract
 
-## SDK integration path
-
-When integrating Kling into an app, backend, worker, library, Rails service, Node service, Go service, webhook pipeline, or production workflow, start by checking the current SDK package and official usage. Confirm install commands, client methods (`create`, `get`, `run`), request fields, response shape, and error classes before using CLI help or raw HTTP examples. Use a RunAPI SDK package:
-
-- JavaScript / TypeScript: `@runapi.ai/kling`
-- PHP: `runapi-ai/kling`
-- Ruby: `runapi-kling`
-- Go: `github.com/runapi-ai/kling-sdk/go`
-
-## CLI path
-
-The `runapi` binary is the one-off and manual testing runtime dependency. For full CLI-specific agent guidance, see https://github.com/runapi-ai/cli-skill. Run `runapi auth status` first. For agents and headless runs, prefer `RUNAPI_API_KEY` or import it into saved config with `printf '%s' "$RUNAPI_API_KEY" | runapi auth import-token --token -`. Use `runapi login` only when the user explicitly wants interactive browser auth.
-
-Inspect the available commands and request fields with CLI help:
+Authenticate, then inspect the installed command catalog and the selected operation's current contract:
 
 ```shell
+runapi auth status > auth.json
+jq -e '.authenticated == true' auth.json
 runapi kling --help
-runapi kling text-to-video --help
+runapi kling <operation> --help
+curl --fail --location https://runapi.ai/docs/api/kling/<operation>.md --output contract.md
 ```
 
-Run a one-off task (synchronous — polls until the task completes):
+If authentication is false, stop before submitting. Ask the user to provide a valid `RUNAPI_API_KEY`, or import a user-provided key from stdin with `runapi auth import-token --token -`; use interactive browser login only when the user explicitly requests it. Choose `<operation>` only from service help. Treat command help as authoritative for the installed operation, model, and top-level field roster. Treat its API Reference as authoritative for the complete request schema, nested fields, conditional rules, task behavior, and response variants. If the two surfaces disagree, stop and report the contract mismatch instead of guessing.
+
+## Build request
+
+Create `request.json` as valid JSON using only fields accepted by the discovered operation contract. For the chosen model and values, evaluate every applicable conditional rule as a set: satisfy every required field, omit every forbidden field, and stop on unresolved contradictions.
+
+Traverse nested objects and arrays before execution. Close every relationship stated by the discovered contract, including uniqueness constraints and cross-references between nested values.
+
+For a discovered local media input, including file-typed fields and top-level media URL fields, put an agent-readable local file path directly in `request.json`. The CLI consumes file fields as declared and uploads local paths in top-level media URL fields. Use `runapi files create` only when the user needs a reusable URL, provides Base64, or the discovered contract explicitly requires a separate upload.
+
+Validate the file before sending it:
 
 ```shell
-runapi kling text-to-video --input-file request.json
+jq empty request.json
 ```
 
-Submit asynchronously and poll separately:
+## Execute
+
+Submit exactly once and persist the task response before waiting:
 
 ```shell
-runapi kling text-to-video --async --input-file request.json
-runapi wait <task-id> --service kling --action text-to-video
+runapi kling <operation> --async --input-file request.json > task.json
+task_id="$(jq -er '.id' task.json)"
 ```
 
-Available commands: `text-to-video`, `avatar`, `image-to-video`, `motion-control`.
+For a one-off result, immediately wait for that same task and save the complete JSON response. This blocking wait is the default:
 
-For Kling 3.0 text-to-video requests, keep `model: "kling-3.0"` and choose `output_resolution: "720p"`, `"1080p"`, or `"4k"` as needed.
-For V3 Turbo text-to-video requests, use `model: "kling-v3-turbo-text-to-video"` with `output_resolution: "720p"` or `"1080p"`.
-For V3 Turbo image-to-video requests, use `model: "kling-v3-turbo-image-to-video"` and provide `first_frame_image_url`.
-For Kling 2.6 text-to-video, image-to-video, or motion-control requests, use `model: "kling-v2.6"`; `enable_sound: true` requires `mode: "pro"`, and `last_frame_image_url` additionally requires `duration_seconds: 5`. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation. Do not send `background_source`.
-For Kling O1 text-to-video or image-to-video requests, use `model: "kling-o1"`. Reference ordered images with public HTTP(S) `reference_image_urls` and `<<<image_1>>>`, `<<<image_2>>>`, and so on in `prompt`; reference the optional public HTTP(S) `reference_video_url` as `<<<video_1>>>`. With a video, send no more than four images. Do not combine `last_frame_image_url` with reference images or a reference video. Use `reference_video_type: "feature"` with the required first frame; `"base"` cannot be combined with frame inputs. Use `duration_seconds: 5`, `mode: "std"` or `"pro"`, and keep `enable_sound: false`.
-For Kling V3 Omni text-to-video or image-to-video requests, use `model: "kling-v3-omni"`; image-to-video requires `first_frame_image_url`, and `last_frame_image_url` requires `duration_seconds: 5`.
+```shell
+runapi wait "$task_id" --service kling --action <operation> > result.json
+```
 
-## Generated file storage
+Only when the user explicitly asks for background execution, polling, or webhook integration may you stop after validating `task.json`. Report the task id and do not claim that the deliverable is complete.
 
-RunAPI-generated file URLs are temporary. Download and store generated images, videos, audio, or other files in your own durable storage within 7 days; do not treat returned URLs as long-term assets.
+## Verify
+
+A success status is not the deliverable. Read and validate the complete response according to the discovered result contract. Preserve the complete non-media result in the exact requested format, including JSON, text, SRT, or VTT.
+
+For every requested media deliverable listed anywhere in the response, download all of them rather than returning only the first URL. Before downloading, derive its expected MIME type or family from response metadata when present, then the selected output format, then an unambiguous result field such as `videos`, `images`, or `audios` in the API Reference. The Catalog-declared fallback families for this skill are `video/*`. Stop only when no single expected type or family can be established from those sources.
+
+For every downloaded file, require both a non-empty file and the expected MIME type or family:
+
+```shell
+curl --fail --location <deliverable-url> --output <downloaded-file>
+for file in <downloaded-files>; do
+  expected_mime=<expected-MIME-or-family-pattern-for-this-file>
+  test -s "$file"
+  [[ "$(file --brief --mime-type "$file")" == $expected_mime ]]
+done
+```
+
+Do not report completion when any requested deliverable is missing, empty, or has an unexpected MIME type. Record `Skill Conformance` separately from `Task Outcome` so a service failure does not hide whether this recipe was followed.
+
+## Recover or stop
+
+- Correct a request shape at most once, and only when the discovered contract or returned validation error identifies the correction.
+- Retry a transient transport failure at most once, and only when evidence confirms that no task was created, no billing occurred, and retrying is safe.
+- If waiting times out or loses transport after `task.json` exists, preserve the error and rerun `runapi wait` for that same task at most once. Never submit a replacement task.
+- On a terminal RunAPI or service failure, preserve the task/error evidence and stop. Keep the selected model and capability, and do not submit another paid request without user authorization.
+- If the contract is missing a fact required to build or verify the request, stop and report the contract gap. Do not turn a product defect into a permanent skill workaround.
+
+## Integrate with SDK
+
+Use this route only for application or production-code integration. Open the current RunAPI SDK reference below, select the package for the target language and `Kling`, and confirm its install command, client methods, request types, response types, and error classes before coding. Build the request from the same discovered product contract and apply the same deliverable verification and stop rules. Do not invoke `runapi` as a subprocess from production code.
 
 ## References
 
 - Model overview, pricing, and rate limits: https://runapi.ai/models/kling.md
-- Provider comparison: https://runapi.ai/providers/kuaishou.md
+- Provider overview: https://runapi.ai/providers/kuaishou.md
 - Full model catalog: https://runapi.ai/models.md
+- SDK integration: https://github.com/runapi-ai/kling-sdk
 
 ## Variants
-
-- [Kling 3.0](https://runapi.ai/models/kling/3.0.md)
-- [Kling O1](https://runapi.ai/models/kling/o1.md)
-- [Kling 2.6](https://runapi.ai/models/kling/v2.6.md)
-- [Kling V3 Omni](https://runapi.ai/models/kling/v3-omni.md)
-- [V3 Turbo text to video](https://runapi.ai/models/kling/v3-turbo-text-to-video.md)
-- [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video.md)
-- [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro.md)
-- [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard.md)
-- [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro.md)
-- [V1 avatar standard](https://runapi.ai/models/kling/v1-avatar-standard.md)
-- [V2.1 pro](https://runapi.ai/models/kling/v2.1-pro.md)
-- [V2.1 standard](https://runapi.ai/models/kling/v2.1-standard.md)
-- [V2.1 master text to video](https://runapi.ai/models/kling/v2.1-master-text-to-video.md)
-- [V2.1 master image to video](https://runapi.ai/models/kling/v2.1-master-image-to-video.md)
-- [V2.5 turbo text to video pro](https://runapi.ai/models/kling/v2.5-turbo-text-to-video-pro.md)
-- [V2.5 turbo image to video pro](https://runapi.ai/models/kling/v2.5-turbo-image-to-video-pro.md)
+- `kling-3.0`: https://runapi.ai/models/kling/3.0.md
+- `kling-ai-avatar-pro`: https://runapi.ai/models/kling/ai-avatar-pro.md
+- `kling-ai-avatar-standard`: https://runapi.ai/models/kling/ai-avatar-standard.md
+- `kling-ai-avatar-v1-pro`: https://runapi.ai/models/kling/ai-avatar-v1-pro.md
+- `kling-o1`: https://runapi.ai/models/kling/o1.md
+- `kling-v1-avatar-standard`: https://runapi.ai/models/kling/v1-avatar-standard.md
+- `kling-v2.1-master-image-to-video`: https://runapi.ai/models/kling/v2.1-master-image-to-video.md
+- `kling-v2.1-master-text-to-video`: https://runapi.ai/models/kling/v2.1-master-text-to-video.md
+- `kling-v2.1-pro`: https://runapi.ai/models/kling/v2.1-pro.md
+- `kling-v2.1-standard`: https://runapi.ai/models/kling/v2.1-standard.md
+- `kling-v2.5-turbo-image-to-video-pro`: https://runapi.ai/models/kling/v2.5-turbo-image-to-video-pro.md
+- `kling-v2.5-turbo-text-to-video-pro`: https://runapi.ai/models/kling/v2.5-turbo-text-to-video-pro.md
+- `kling-v2.6`: https://runapi.ai/models/kling/v2.6.md
+- `kling-v3-omni`: https://runapi.ai/models/kling/v3-omni.md
+- `kling-v3-turbo-image-to-video`: https://runapi.ai/models/kling/v3-turbo-image-to-video.md
+- `kling-v3-turbo-text-to-video`: https://runapi.ai/models/kling/v3-turbo-text-to-video.md
