@@ -21,6 +21,8 @@ import ai.runapi.kling.types.CompletedAiAvatarResponse;
 import ai.runapi.kling.types.CompletedImageToVideoResponse;
 import ai.runapi.kling.types.CompletedMotionControlResponse;
 import ai.runapi.kling.types.CompletedTextToVideoResponse;
+import ai.runapi.kling.types.EditVideoModel;
+import ai.runapi.kling.types.EditVideoParams;
 import ai.runapi.kling.types.ImageToVideoModel;
 import ai.runapi.kling.types.ImageToVideoParams;
 import ai.runapi.kling.types.ImageToVideoResponse;
@@ -45,6 +47,7 @@ class KlingClientTest {
     KlingClient client = KlingClient.builder().apiKey("sk-test").build();
 
     assertNotNull(client.textToVideo());
+    assertNotNull(client.editVideo());
     assertNotNull(client.files());
     assertNotNull(client.account());
   }
@@ -809,6 +812,48 @@ class KlingClientTest {
                   .build(),
           RequestOptions.builder().pollingInterval(Duration.ofMillis(1)).pollingMaxWait(Duration.ofSeconds(1)).build()));
     }
+
+  @Test
+  void editVideoCreatesGetsAndRunsWithCallerSelectedModel() throws Exception {
+    EditVideoParams referenceParams = EditVideoParams.builder()
+        .model(EditVideoModel.KLING_V3_OMNI_REFERENCE)
+        .prompt("Keep the source subject consistent")
+        .sourceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+        .aspectRatio("auto")
+        .enableSound(false)
+        .build();
+
+    CapturingTransport createTransport = new CapturingTransport("{\"id\":\"task_edit\",\"status\":\"processing\"}");
+    KlingClient createClient = KlingClient.builder().apiKey("sk-test").transport(createTransport).build();
+    assertNotNull(createClient.editVideo().create(referenceParams));
+    JsonNode body = bodyJson(createTransport.request);
+    assertEquals("POST", createTransport.request.getMethod().name());
+    assertEquals("/api/v1/kling/edit_video", createTransport.request.getPath());
+    assertEquals("kling-v3-omni-reference", body.get("model").asText());
+    assertEquals("Keep the source subject consistent", body.get("prompt").asText());
+
+    CapturingTransport getTransport = new CapturingTransport("{\"id\":\"task_edit\",\"status\":\"processing\"}");
+    KlingClient getClient = KlingClient.builder().apiKey("sk-test").transport(getTransport).build();
+    assertNotNull(getClient.editVideo().get("task_edit"));
+    assertEquals("/api/v1/kling/edit_video/task_edit", getTransport.request.getPath());
+
+    EditVideoParams editParams = EditVideoParams.builder()
+        .model(EditVideoModel.KLING_V3_OMNI_EDIT)
+        .prompt("Turn the source video into a watercolor scene")
+        .sourceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+        .aspectRatio("auto")
+        .enableSound(true)
+        .build();
+
+    SequenceTransport runTransport = new SequenceTransport(
+        "{\"id\":\"task_edit\",\"status\":\"processing\"}",
+        "{\"id\":\"task_edit\",\"status\":\"completed\",\"videos\":[{\"url\":\"https://file.runapi.ai/edit.mp4\"}]}");
+    KlingClient runClient = KlingClient.builder().apiKey("sk-test").transport(runTransport).build();
+    CompletedTextToVideoResponse result = runClient.editVideo().run(
+        editParams,
+        RequestOptions.builder().pollingInterval(Duration.ofMillis(1)).pollingMaxWait(Duration.ofSeconds(1)).build());
+    assertEquals("completed", result.getStatus().value());
+  }
 
   private static JsonNode bodyJson(HttpRequest request) throws Exception {
     JsonRequestBody body = (JsonRequestBody) request.getBody();

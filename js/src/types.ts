@@ -16,6 +16,9 @@ export type KlingV2ImageToVideoModel =
   | (typeof modelValues.imageToVideo.KLING_V2_1_MASTER_IMAGE_TO_VIDEO);
 export type KlingImageToVideoModel =
   (typeof modelValues.imageToVideo)[keyof typeof modelValues.imageToVideo];
+/** Model variants for source-video editing. */
+export type KlingEditVideoModel =
+  (typeof modelValues.editVideo)[keyof typeof modelValues.editVideo];
 /** Output resolution for text-to-video. 4k is highest quality but slowest. */
 export type KlingTextToVideoOutputResolution = '720p' | '1080p' | '4k';
 export type KlingV3TurboOutputResolution = '720p' | '1080p';
@@ -166,6 +169,18 @@ export interface V3OmniTextToVideoParams {
   callback_url?: string;
 }
 
+/** Kling v3 Omni reference generation from one to seven reference images. */
+export interface V3OmniReferenceTextToVideoParams {
+  model: (typeof modelValues.textToVideo.KLING_V3_OMNI_REFERENCE);
+  prompt: string;
+  reference_image_urls: string[];
+  duration_seconds?: KlingDuration;
+  output_resolution?: KlingTextToVideoOutputResolution;
+  aspect_ratio: KlingAspectRatio;
+  enable_sound?: boolean;
+  callback_url?: string;
+}
+
 /**
  * Earlier V2 image-to-video parameters. A first-frame image is required; the model
  * animates it into video guided by the text prompt. last_frame_image_url is supported
@@ -246,7 +261,8 @@ export type TextToVideoParams =
   | V25TurboTextToVideoParams
   | V21MasterTextToVideoParams
   | V3TurboTextToVideoParams
-  | V3OmniTextToVideoParams;
+  | V3OmniTextToVideoParams
+  | V3OmniReferenceTextToVideoParams;
 
 export type ImageToVideoParams =
   | V2ImageToVideoParams
@@ -260,6 +276,29 @@ export interface KlingExtendVideoParams {
   source_task_id: string;
   mode?: 'std' | 'pro';
   prompt?: string;
+  callback_url?: string;
+}
+
+/** Parameters for Kling v3 Omni source-video editing. */
+export interface EditVideoParams {
+  model: KlingEditVideoModel;
+  /** Video description prompt. */
+  prompt: string;
+  /** Caller-owned source video URL. Mutually exclusive with source_task_id. */
+  source_video_url?: string;
+  /** Completed compatible RunAPI task ID. Mutually exclusive with source_video_url. */
+  source_task_id?: string;
+  /** Ordered reference image URLs. */
+  reference_image_urls?: string[];
+  /** Output duration in seconds. Source-only requests use five seconds. */
+  duration_seconds?: KlingDuration;
+  /** Output resolution. */
+  output_resolution?: KlingTextToVideoOutputResolution;
+  /** Output aspect ratio. Source-only requests use auto. */
+  aspect_ratio?: KlingAspectRatio | 'auto';
+  /** Enable synchronized sound generation. */
+  enable_sound?: boolean;
+  /** URL for completion callback notifications. */
   callback_url?: string;
 }
 

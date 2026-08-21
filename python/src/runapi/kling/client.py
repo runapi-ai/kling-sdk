@@ -7,6 +7,7 @@ from typing import Any, Optional
 from runapi.core import ProviderClient
 
 from .resources.ai_avatar import AiAvatar
+from .resources.edit_video import EditVideo
 from .resources.image_to_video import ImageToVideo
 from .resources.motion_control import MotionControl
 from .resources.text_to_video import TextToVideo
@@ -32,3 +33,4 @@ class KlingClient(ProviderClient):
         self.image_to_video = ImageToVideo(http)
         self.motion_control = MotionControl(http)
         self.extend_video = ExtendVideo(http)
+        self.edit_video = EditVideo(http)

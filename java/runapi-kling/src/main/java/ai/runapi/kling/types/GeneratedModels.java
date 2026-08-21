@@ -8,6 +8,7 @@ public final class GeneratedModels {
   public static final String TEXT_TO_VIDEO_KLING_V2_5_TURBO_TEXT_TO_VIDEO_PRO = "kling-v2.5-turbo-text-to-video-pro";
   public static final String TEXT_TO_VIDEO_KLING_V2_6 = "kling-v2.6";
   public static final String TEXT_TO_VIDEO_KLING_V3_OMNI = "kling-v3-omni";
+  public static final String TEXT_TO_VIDEO_KLING_V3_OMNI_REFERENCE = "kling-v3-omni-reference";
   public static final String TEXT_TO_VIDEO_KLING_V3_TURBO_TEXT_TO_VIDEO = "kling-v3-turbo-text-to-video";
   public static final String IMAGE_TO_VIDEO_KLING_O1 = "kling-o1";
   public static final String IMAGE_TO_VIDEO_KLING_V2_1_MASTER_IMAGE_TO_VIDEO = "kling-v2.1-master-image-to-video";
@@ -17,6 +18,8 @@ public final class GeneratedModels {
   public static final String IMAGE_TO_VIDEO_KLING_V2_6 = "kling-v2.6";
   public static final String IMAGE_TO_VIDEO_KLING_V3_OMNI = "kling-v3-omni";
   public static final String IMAGE_TO_VIDEO_KLING_V3_TURBO_IMAGE_TO_VIDEO = "kling-v3-turbo-image-to-video";
+  public static final String EDIT_VIDEO_KLING_V3_OMNI_EDIT = "kling-v3-omni-edit";
+  public static final String EDIT_VIDEO_KLING_V3_OMNI_REFERENCE = "kling-v3-omni-reference";
   public static final String AVATAR_KLING_AI_AVATAR_PRO = "kling-ai-avatar-pro";
   public static final String AVATAR_KLING_AI_AVATAR_STANDARD = "kling-ai-avatar-standard";
   public static final String AVATAR_KLING_AI_AVATAR_V1_PRO = "kling-ai-avatar-v1-pro";

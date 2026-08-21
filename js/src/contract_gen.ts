@@ -65,6 +65,370 @@ export const contract = {
       }
     }
   },
+  "edit-video": {
+    "models": [
+      "kling-v3-omni-edit",
+      "kling-v3-omni-reference"
+    ],
+    "fields_by_model": {
+      "kling-v3-omni-edit": {
+        "aspect_ratio": {
+          "enum": [
+            "auto",
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "duration_seconds": {
+          "enum": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "type": "integer"
+        },
+        "model": {
+          "required": true
+        },
+        "output_resolution": {
+          "enum": [
+            "720p",
+            "1080p",
+            "4k"
+          ]
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        },
+        "reference_image_urls": {
+          "min_items": 1,
+          "max_items": 4
+        }
+      },
+      "kling-v3-omni-reference": {
+        "aspect_ratio": {
+          "enum": [
+            "auto",
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "duration_seconds": {
+          "enum": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "type": "integer"
+        },
+        "model": {
+          "required": true
+        },
+        "output_resolution": {
+          "enum": [
+            "720p",
+            "1080p",
+            "4k"
+          ]
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        },
+        "reference_image_urls": {
+          "min_items": 1,
+          "max_items": 4
+        }
+      }
+    },
+    "rules": [
+      {
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_task_id": {
+            "present": false
+          },
+          "source_video_url": {
+            "present": false
+          }
+        },
+        "required_any": [
+          "source_video_url",
+          "source_task_id"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_video_url": {
+            "present": true
+          }
+        },
+        "forbidden": [
+          "source_task_id"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_task_id": {
+            "present": true
+          }
+        },
+        "forbidden": [
+          "source_video_url"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "auto"
+          ],
+          "duration_seconds": [
+            5
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_video_url": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": false
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "auto"
+          ],
+          "duration_seconds": [
+            5
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_task_id": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": false
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_video_url": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": true
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-edit",
+          "source_task_id": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": true
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_task_id": {
+            "present": false
+          },
+          "source_video_url": {
+            "present": false
+          }
+        },
+        "required_any": [
+          "source_video_url",
+          "source_task_id"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_video_url": {
+            "present": true
+          }
+        },
+        "forbidden": [
+          "source_task_id"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_task_id": {
+            "present": true
+          }
+        },
+        "forbidden": [
+          "source_video_url"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "auto"
+          ],
+          "enable_sound": [
+            false
+          ],
+          "duration_seconds": [
+            5
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_video_url": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": false
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "auto"
+          ],
+          "enable_sound": [
+            false
+          ],
+          "duration_seconds": [
+            5
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_task_id": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": false
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_video_url": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": true
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_task_id": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": true
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      }
+    ]
+  },
   "extend-video": {
     "models": [
       "kling-v2.5-turbo-image-to-video-pro",
@@ -533,6 +897,7 @@ export const contract = {
       "kling-v2.5-turbo-text-to-video-pro",
       "kling-v2.6",
       "kling-v3-omni",
+      "kling-v3-omni-reference",
       "kling-v3-turbo-text-to-video"
     ],
     "fields_by_model": {
@@ -725,6 +1090,55 @@ export const contract = {
           "length": true
         }
       },
+      "kling-v3-omni-reference": {
+        "aspect_ratio": {
+          "enum": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "required": true
+        },
+        "duration_seconds": {
+          "enum": [
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10,
+            11,
+            12,
+            13,
+            14,
+            15
+          ],
+          "type": "integer"
+        },
+        "model": {
+          "required": true
+        },
+        "output_resolution": {
+          "enum": [
+            "720p",
+            "1080p",
+            "4k"
+          ]
+        },
+        "prompt": {
+          "required": true,
+          "min": 1,
+          "max": 2500,
+          "length": true
+        },
+        "reference_image_urls": {
+          "required": true,
+          "min_items": 1,
+          "max_items": 7
+        }
+      },
       "kling-v3-turbo-text-to-video": {
         "aspect_ratio": {
           "enum": [
@@ -887,6 +1301,7 @@ export const modelValues = {
     "KLING_V2_5_TURBO_TEXT_TO_VIDEO_PRO": "kling-v2.5-turbo-text-to-video-pro",
     "KLING_V2_6": "kling-v2.6",
     "KLING_V3_OMNI": "kling-v3-omni",
+    "KLING_V3_OMNI_REFERENCE": "kling-v3-omni-reference",
     "KLING_V3_TURBO_TEXT_TO_VIDEO": "kling-v3-turbo-text-to-video"
   },
   "imageToVideo": {
@@ -898,6 +1313,10 @@ export const modelValues = {
     "KLING_V2_6": "kling-v2.6",
     "KLING_V3_OMNI": "kling-v3-omni",
     "KLING_V3_TURBO_IMAGE_TO_VIDEO": "kling-v3-turbo-image-to-video"
+  },
+  "editVideo": {
+    "KLING_V3_OMNI_EDIT": "kling-v3-omni-edit",
+    "KLING_V3_OMNI_REFERENCE": "kling-v3-omni-reference"
   },
   "avatar": {
     "KLING_AI_AVATAR_PRO": "kling-ai-avatar-pro",

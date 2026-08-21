@@ -16,11 +16,12 @@ import (
 )
 
 const (
-	textToVideoPath   = "/api/v1/kling/text_to_video"
-	imageToVideoPath  = "/api/v1/kling/image_to_video"
-	aiAvatarPath      = "/api/v1/kling/ai_avatar"
-	motionControlPath = "/api/v1/kling/motion_control"
-	extendVideoPath   = "/api/v1/kling/extend_video"
+	textToVideoPath      = "/api/v1/kling/text_to_video"
+	imageToVideoPath     = "/api/v1/kling/image_to_video"
+	aiAvatarPath         = "/api/v1/kling/ai_avatar"
+	motionControlPath    = "/api/v1/kling/motion_control"
+	extendVideoPath      = "/api/v1/kling/extend_video"
+	editVideoPath        = "/api/v1/kling/edit_video"
 )
 
 var v3TurboTextToVideoUnsupportedFields = []string{
@@ -44,11 +45,12 @@ var v3TurboImageToVideoUnsupportedFields = []string{
 // Client provides Kling video generation, AI avatar lip-sync, and motion control.
 type Client struct {
 	base.Base
-	TextToVideo   *TextToVideo
-	ImageToVideo  *ImageToVideo
-	AiAvatar      *AiAvatar
-	MotionControl *MotionControl
-	ExtendVideo   *ExtendVideo
+	TextToVideo      *TextToVideo
+	ImageToVideo     *ImageToVideo
+	AiAvatar         *AiAvatar
+	MotionControl    *MotionControl
+	ExtendVideo      *ExtendVideo
+	EditVideo        *EditVideo
 }
 
 // NewClient creates a Kling client with the given options.
@@ -67,12 +69,13 @@ func NewClient(opts ...option.ClientOption) (*Client, error) {
 // NewClientWithHTTP creates a Kling client with a pre-configured HTTP transport.
 func NewClientWithHTTP(httpClient core.HTTPClient) *Client {
 	return &Client{
-		Base:          base.New(httpClient),
-		TextToVideo:   &TextToVideo{http: httpClient},
-		ImageToVideo:  &ImageToVideo{http: httpClient},
-		AiAvatar:      &AiAvatar{http: httpClient},
-		MotionControl: &MotionControl{http: httpClient},
-		ExtendVideo:   &ExtendVideo{http: httpClient},
+		Base:             base.New(httpClient),
+		TextToVideo:      &TextToVideo{http: httpClient},
+		ImageToVideo:     &ImageToVideo{http: httpClient},
+		AiAvatar:         &AiAvatar{http: httpClient},
+		MotionControl:    &MotionControl{http: httpClient},
+		ExtendVideo:      &ExtendVideo{http: httpClient},
+		EditVideo:        &EditVideo{http: httpClient},
 	}
 }
 
@@ -94,6 +97,31 @@ func (r *ExtendVideo) Get(ctx context.Context, id string, opts ...option.Request
 }
 
 func (r *ExtendVideo) Run(ctx context.Context, params ExtendVideoParams, opts ...option.RequestOption) (*TextToVideoResponse, error) {
+	_, pollingOptions := option.ResolveRequestOptions(opts...)
+	return core.RunAsync(ctx, func(ctx context.Context) (*core.TaskCreateResponse, error) { return r.Create(ctx, params, opts...) }, func(ctx context.Context, id string) (*TextToVideoResponse, error) { return r.Get(ctx, id, opts...) }, pollingOptions)
+}
+
+// EditVideo edits a source video with the selected Kling model.
+type EditVideo struct{ http core.HTTPClient }
+
+// Create submits an edit-video task and returns immediately with a task id.
+func (r *EditVideo) Create(ctx context.Context, params EditVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
+	requestOptions, _ := option.ResolveRequestOptions(opts...)
+	body := core.CompactParams(params)
+	if err := core.ValidateParams(contractSchema["edit-video"], body); err != nil {
+		return nil, err
+	}
+	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, editVideoPath, body, requestOptions)
+}
+
+// Get fetches the current status of an edit-video task by id.
+func (r *EditVideo) Get(ctx context.Context, id string, opts ...option.RequestOption) (*TextToVideoResponse, error) {
+	requestOptions, _ := option.ResolveRequestOptions(opts...)
+	return core.GetJSON[TextToVideoResponse](ctx, r.http, core.ResourcePath(editVideoPath, id), requestOptions)
+}
+
+// Run submits an edit-video task and polls until it completes.
+func (r *EditVideo) Run(ctx context.Context, params EditVideoParams, opts ...option.RequestOption) (*TextToVideoResponse, error) {
 	_, pollingOptions := option.ResolveRequestOptions(opts...)
 	return core.RunAsync(ctx, func(ctx context.Context) (*core.TaskCreateResponse, error) { return r.Create(ctx, params, opts...) }, func(ctx context.Context, id string) (*TextToVideoResponse, error) { return r.Get(ctx, id, opts...) }, pollingOptions)
 }

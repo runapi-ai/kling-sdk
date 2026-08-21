@@ -10,7 +10,7 @@ plugins {
 }
 
 group = "ai.runapi"
-version = "0.1.6"
+version = "0.2.0"
 
 allprojects {
   group = rootProject.group
@@ -57,7 +57,7 @@ subprojects {
   }
 }
 
-project(":runapi-core").version = "0.5.0"
+project(":runapi-core").version = "0.6.0"
 
 subprojects {
   if (name != "runapi-core") {

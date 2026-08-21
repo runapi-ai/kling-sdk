@@ -5,14 +5,32 @@ import (
 	"encoding/json"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/runapi-ai/core-sdk/go/core"
+	"github.com/runapi-ai/core-sdk/go/option"
 )
 
 type stubHTTPClient struct {
 	method string
 	path   string
 	body   any
+}
+
+type sequenceHTTPClient struct {
+	responses []json.RawMessage
+	methods   []string
+	paths     []string
+}
+
+func (s *sequenceHTTPClient) Request(_ context.Context, method, path string, _ *core.HTTPRequestOptions) (json.RawMessage, error) {
+	s.methods = append(s.methods, method)
+	s.paths = append(s.paths, path)
+	index := len(s.methods) - 1
+	if index >= len(s.responses) {
+		index = len(s.responses) - 1
+	}
+	return s.responses[index], nil
 }
 
 func (s *stubHTTPClient) Request(_ context.Context, method, path string, opts *core.HTTPRequestOptions) (json.RawMessage, error) {
@@ -965,6 +983,83 @@ func TestMotionControlGet(t *testing.T) {
 	}
 	if stub.method != "GET" || stub.path != "/api/v1/kling/motion_control/task_motion" {
 		t.Fatalf("unexpected request: %s %s", stub.method, stub.path)
+	}
+}
+
+func TestTextToVideoCreateSupportsReferenceModel(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:              TextToVideoModel("kling-v3-omni-reference"),
+		Prompt:             "Keep the subject from the reference image",
+		ReferenceImageURLs: []string{"https://cdn.runapi.ai/public/samples/image.jpg"},
+		AspectRatio:        "16:9",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stub.method != "POST" || stub.path != "/api/v1/kling/text_to_video" {
+		t.Fatalf("unexpected request: %s %s", stub.method, stub.path)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v3-omni-reference" {
+		t.Fatalf("expected reference model, got: %#v", body)
+	}
+	if body["prompt"] != "Keep the subject from the reference image" {
+		t.Fatalf("unexpected prompt: %v", body["prompt"])
+	}
+}
+
+func TestEditVideoCreateGetAndRun(t *testing.T) {
+	stub := &stubHTTPClient{}
+	client := NewClientWithHTTP(stub)
+	_, err := client.EditVideo.Create(context.Background(), EditVideoParams{
+		Model:          EditVideoModel("kling-v3-omni-edit"),
+		Prompt:         "Turn the source video into a watercolor scene",
+		SourceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
+		AspectRatio:    "auto",
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stub.method != "POST" || stub.path != "/api/v1/kling/edit_video" {
+		t.Fatalf("unexpected request: %s %s", stub.method, stub.path)
+	}
+	body := stub.body.(map[string]any)
+	if body["model"] != "kling-v3-omni-edit" {
+		t.Fatalf("expected edit model, got: %#v", body)
+	}
+	if body["source_video_url"] != "https://cdn.runapi.ai/public/samples/video.mp4" {
+		t.Fatalf("unexpected source video URL: %v", body["source_video_url"])
+	}
+
+	_, err = client.EditVideo.Get(context.Background(), "task_edit")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if stub.method != "GET" || stub.path != "/api/v1/kling/edit_video/task_edit" {
+		t.Fatalf("unexpected request: %s %s", stub.method, stub.path)
+	}
+
+	sequence := &sequenceHTTPClient{responses: []json.RawMessage{
+		json.RawMessage(`{"id":"task_edit","status":"processing"}`),
+		json.RawMessage(`{"id":"task_edit","status":"completed","videos":[{"url":"https://file.runapi.ai/edit.mp4"}]}`),
+	}}
+	client = NewClientWithHTTP(sequence)
+	response, err := client.EditVideo.Run(context.Background(), EditVideoParams{
+		Model:          EditVideoModel("kling-v3-omni-edit"),
+		Prompt:         "Turn the source video into a watercolor scene",
+		SourceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
+		AspectRatio:    "auto",
+	}, option.WithPollInterval(time.Millisecond))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.Status != "completed" || len(response.Videos) != 1 {
+		t.Fatalf("unexpected response: %#v", response)
+	}
+	if len(sequence.paths) != 2 || sequence.paths[0] != "/api/v1/kling/edit_video" || sequence.paths[1] != "/api/v1/kling/edit_video/task_edit" {
+		t.Fatalf("unexpected paths: %#v", sequence.paths)
 	}
 }
 

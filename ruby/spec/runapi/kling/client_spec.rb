@@ -67,6 +67,11 @@ RSpec.describe RunApi::Kling::Client do
     expect(client.motion_control).to be_a(RunApi::Kling::Resources::MotionControl)
   end
 
+  it "exposes edit_video accessor" do
+    client = described_class.new(api_key: "test-key")
+    expect(client.edit_video).to be_a(RunApi::Kling::Resources::EditVideo)
+  end
+
   context "universal resources inherited from Core::Client" do
     it "exposes files" do
       client = described_class.new(api_key: "test-key")

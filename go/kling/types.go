@@ -8,6 +8,10 @@ type TextToVideoModel string
 // ImageToVideoModel selects a Kling image-to-video model variant.
 type ImageToVideoModel string
 
+// EditVideoModel selects a Kling source-video editing model variant.
+// It is an alias because the same model slug can also select text-to-video.
+type EditVideoModel = TextToVideoModel
+
 // MotionControlModel selects a Kling motion-control model variant.
 // It remains an alias so existing ModelKling30 motion-control callers compile.
 type MotionControlModel = TextToVideoModel
@@ -41,6 +45,10 @@ const (
 	ModelO1T2V TextToVideoModel = generatedTextToVideoModelKlingO1
 	// ModelV3OmniT2V supports 720p, 1080p, and 4K generation with optional sound.
 	ModelV3OmniT2V TextToVideoModel = generatedTextToVideoModelKlingV3Omni
+	// ModelV3OmniReference accepts reference images through TextToVideo and source videos through EditVideo.
+	ModelV3OmniReference EditVideoModel = generatedEditVideoModelKlingV3OmniReference
+	// ModelV3OmniEdit edits a source video through EditVideo.
+	ModelV3OmniEdit EditVideoModel = generatedEditVideoModelKlingV3OmniEdit
 	// ModelV3TurboT2V creates 3-15 second text-to-video clips at 720p or 1080p.
 	ModelV3TurboT2V TextToVideoModel = generatedTextToVideoModelKlingV3TurboTextToVideo
 	// ModelV25TurboT2VPro is a fast, high-quality V2.5 model. Supports negative prompts and cfg_scale.
@@ -127,7 +135,7 @@ type TextToVideoParams struct {
 
 	KlingElements []KlingElement `json:"kling_elements,omitempty" help:"optional; element references for generation"`
 
-	ReferenceImageURLs          []string `json:"reference_image_urls,omitempty" help:"optional for Kling O1; ordered public HTTP(S) JPG, JPEG, or PNG reference image URLs; use matching image markers in prompt"`
+	ReferenceImageURLs          []string `json:"reference_image_urls,omitempty" help:"optional for Kling O1 or kling-v3-omni-reference; ordered public reference image URLs"`
 	ReferenceVideoURL           string   `json:"reference_video_url,omitempty" help:"optional for Kling O1; public HTTP(S) MP4 or MOV reference video URL; use video_1 marker in prompt"`
 	ReferenceVideoType          string   `json:"reference_video_type,omitempty" help:"optional for Kling O1; base or feature; defaults to base"`
 	PreserveReferenceVideoAudio *bool    `json:"preserve_reference_video_audio,omitempty" help:"optional for Kling O1; preserve the reference video's original audio; requires reference_video_url"`
@@ -160,6 +168,20 @@ type ExtendVideoParams struct {
 	Mode         ExtendVideoMode `json:"mode,omitempty" help:"optional; std or pro"`
 	Prompt       string          `json:"prompt,omitempty" help:"optional; continuation prompt"`
 	CallbackURL  string          `json:"callback_url,omitempty" help:"optional; webhook URL"`
+}
+
+// EditVideoParams configures source-video editing for a Kling V3 Omni model.
+type EditVideoParams struct {
+	Model              EditVideoModel `json:"model" help:"required; model slug"`
+	Prompt             string   `json:"prompt" help:"required; video description"`
+	SourceVideoURL     string   `json:"source_video_url,omitempty" help:"optional; public source video URL; cannot be combined with source_task_id"`
+	SourceTaskID       string   `json:"source_task_id,omitempty" help:"optional; completed compatible task ID; cannot be combined with source_video_url"`
+	ReferenceImageURLs []string `json:"reference_image_urls,omitempty" help:"optional; ordered reference image URLs"`
+	DurationSeconds    int      `json:"duration_seconds,omitempty" help:"optional; output duration in seconds; source-only requests use 5"`
+	OutputResolution   string   `json:"output_resolution,omitempty" help:"optional; output resolution"`
+	AspectRatio        string   `json:"aspect_ratio,omitempty" help:"optional; output aspect ratio; source-only requests use auto"`
+	EnableSound        *bool    `json:"enable_sound,omitempty" help:"optional; enable synchronized sound"`
+	CallbackURL        string   `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 }
 
 // AsyncTaskResponse carries the task ID, lifecycle status, and error for all Kling async operations.

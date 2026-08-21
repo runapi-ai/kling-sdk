@@ -1,5 +1,11 @@
 # Changelog
 
+## [js/v0.3.0](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.0), [ruby/v0.3.0](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.0), [go/v0.3.0](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.0), [python/v0.3.0](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.0), [java/v0.2.0](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.2.0) - 2026-08-21
+
+### Added
+- Add typed text-to-video and edit-video resources for Kling V3 Omni workflows.
+
+
 ## [ruby/v0.2.14](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.2.14) - 2026-08-18
 
 ### Changed

@@ -39,13 +39,17 @@ result = client.text_to_video.run(
 
 Number reference images in prompt order as `<<<image_1>>>`, `<<<image_2>>>`, and so on; the optional video is `<<<video_1>>>`. With a video, send at most four images. Do not combine `last_frame_image_url` with reference images or a reference video. A `feature` reference video may be used with the required first frame; `base` cannot be combined with frame inputs. O1 requests are five seconds and keep sound disabled. Pricing and limits: https://runapi.ai/models/kling/o1.
 
+## Kling V3 Omni source-video editing
+
+Use `kling-v3-omni-reference` with `text_to_video` for image-only reference inputs. For a source video, use `edit_video` with either `kling-v3-omni-reference` or `kling-v3-omni-edit`. The reference model keeps sound disabled for source-video requests.
+
 Use `create` when you want to submit a task and return quickly, `get` when you need the latest task state, and `run` when a script should create and poll until completion. In web request handlers, prefer `create` plus webhook or later `get` polling so a worker is not held open.
 
 RunAPI-generated file URLs are temporary. Download and store generated images, videos, audio, or other files in your own durable storage within 7 days; do not treat returned URLs as long-term assets.
 
 ## Language notes
 
-Use Ruby keyword arguments and the `RunApi::Kling` error classes when building video jobs, Rails workers, or scripts. The available resources are `text_to_video`, `ai_avatar`, `image_to_video`, and `motion_control`. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
+Use Ruby keyword arguments and the `RunApi::Kling` error classes when building video jobs, Rails workers, or scripts. The available resources are `text_to_video`, `edit_video`, `ai_avatar`, `image_to_video`, and `motion_control`. Keep `RUNAPI_API_KEY` in the environment or your secret manager; never commit API keys or callback secrets.
 
 ## Links
 

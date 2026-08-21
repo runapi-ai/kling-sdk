@@ -60,6 +60,236 @@ CONTRACT = {
             }
         }
     },
+    "edit-video": {
+        "models": ["kling-v3-omni-edit", "kling-v3-omni-reference"],
+        "fields_by_model": {
+            "kling-v3-omni-edit": {
+                "aspect_ratio": {
+                    "enum": ["auto", "16:9", "9:16", "1:1"]
+                },
+                "duration_seconds": {
+                    "enum": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                    "type": "integer"
+                },
+                "model": {
+                    "required": True
+                },
+                "output_resolution": {
+                    "enum": ["720p", "1080p", "4k"]
+                },
+                "prompt": {
+                    "required": True,
+                    "min": 1,
+                    "max": 2500,
+                    "length": True
+                },
+                "reference_image_urls": {
+                    "min_items": 1,
+                    "max_items": 4
+                }
+            },
+            "kling-v3-omni-reference": {
+                "aspect_ratio": {
+                    "enum": ["auto", "16:9", "9:16", "1:1"]
+                },
+                "duration_seconds": {
+                    "enum": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                    "type": "integer"
+                },
+                "model": {
+                    "required": True
+                },
+                "output_resolution": {
+                    "enum": ["720p", "1080p", "4k"]
+                },
+                "prompt": {
+                    "required": True,
+                    "min": 1,
+                    "max": 2500,
+                    "length": True
+                },
+                "reference_image_urls": {
+                    "min_items": 1,
+                    "max_items": 4
+                }
+            }
+        },
+        "rules": [{
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_task_id": {
+                    "present": False
+                },
+                "source_video_url": {
+                    "present": False
+                }
+            },
+            "required_any": ["source_video_url", "source_task_id"]
+        }, {
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_video_url": {
+                    "present": True
+                }
+            },
+            "forbidden": ["source_task_id"]
+        }, {
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_task_id": {
+                    "present": True
+                }
+            },
+            "forbidden": ["source_video_url"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["auto"],
+                "duration_seconds": [5]
+            },
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_video_url": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": False
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["auto"],
+                "duration_seconds": [5]
+            },
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_task_id": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": False
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["16:9", "9:16", "1:1"]
+            },
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_video_url": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": True
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["16:9", "9:16", "1:1"]
+            },
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_task_id": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": True
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_task_id": {
+                    "present": False
+                },
+                "source_video_url": {
+                    "present": False
+                }
+            },
+            "required_any": ["source_video_url", "source_task_id"]
+        }, {
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_video_url": {
+                    "present": True
+                }
+            },
+            "forbidden": ["source_task_id"]
+        }, {
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_task_id": {
+                    "present": True
+                }
+            },
+            "forbidden": ["source_video_url"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["auto"],
+                "enable_sound": [False],
+                "duration_seconds": [5]
+            },
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_video_url": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": False
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["auto"],
+                "enable_sound": [False],
+                "duration_seconds": [5]
+            },
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_task_id": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": False
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["16:9", "9:16", "1:1"],
+                "enable_sound": [False]
+            },
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_video_url": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": True
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["16:9", "9:16", "1:1"],
+                "enable_sound": [False]
+            },
+            "when": {
+                "model": "kling-v3-omni-reference",
+                "source_task_id": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": True
+                }
+            },
+            "required": ["aspect_ratio"]
+        }]
+    },
     "extend-video": {
         "models": ["kling-v2.5-turbo-image-to-video-pro", "kling-v2.5-turbo-text-to-video-pro"],
         "fields_by_model": {
@@ -342,7 +572,7 @@ CONTRACT = {
         }]
     },
     "text-to-video": {
-        "models": ["kling-3.0", "kling-o1", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro", "kling-v2.6", "kling-v3-omni", "kling-v3-turbo-text-to-video"],
+        "models": ["kling-3.0", "kling-o1", "kling-v2.1-master-text-to-video", "kling-v2.5-turbo-text-to-video-pro", "kling-v2.6", "kling-v3-omni", "kling-v3-omni-reference", "kling-v3-turbo-text-to-video"],
         "fields_by_model": {
             "kling-3.0": {
                 "aspect_ratio": {
@@ -451,6 +681,33 @@ CONTRACT = {
                     "min": 1,
                     "max": 2500,
                     "length": True
+                }
+            },
+            "kling-v3-omni-reference": {
+                "aspect_ratio": {
+                    "enum": ["16:9", "9:16", "1:1"],
+                    "required": True
+                },
+                "duration_seconds": {
+                    "enum": [3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15],
+                    "type": "integer"
+                },
+                "model": {
+                    "required": True
+                },
+                "output_resolution": {
+                    "enum": ["720p", "1080p", "4k"]
+                },
+                "prompt": {
+                    "required": True,
+                    "min": 1,
+                    "max": 2500,
+                    "length": True
+                },
+                "reference_image_urls": {
+                    "required": True,
+                    "min_items": 1,
+                    "max_items": 7
                 }
             },
             "kling-v3-turbo-text-to-video": {

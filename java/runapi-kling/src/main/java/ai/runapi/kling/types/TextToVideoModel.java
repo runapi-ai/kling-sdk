@@ -12,6 +12,8 @@ public final class TextToVideoModel extends KlingValue {
   public static final TextToVideoModel KLING_V2_6 = new TextToVideoModel(GeneratedModels.TEXT_TO_VIDEO_KLING_V2_6);
   /** kling-v3-omni model slug. */
   public static final TextToVideoModel KLING_V3_OMNI = new TextToVideoModel(GeneratedModels.TEXT_TO_VIDEO_KLING_V3_OMNI);
+  /** kling-v3-omni-reference model slug. */
+  public static final TextToVideoModel KLING_V3_OMNI_REFERENCE = new TextToVideoModel(GeneratedModels.TEXT_TO_VIDEO_KLING_V3_OMNI_REFERENCE);
   /** kling-v3-turbo-text-to-video model slug. */
   public static final TextToVideoModel KLING_V3_TURBO_TEXT_TO_VIDEO = new TextToVideoModel(GeneratedModels.TEXT_TO_VIDEO_KLING_V3_TURBO_TEXT_TO_VIDEO);
   /** kling-v2.1-master-text-to-video model slug. */

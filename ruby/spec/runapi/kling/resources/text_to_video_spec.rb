@@ -370,6 +370,21 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
     end
   end
 
+  describe "Kling V3 Omni reference images" do
+    it "uses text_to_video with the reference model" do
+      params = {
+        model: "kling-v3-omni-reference",
+        prompt: "Keep the subject from the reference image",
+        reference_image_urls: ["https://cdn.runapi.ai/public/samples/image.jpg"],
+        aspect_ratio: "16:9"
+      }
+      expect(http).to receive(:request).with(:post, endpoint, body: params)
+        .and_return("id" => "task-reference-image")
+
+      expect(text_to_video.create(**params).id).to eq("task-reference-image")
+    end
+  end
+
   describe "#get" do
     it "GETs the correct endpoint" do
       expect(http).to receive(:request).with(:get, "#{endpoint}/task-1")

@@ -9,6 +9,7 @@ require_relative "kling/resources/ai_avatar"
 require_relative "kling/resources/image_to_video"
 require_relative "kling/resources/motion_control"
 require_relative "kling/resources/extend_video"
+require_relative "kling/resources/edit_video"
 require_relative "kling/client"
 
 module RunApi

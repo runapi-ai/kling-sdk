@@ -126,5 +126,7 @@ Use this route only for application or production-code integration. Open the cur
 - `kling-v2.5-turbo-text-to-video-pro`: https://runapi.ai/models/kling/v2.5-turbo-text-to-video-pro.md
 - `kling-v2.6`: https://runapi.ai/models/kling/v2.6.md
 - `kling-v3-omni`: https://runapi.ai/models/kling/v3-omni.md
+- `kling-v3-omni-edit`: https://runapi.ai/models/kling/v3-omni-edit.md
+- `kling-v3-omni-reference`: https://runapi.ai/models/kling/v3-omni-reference.md
 - `kling-v3-turbo-image-to-video`: https://runapi.ai/models/kling/v3-turbo-image-to-video.md
 - `kling-v3-turbo-text-to-video`: https://runapi.ai/models/kling/v3-turbo-text-to-video.md

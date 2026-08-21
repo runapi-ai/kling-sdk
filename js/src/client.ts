@@ -4,6 +4,7 @@ import { ImageToVideo } from './resources/image-to-video';
 import { AiAvatar } from './resources/ai-avatar';
 import { MotionControl } from './resources/motion-control';
 import { ExtendVideo } from './resources/extend-video';
+import { EditVideo } from './resources/edit-video';
 
 /**
  * Kling video generation, AI avatar lip-sync, and motion control API client.
@@ -28,6 +29,8 @@ export class KlingClient extends BaseClient {
   /** Transfer motion from a reference video onto a subject image. */
   public readonly motionControl: MotionControl;
   public readonly extendVideo: ExtendVideo;
+  /** Edit a source video with the selected Kling v3 Omni model. */
+  public readonly editVideo: EditVideo;
 
   constructor(options: ClientOptions = {}) {
     super(options);
@@ -36,5 +39,6 @@ export class KlingClient extends BaseClient {
     this.aiAvatar = new AiAvatar(this.http);
     this.motionControl = new MotionControl(this.http);
     this.extendVideo = new ExtendVideo(this.http);
+    this.editVideo = new EditVideo(this.http);
   }
 }

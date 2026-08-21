@@ -4,6 +4,7 @@ from runapi.core import config
 from runapi.core.errors import AuthenticationError, ValidationError
 from runapi.kling import KlingClient
 from runapi.kling.resources.ai_avatar import AiAvatar
+from runapi.kling.resources.edit_video import EditVideo
 from runapi.kling.resources.image_to_video import ImageToVideo
 from runapi.kling.resources.motion_control import MotionControl
 from runapi.kling.resources.text_to_video import TextToVideo
@@ -70,6 +71,7 @@ def test_uses_injected_http_client():
     assert client.ai_avatar._http is fake
     assert client.image_to_video._http is fake
     assert client.motion_control._http is fake
+    assert client.edit_video._http is fake
 
 
 def test_exposes_resource_accessors():
@@ -78,6 +80,7 @@ def test_exposes_resource_accessors():
     assert isinstance(client.ai_avatar, AiAvatar)
     assert isinstance(client.image_to_video, ImageToVideo)
     assert isinstance(client.motion_control, MotionControl)
+    assert isinstance(client.edit_video, EditVideo)
 
 
 # --- text_to_video --------------------------------------------------------
@@ -1045,4 +1048,69 @@ def test_multi_prompt_non_numeric_duration_raises_validation_error():
             multi_shots=True,
             enable_sound=True,
             multi_prompt=[{"prompt": "shot one", "duration_seconds": "abc"}],
+        )
+
+
+def test_text_to_video_accepts_reference_image_model():
+    fake = FakeHttp({"id": "reference-image", "status": "processing"})
+    client = KlingClient(api_key="k", http_client=fake)
+    params = {
+        "model": "kling-v3-omni-reference",
+        "prompt": "Keep the subject from the reference image",
+        "reference_image_urls": ["https://cdn.runapi.ai/public/samples/image.jpg"],
+        "aspect_ratio": "16:9",
+    }
+
+    client.text_to_video.create(**params)
+    assert fake.calls == [("post", "/api/v1/kling/text_to_video", params)]
+
+
+def test_edit_video_create_get_and_run_for_edit_model():
+    fake = FakeHttp(
+        {"id": "edit-create", "status": "processing"},
+        {"id": "edit-get", "status": "processing"},
+        {"id": "edit-run", "status": "processing"},
+        {"id": "edit-run", "status": "completed", "videos": [{"url": "https://file.runapi.ai/edit.mp4"}]},
+    )
+    client = KlingClient(api_key="k", http_client=fake)
+    params = {
+        "model": "kling-v3-omni-edit",
+        "prompt": "Turn the source video into a watercolor scene",
+        "source_video_url": "https://cdn.runapi.ai/public/samples/video.mp4",
+        "aspect_ratio": "auto",
+    }
+
+    client.edit_video.create(**params)
+    client.edit_video.get("edit-get")
+    result = client.edit_video.run(**params)
+
+    assert fake.calls == [
+        ("post", "/api/v1/kling/edit_video", params),
+        ("get", "/api/v1/kling/edit_video/edit-get", None),
+        ("post", "/api/v1/kling/edit_video", params),
+        ("get", "/api/v1/kling/edit_video/edit-run", None),
+    ]
+    assert result.status == "completed"
+
+
+def test_edit_video_accepts_reference_model_and_requires_model():
+    fake = FakeHttp({"id": "reference-create", "status": "processing"})
+    client = KlingClient(api_key="k", http_client=fake)
+    params = {
+        "model": "kling-v3-omni-reference",
+        "prompt": "Keep the subject from the reference image",
+        "source_video_url": "https://cdn.runapi.ai/public/samples/video.mp4",
+        "reference_image_urls": ["https://cdn.runapi.ai/public/samples/image.jpg"],
+        "aspect_ratio": "16:9",
+        "enable_sound": False,
+    }
+
+    client.edit_video.create(**params)
+    assert fake.calls == [("post", "/api/v1/kling/edit_video", params)]
+
+    with pytest.raises(ValidationError, match="model must be one of"):
+        client.edit_video.create(
+            prompt="Turn the source video into a watercolor scene",
+            source_video_url="https://cdn.runapi.ai/public/samples/video.mp4",
+            aspect_ratio="auto",
         )

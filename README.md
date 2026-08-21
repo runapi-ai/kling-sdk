@@ -22,7 +22,7 @@
 </div>
 <br/>
 
-The Kling API SDK packages JavaScript, Python, Ruby, Go, Java, and PHP clients for Kling on RunAPI. Use it for text-to-video, image-to-video, avatar, motion-control, and V2.5 Turbo continuation workflows when your app needs typed request builders, predictable task polling, file upload helpers, account helpers, and consistent RunAPI errors.
+The Kling API SDK packages JavaScript, Python, Ruby, Go, Java, and PHP clients for Kling on RunAPI. Use it for text-to-video, image-to-video, source-video editing, avatar, motion-control, and V2.5 Turbo continuation workflows when your app needs typed request builders, predictable task polling, file upload helpers, account helpers, and consistent RunAPI errors.
 
 Kling is listed in the RunAPI model catalog at https://runapi.ai/models/kling. Variant pages below carry pricing, rate-limit, and commercial-usage details. The public `kling-sdk` repository groups the non-PHP language packages, examples, CI, and release tags for this model. The PHP package is released from a split Composer repository.
 
@@ -39,7 +39,7 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("ai.runapi:runapi-kling:0.1.6")
+  implementation("ai.runapi:runapi-kling:0.2.0")
 }
 ```
 
@@ -49,7 +49,7 @@ Maven:
 <dependency>
   <groupId>ai.runapi</groupId>
   <artifactId>runapi-kling</artifactId>
-  <version>0.1.6</version>
+  <version>0.2.0</version>
 </dependency>
 ```
 
@@ -57,7 +57,7 @@ Use the Java BOM when installing multiple RunAPI Java modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("ai.runapi:runapi-bom:0.5.0"))
+  implementation(platform("ai.runapi:runapi-bom:0.6.0"))
   implementation("ai.runapi:runapi-kling")
 }
 ```
@@ -143,6 +143,21 @@ const result = await client.imageToVideo.run({
   output_resolution: '1080p',
   duration_seconds: 5,
   enable_sound: true,
+});
+```
+
+For image-only reference inputs, use `textToVideo` with
+`model: 'kling-v3-omni-reference'`. For source-video requests, use
+`editVideo` with either `kling-v3-omni-reference` or `kling-v3-omni-edit`.
+The reference model accepts optional reference images with a source video and
+requires sound to remain disabled.
+
+```typescript
+const result = await client.editVideo.run({
+  model: 'kling-v3-omni-edit',
+  prompt: 'Turn the source video into a watercolor scene',
+  source_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
+  aspect_ratio: 'auto',
 });
 ```
 
