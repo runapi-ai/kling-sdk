@@ -117,17 +117,6 @@ CONTRACT = {
         "rules": [{
             "when": {
                 "model": "kling-v3-omni-edit",
-                "source_task_id": {
-                    "present": False
-                },
-                "source_video_url": {
-                    "present": False
-                }
-            },
-            "required_any": ["source_video_url", "source_task_id"]
-        }, {
-            "when": {
-                "model": "kling-v3-omni-edit",
                 "source_video_url": {
                     "present": True
                 }
@@ -191,6 +180,32 @@ CONTRACT = {
             },
             "when": {
                 "model": "kling-v3-omni-edit",
+                "source_task_id": {
+                    "present": True
+                },
+                "reference_image_urls": {
+                    "present": True
+                }
+            },
+            "required": ["aspect_ratio"]
+        }, {
+            "when": {
+                "model": "kling-v3-omni-edit",
+                "source_task_id": {
+                    "present": False
+                },
+                "source_video_url": {
+                    "present": False
+                }
+            },
+            "required_any": ["source_video_url", "source_task_id"]
+        }, {
+            "enum": {
+                "aspect_ratio": ["16:9", "9:16", "1:1"],
+                "enable_sound": [False]
+            },
+            "when": {
+                "model": "kling-v3-omni-reference",
                 "source_task_id": {
                     "present": True
                 },
@@ -266,21 +281,6 @@ CONTRACT = {
             "when": {
                 "model": "kling-v3-omni-reference",
                 "source_video_url": {
-                    "present": True
-                },
-                "reference_image_urls": {
-                    "present": True
-                }
-            },
-            "required": ["aspect_ratio"]
-        }, {
-            "enum": {
-                "aspect_ratio": ["16:9", "9:16", "1:1"],
-                "enable_sound": [False]
-            },
-            "when": {
-                "model": "kling-v3-omni-reference",
-                "source_task_id": {
                     "present": True
                 },
                 "reference_image_urls": {
