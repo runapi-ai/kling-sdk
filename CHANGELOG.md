@@ -1,5 +1,12 @@
 # Changelog
 
+## [js/v0.3.3](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.3), [ruby/v0.3.3](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.3), [go/v0.3.3](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.3), [python/v0.3.3](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.3) - 2026-09-09
+
+### Changed
+- Synchronize generated input validation metadata.
+- Normalize generated contract rule ordering across supported SDK languages.
+
+
 ## [js/v0.3.2](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.2), [ruby/v0.3.2](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.2), [go/v0.3.2](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.2), [python/v0.3.2](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.2) - 2026-09-07
 
 ### Changed
