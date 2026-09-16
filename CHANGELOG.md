@@ -1,5 +1,11 @@
 # Changelog
 
+## [js/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.5), [ruby/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.5), [go/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.5), [python/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.5) - 2026-09-16
+
+### Changed
+- Refresh generated contract projections after the shared catalog contract export.
+
+
 ## [js/v0.3.4](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.4), [ruby/v0.3.4](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.4), [go/v0.3.4](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.4), [python/v0.3.4](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.4) - 2026-09-11
 
 ### Changed

@@ -172,6 +172,21 @@ export const contract = {
       {
         "when": {
           "model": "kling-v3-omni-edit",
+          "source_task_id": {
+            "present": false
+          },
+          "source_video_url": {
+            "present": false
+          }
+        },
+        "required_any": [
+          "source_video_url",
+          "source_task_id"
+        ]
+      },
+      {
+        "when": {
+          "model": "kling-v3-omni-edit",
           "source_video_url": {
             "present": true
           }
@@ -266,45 +281,6 @@ export const contract = {
         },
         "when": {
           "model": "kling-v3-omni-edit",
-          "source_task_id": {
-            "present": true
-          },
-          "reference_image_urls": {
-            "present": true
-          }
-        },
-        "required": [
-          "aspect_ratio"
-        ]
-      },
-      {
-        "when": {
-          "model": "kling-v3-omni-edit",
-          "source_task_id": {
-            "present": false
-          },
-          "source_video_url": {
-            "present": false
-          }
-        },
-        "required_any": [
-          "source_video_url",
-          "source_task_id"
-        ]
-      },
-      {
-        "enum": {
-          "aspect_ratio": [
-            "16:9",
-            "9:16",
-            "1:1"
-          ],
-          "enable_sound": [
-            false
-          ]
-        },
-        "when": {
-          "model": "kling-v3-omni-reference",
           "source_task_id": {
             "present": true
           },
@@ -417,6 +393,30 @@ export const contract = {
         "when": {
           "model": "kling-v3-omni-reference",
           "source_video_url": {
+            "present": true
+          },
+          "reference_image_urls": {
+            "present": true
+          }
+        },
+        "required": [
+          "aspect_ratio"
+        ]
+      },
+      {
+        "enum": {
+          "aspect_ratio": [
+            "16:9",
+            "9:16",
+            "1:1"
+          ],
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "model": "kling-v3-omni-reference",
+          "source_task_id": {
             "present": true
           },
           "reference_image_urls": {
