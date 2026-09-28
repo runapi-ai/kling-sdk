@@ -1,5 +1,18 @@
 # Changelog
 
+## [js/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.6), [ruby/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.6), [go/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.6), [python/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.6) - 2026-09-28
+
+### Added
+- Return usage.cost as a float USD amount on completed async Task query and webhook envelopes.
+
+### Changed
+- Synchronize generated Kling request validation rule ordering with the canonical contract.
+
+### Removed
+- Remove the public Task billing object from Task envelopes.
+  Migration: Read usage.cost on completed Task envelopes. Create, processing, and failed envelopes omit usage.
+
+
 ## [js/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.5), [ruby/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.5), [go/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.5), [python/v0.3.5](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.5) - 2026-09-16
 
 ### Changed

@@ -50,8 +50,7 @@ func TestTextToVideoCreateSingleShot(t *testing.T) {
 		Prompt:           "a cat playing piano",
 		DurationSeconds:  5,
 		AspectRatio:      "16:9",
-		OutputResolution: TextToVideoOutputResolution1080p,
-	})
+		OutputResolution: TextToVideoOutputResolution1080p})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -73,25 +72,23 @@ func TestTextToVideoCreateSingleShot(t *testing.T) {
 	}
 }
 
-func TestTaskResponseParsesBillingFacts(t *testing.T) {
+func TestTaskResponseParsesUsage(t *testing.T) {
 	var response TextToVideoResponse
-	err := json.Unmarshal([]byte(`{"id":"task_123","status":"completed","billing":{"reservation":{"amount_cents":10},"settlement":{"charged_amount_cents":9,"amount_micro_cents":950000},"refund":{"refunded_at":"2026-07-23T00:00:00.000000Z"}}}`), &response)
+	err := json.Unmarshal([]byte(`{"id":"task_123","status":"completed","usage":{"cost":0.05}}`), &response)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Billing == nil || response.Billing.Reservation == nil || response.Billing.Settlement == nil || response.Billing.Refund == nil {
-		t.Fatalf("expected complete billing facts: %#v", response.Billing)
-	}
-	if response.Billing.Reservation.AmountCents != 10 || response.Billing.Settlement.AmountMicroCents != 950000 || response.Billing.Refund.RefundedAt == "" {
-		t.Fatalf("unexpected billing facts: %#v", response.Billing)
+	if response.Usage == nil || response.Usage.Cost != 0.05 {
+		t.Fatalf("expected usage.cost: %#v", response.Usage)
 	}
 
-	err = json.Unmarshal([]byte(`{"id":"legacy_task","status":"completed","billing":{"reservation":null,"settlement":null,"refund":null}}`), &response)
+	response = TextToVideoResponse{}
+	err = json.Unmarshal([]byte(`{"id":"legacy_task","status":"completed"}`), &response)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if response.Billing == nil || response.Billing.Reservation != nil || response.Billing.Settlement != nil || response.Billing.Refund != nil {
-		t.Fatalf("expected nil billing facts when none were recorded: %#v", response.Billing)
+	if response.Usage != nil {
+		t.Fatalf("expected omitted usage on envelopes without usage: %#v", response.Usage)
 	}
 }
 
@@ -103,8 +100,7 @@ func TestTextToVideoCreate4KOutputResolution(t *testing.T) {
 		Prompt:           "a 4K establishing shot of a glass observatory above clouds",
 		DurationSeconds:  5,
 		AspectRatio:      "16:9",
-		OutputResolution: TextToVideoOutputResolution4K,
-	})
+		OutputResolution: TextToVideoOutputResolution4K})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -129,9 +125,7 @@ func TestTextToVideoCreateMultiShot(t *testing.T) {
 		OutputResolution: TextToVideoOutputResolution1080p,
 		MultiPrompt: []MultiPromptItem{
 			{Prompt: "a cat exploring an attic", DurationSeconds: 3},
-			{Prompt: "the cat finds a treasure", DurationSeconds: 3},
-		},
-	})
+			{Prompt: "the cat finds a treasure", DurationSeconds: 3}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -158,8 +152,7 @@ func TestTextToVideoCreateCompactsEmptyFields(t *testing.T) {
 	client := NewClientWithHTTP(stub)
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
 		Model:  ModelKling30,
-		Prompt: "test",
-	})
+		Prompt: "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,17 +185,13 @@ func TestTextToVideoCreateWithElements(t *testing.T) {
 				Name:                  "element_dog",
 				Description:           "dog",
 				ElementInputURLs:      []string{"https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg", "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg"},
-				ElementInputAudioURLs: []string{"https://cdn.runapi.ai/public/samples/music.mp3"},
-			},
+				ElementInputAudioURLs: []string{"https://cdn.runapi.ai/public/samples/music.mp3"}},
 			{
 				Name:             "element_run",
 				Description:      "running dog",
 				ElementInputURLs: []string{"https://cdn.runapi.ai/public/samples/video.mp4"},
 				StartTime:        1000,
-				EndTime:          6000,
-			},
-		},
-	})
+				EndTime:          6000}}})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -239,8 +228,7 @@ func TestTextToVideoCreateV3Turbo(t *testing.T) {
 		Prompt:           "a silver train crossing a moonlit bridge",
 		DurationSeconds:  7,
 		AspectRatio:      "16:9",
-		OutputResolution: TextToVideoOutputResolution1080p,
-	})
+		OutputResolution: TextToVideoOutputResolution1080p})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -263,8 +251,7 @@ func TestTextToVideoRejectsV3TurboUnsupportedFields(t *testing.T) {
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
 		Model:       ModelV3TurboT2V,
 		Prompt:      "a quiet city street after rain",
-		EnableSound: &falseVal,
-	})
+		EnableSound: &falseVal})
 	if err == nil {
 		t.Fatal("expected validation error")
 	}
@@ -289,8 +276,7 @@ func TestTextToVideoCreateV26(t *testing.T) {
 		Mode:            "pro",
 		EnableSound:     &trueVal,
 		DurationSeconds: 10,
-		AspectRatio:     "16:9",
-	})
+		AspectRatio:     "16:9"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -310,8 +296,7 @@ func TestTextToVideoCreateV3Omni(t *testing.T) {
 		OutputResolution: TextToVideoOutputResolution1080p,
 		EnableSound:      &trueVal,
 		DurationSeconds:  10,
-		AspectRatio:      "16:9",
-	})
+		AspectRatio:      "16:9"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -332,8 +317,7 @@ func TestTextToVideoCreateO1References(t *testing.T) {
 		ReferenceVideoURL:           "https://cdn.runapi.ai/public/samples/video.mp4",
 		ReferenceVideoType:          "feature",
 		PreserveReferenceVideoAudio: &preserveAudio,
-		DurationSeconds:             5,
-	})
+		DurationSeconds:             5})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -350,8 +334,7 @@ func TestTextToVideoRejectsV26SoundOutsideProMode(t *testing.T) {
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
 		Model:       ModelV26T2V,
 		Prompt:      "a paper boat crossing a rain puddle",
-		EnableSound: &trueVal,
-	})
+		EnableSound: &trueVal})
 	if err == nil || !strings.Contains(err.Error(), "enable_sound requires mode pro for kling-v2.6") {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -370,16 +353,14 @@ func TestTextToVideoRejectsNonPublicO1ReferenceMedia(t *testing.T) {
 		"http://2130706433/reference.jpg",
 		"http://127.1/reference.jpg",
 		"http://0177.0.0.1/reference.jpg",
-		"http://0x7f000001/reference.jpg",
-	} {
+		"http://0x7f000001/reference.jpg"} {
 		t.Run(referenceURL, func(t *testing.T) {
 			stub := &stubHTTPClient{}
 			client := NewClientWithHTTP(stub)
 			_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
 				Model:              ModelO1T2V,
 				Prompt:             "Use <<<image_1>>>",
-				ReferenceImageURLs: []string{referenceURL},
-			})
+				ReferenceImageURLs: []string{referenceURL}})
 			if err == nil || !strings.Contains(err.Error(), "reference_image_urls[0] must be a public HTTP or HTTPS URL") {
 				t.Fatalf("unexpected error: %v", err)
 			}
@@ -411,8 +392,7 @@ func TestAiAvatarCreate(t *testing.T) {
 		Model:          ModelAiAvatarPro,
 		SourceImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		SourceAudioURL: "https://cdn.runapi.ai/public/samples/music.mp3",
-		Prompt:         "a person speaking naturally",
-	})
+		Prompt:         "a person speaking naturally"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -441,8 +421,7 @@ func TestAiAvatarCreateCompactsEmptyFields(t *testing.T) {
 		Model:          ModelAiAvatarStandard,
 		SourceImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		SourceAudioURL: "https://cdn.runapi.ai/public/samples/music.mp3",
-		Prompt:         "test",
-	})
+		Prompt:         "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -459,8 +438,7 @@ func TestAiAvatarCreateV1ProModel(t *testing.T) {
 		Model:          ModelAiAvatarV1Pro,
 		SourceImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		SourceAudioURL: "https://cdn.runapi.ai/public/samples/music.mp3",
-		Prompt:         "a person speaking naturally",
-	})
+		Prompt:         "a person speaking naturally"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -491,8 +469,7 @@ func TestImageToVideoCreateT2V(t *testing.T) {
 		Model:           ModelV25TurboT2VPro,
 		Prompt:          "a sunset over the ocean",
 		DurationSeconds: 5,
-		AspectRatio:     "16:9",
-	})
+		AspectRatio:     "16:9"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -519,8 +496,7 @@ func TestTextToVideoCreateV21Master(t *testing.T) {
 		Prompt:          "a cinematic paratrooper scene",
 		DurationSeconds: 10,
 		AspectRatio:     "16:9",
-		NegativePrompt:  "blur",
-	})
+		NegativePrompt:  "blur"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -543,8 +519,7 @@ func TestImageToVideoCreateI2V(t *testing.T) {
 		Model:              ModelV25TurboI2VPro,
 		Prompt:             "a flower blooming",
 		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
-		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
-	})
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -568,8 +543,7 @@ func TestImageToVideoCreateV21Pro(t *testing.T) {
 		Prompt:             "animate this frame",
 		FirstFrameImageURL: "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
 		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
-		DurationSeconds:    10,
-	})
+		DurationSeconds:    10})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -590,8 +564,7 @@ func TestImageToVideoCreateV3Turbo(t *testing.T) {
 		Prompt:             "camera glides toward the lighthouse",
 		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
 		DurationSeconds:    7,
-		OutputResolution:   ImageToVideoOutputResolution720p,
-	})
+		OutputResolution:   ImageToVideoOutputResolution720p})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -611,8 +584,7 @@ func TestImageToVideoRejectsV3TurboUnsupportedFields(t *testing.T) {
 		Model:              ModelV3TurboI2V,
 		Prompt:             "camera glides toward the lighthouse",
 		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
-		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
-	})
+		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg"})
 	if err == nil {
 		t.Fatal("expected validation error")
 	}
@@ -639,8 +611,7 @@ func TestImageToVideoCreateV26(t *testing.T) {
 		Mode:               "pro",
 		EnableSound:        &trueVal,
 		DurationSeconds:    5,
-		AspectRatio:        "16:9",
-	})
+		AspectRatio:        "16:9"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -665,8 +636,7 @@ func TestImageToVideoCreateV3Omni(t *testing.T) {
 		OutputResolution:   ImageToVideoOutputResolution4K,
 		EnableSound:        &falseVal,
 		DurationSeconds:    5,
-		AspectRatio:        "9:16",
-	})
+		AspectRatio:        "9:16"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -689,25 +659,18 @@ func TestImageToVideoRejectsV26ConditionalFields(t *testing.T) {
 		{
 			name: "sound outside pro mode",
 			params: ImageToVideoParams{
-				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", EnableSound: &trueVal,
-			},
-			message: "enable_sound requires mode pro for kling-v2.6",
-		},
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", EnableSound: &trueVal},
+			message: "enable_sound requires mode pro for kling-v2.6"},
 		{
 			name: "last frame outside pro mode",
 			params: ImageToVideoParams{
-				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", LastFrameImageURL: "https://example.test/last.jpg",
-			},
-			message: "last_frame_image_url requires mode pro for kling-v2.6",
-		},
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", LastFrameImageURL: "https://example.test/last.jpg"},
+			message: "last_frame_image_url requires mode pro for kling-v2.6"},
 		{
 			name: "last frame with ten seconds",
 			params: ImageToVideoParams{
-				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", LastFrameImageURL: "https://example.test/last.jpg", Mode: "pro", DurationSeconds: 10,
-			},
-			message: "last_frame_image_url requires duration_seconds 5 for kling-v2.6",
-		},
-	}
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", LastFrameImageURL: "https://example.test/last.jpg", Mode: "pro", DurationSeconds: 10},
+			message: "last_frame_image_url requires duration_seconds 5 for kling-v2.6"}}
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			stub := &stubHTTPClient{}
@@ -731,8 +694,7 @@ func TestImageToVideoRejectsO1BaseVideoWithFrame(t *testing.T) {
 		Prompt:             "Use <<<video_1>>> as the base",
 		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
 		ReferenceVideoURL:  "https://cdn.runapi.ai/public/samples/video.mp4",
-		ReferenceVideoType: "base",
-	})
+		ReferenceVideoType: "base"})
 	if err == nil || !strings.Contains(err.Error(), "reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url") {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -749,8 +711,7 @@ func TestImageToVideoRejectsO1TailFrameWithReferenceMedia(t *testing.T) {
 		Prompt:             "Move toward <<<image_1>>>",
 		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
 		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/last-frame.jpg",
-		ReferenceImageURLs: []string{"https://cdn.runapi.ai/public/samples/portrait.jpg"},
-	})
+		ReferenceImageURLs: []string{"https://cdn.runapi.ai/public/samples/portrait.jpg"}})
 	if err == nil || !strings.Contains(err.Error(), "last_frame_image_url cannot be combined with reference_image_urls or reference_video_url") {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -763,8 +724,7 @@ func TestTextToVideoRejectsO1MissingVideoReference(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
-		Model: ModelO1T2V, Prompt: "Follow <<<video_1>>>",
-	})
+		Model: ModelO1T2V, Prompt: "Follow <<<video_1>>>"})
 	if err == nil || !strings.Contains(err.Error(), "prompt references missing video_1") {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -781,8 +741,7 @@ func TestImageToVideoRejectsV3OmniFinalFrameOutsideFiveSeconds(t *testing.T) {
 		Prompt:             "camera follows the cyclist through fog",
 		FirstFrameImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		LastFrameImageURL:  "https://cdn.runapi.ai/public/samples/image.jpg",
-		DurationSeconds:    7,
-	})
+		DurationSeconds:    7})
 	if err == nil || !strings.Contains(err.Error(), "last_frame_image_url requires duration_seconds 5 for kling-v3-omni") {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -796,8 +755,7 @@ func TestImageToVideoCreateCompactsEmptyFields(t *testing.T) {
 	client := NewClientWithHTTP(stub)
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
 		Model:  ModelV25TurboT2VPro,
-		Prompt: "test",
-	})
+		Prompt: "test"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -835,8 +793,7 @@ func TestMotionControlCreateAcceptsLegacyKling30ModelConstant(t *testing.T) {
 		SourceImageURL:    "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
 		Prompt:            "a person dancing",
-		OutputResolution:  "1080p",
-	})
+		OutputResolution:  "1080p"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -872,8 +829,7 @@ func TestMotionControlCreateWithAllOptions(t *testing.T) {
 		OutputResolution:     "720p",
 		CharacterOrientation: "video",
 		BackgroundSource:     "video",
-		CallbackURL:          "https://your-domain.com/webhook",
-	})
+		CallbackURL:          "https://your-domain.com/webhook"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -901,8 +857,7 @@ func TestMotionControlCreateCompactsEmptyFields(t *testing.T) {
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
 		Model:             ModelKling30MotionControl,
 		SourceImageURL:    "https://cdn.runapi.ai/public/samples/portrait.jpg",
-		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
-	})
+		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -929,8 +884,7 @@ func TestMotionControlCreateV26(t *testing.T) {
 		SourceImageURL:       "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		ReferenceVideoURL:    "https://cdn.runapi.ai/public/samples/video.mp4",
 		OutputResolution:     "1080p",
-		CharacterOrientation: "image",
-	})
+		CharacterOrientation: "image"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -947,8 +901,7 @@ func TestMotionControlV26RequiresModelFields(t *testing.T) {
 		want   string
 	}{
 		{"output resolution", MotionControlParams{Model: ModelV26MotionControl, SourceImageURL: "https://x/s.jpg", ReferenceVideoURL: "https://x/r.mp4", CharacterOrientation: "video"}, "output_resolution is required"},
-		{"character orientation", MotionControlParams{Model: ModelV26MotionControl, SourceImageURL: "https://x/s.jpg", ReferenceVideoURL: "https://x/r.mp4", OutputResolution: "720p"}, "character_orientation is required"},
-	} {
+		{"character orientation", MotionControlParams{Model: ModelV26MotionControl, SourceImageURL: "https://x/s.jpg", ReferenceVideoURL: "https://x/r.mp4", OutputResolution: "720p"}, "character_orientation is required"}} {
 		t.Run(tc.name, func(t *testing.T) {
 			client := NewClientWithHTTP(&stubHTTPClient{})
 			_, err := client.MotionControl.Create(context.Background(), tc.params)
@@ -967,8 +920,7 @@ func TestMotionControlV26RejectsBackgroundSource(t *testing.T) {
 		ReferenceVideoURL:    "https://x/r.mp4",
 		OutputResolution:     "720p",
 		CharacterOrientation: "video",
-		BackgroundSource:     "video",
-	})
+		BackgroundSource:     "video"})
 	if err == nil || err.Error() != "background_source is not allowed when model is kling-v2.6" {
 		t.Fatalf("unexpected error: %v", err)
 	}
@@ -993,8 +945,7 @@ func TestTextToVideoCreateSupportsReferenceModel(t *testing.T) {
 		Model:              TextToVideoModel("kling-v3-omni-reference"),
 		Prompt:             "Keep the subject from the reference image",
 		ReferenceImageURLs: []string{"https://cdn.runapi.ai/public/samples/image.jpg"},
-		AspectRatio:        "16:9",
-	})
+		AspectRatio:        "16:9"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1017,8 +968,7 @@ func TestEditVideoCreateGetAndRun(t *testing.T) {
 		Model:          EditVideoModel("kling-v3-omni-edit"),
 		Prompt:         "Turn the source video into a watercolor scene",
 		SourceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
-		AspectRatio:    "auto",
-	})
+		AspectRatio:    "auto"})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -1043,15 +993,13 @@ func TestEditVideoCreateGetAndRun(t *testing.T) {
 
 	sequence := &sequenceHTTPClient{responses: []json.RawMessage{
 		json.RawMessage(`{"id":"task_edit","status":"processing"}`),
-		json.RawMessage(`{"id":"task_edit","status":"completed","videos":[{"url":"https://file.runapi.ai/edit.mp4"}]}`),
-	}}
+		json.RawMessage(`{"id":"task_edit","status":"completed", "usage": {"cost": 0.05},"videos":[{"url":"https://file.runapi.ai/edit.mp4"}]}`)}}
 	client = NewClientWithHTTP(sequence)
 	response, err := client.EditVideo.Run(context.Background(), EditVideoParams{
 		Model:          EditVideoModel("kling-v3-omni-edit"),
 		Prompt:         "Turn the source video into a watercolor scene",
 		SourceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
-		AspectRatio:    "auto",
-	}, option.WithPollInterval(time.Millisecond))
+		AspectRatio:    "auto"}, option.WithPollInterval(time.Millisecond))
 	if err != nil {
 		t.Fatal(err)
 	}

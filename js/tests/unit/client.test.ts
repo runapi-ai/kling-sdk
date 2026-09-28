@@ -12,16 +12,13 @@ describe('KlingClient universal resources', () => {
     expect(client.pricing).toBeInstanceOf(Pricing);
   });
 
-  it('types billing facts on task creation and query responses', () => {
-    const creation: TaskCreateResponse = {
-      id: 'task-1',
-      billing: { reservation: null, settlement: null, refund: null },
-    };
+  it('types usage.cost on completed query responses and omits it from create acknowledgements', () => {
+    const creation: TaskCreateResponse = { id: 'task-1' };
     const response: TextToVideoResponse = {
-      id: 'task-1', status: 'completed', billing: { settlement: { charged_amount_cents: 12, amount_micro_cents: 1_200_000 } },
+      id: 'task-1', status: 'completed', usage: { cost: 0.12 },
     };
 
-    expect(creation.billing?.reservation).toBeNull();
-    expect(response.billing?.settlement?.charged_amount_cents).toBe(12);
+    expect('usage' in creation).toBe(false);
+    expect(response.usage?.cost).toBe(0.12);
   });
 });

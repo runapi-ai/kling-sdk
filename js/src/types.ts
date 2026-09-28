@@ -1,4 +1,4 @@
-import type { AsyncTaskStatus, TaskBillingResponse, TaskResponse } from '@runapi.ai/core';
+import type { AsyncTaskStatus, TaskResponse } from '@runapi.ai/core';
 import type { modelValues } from './contract_gen';
 
 /**
@@ -307,7 +307,7 @@ export interface AsyncTaskResponse extends TaskResponse {
   status: AsyncTaskStatus;
 }
 
-export interface TaskCreateResponse extends TaskBillingResponse {
+export interface TaskCreateResponse {
   id: string;
 }
 

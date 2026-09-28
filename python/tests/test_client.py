@@ -97,8 +97,7 @@ def test_text_to_video_create_posts_compacted_body():
             "post",
             "/api/v1/kling/text_to_video",
             {"model": "kling-3.0", "prompt": "a cat in a garden", "aspect_ratio": "16:9"},
-        ),
-    ]
+        )]
     assert isinstance(result, TextToVideoResponse)
 
 
@@ -114,18 +113,14 @@ def test_text_to_video_create_posts_element_audio_and_time_fields():
                 "description": "dog",
                 "element_input_urls": [
                     "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
-                    "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg",
-                ],
-                "element_input_audio_urls": ["https://cdn.runapi.ai/public/samples/music.mp3"],
-            },
+                    "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg"],
+                "element_input_audio_urls": ["https://cdn.runapi.ai/public/samples/music.mp3"]},
             {
                 "name": "element_run",
                 "description": "running dog",
                 "element_input_urls": ["https://cdn.runapi.ai/public/samples/video.mp4"],
                 "start_time": 1000,
-                "end_time": 6000,
-            },
-        ],
+                "end_time": 6000}],
     )
     assert fake.calls == [
         (
@@ -140,12 +135,10 @@ def test_text_to_video_create_posts_element_audio_and_time_fields():
                         "description": "dog",
                         "element_input_urls": [
                             "https://upload.wikimedia.org/wikipedia/commons/6/6e/Golde33443.jpg",
-                            "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg",
-                        ],
+                            "https://upload.wikimedia.org/wikipedia/commons/9/9a/Pug_600.jpg"],
                         "element_input_audio_urls": [
                             "https://cdn.runapi.ai/public/samples/music.mp3"
-                        ],
-                    },
+                        ]},
                     {
                         "name": "element_run",
                         "description": "running dog",
@@ -153,12 +146,8 @@ def test_text_to_video_create_posts_element_audio_and_time_fields():
                             "https://cdn.runapi.ai/public/samples/video.mp4"
                         ],
                         "start_time": 1000,
-                        "end_time": 6000,
-                    },
-                ],
-            },
-        ),
-    ]
+                        "end_time": 6000}]},
+        )]
     assert isinstance(result, TextToVideoResponse)
 
 
@@ -172,7 +161,7 @@ def test_text_to_video_get_fetches_by_id():
 def test_text_to_video_run_narrows_completed_type():
     fake = FakeHttp(
         {"id": "t1", "status": "pending"},
-        {"id": "t1", "status": "completed", "videos": [{"url": "https://x/y.mp4"}]},
+        {"id": "t1", "status": "completed", "usage": {"cost": 0.05}, "videos": [{"url": "https://x/y.mp4"}]},
     )
     client = KlingClient(api_key="k", http_client=fake)
     result = client.text_to_video.run(model="kling-3.0", prompt="a serene forest")
@@ -322,10 +311,8 @@ def test_text_to_video_v3_turbo_posts_body():
                 "prompt": "a silver train crossing a moonlit bridge",
                 "duration_seconds": 7,
                 "aspect_ratio": "16:9",
-                "output_resolution": "1080p",
-            },
-        ),
-    ]
+                "output_resolution": "1080p"},
+        )]
 
 
 def test_text_to_video_v3_turbo_rejects_unsupported_fields():
@@ -365,8 +352,7 @@ def test_text_to_video_v26_posts_mode_and_sound_fields():
                 "mode": "pro",
                 "duration_seconds": 10,
                 "enable_sound": True,
-                "aspect_ratio": "16:9",
-            },
+                "aspect_ratio": "16:9"},
         )
     ]
 
@@ -394,8 +380,7 @@ def test_text_to_video_v3_omni_posts_resolution_and_sound_fields():
                 "output_resolution": "1080p",
                 "duration_seconds": 10,
                 "enable_sound": True,
-                "aspect_ratio": "16:9",
-            },
+                "aspect_ratio": "16:9"},
         )
     ]
 
@@ -440,8 +425,7 @@ def test_text_to_video_o1_posts_reference_fields():
                 "reference_video_url": "https://cdn.runapi.ai/public/samples/video.mp4",
                 "reference_video_type": "feature",
                 "preserve_reference_video_audio": True,
-                "duration_seconds": 5,
-            },
+                "duration_seconds": 5},
         )
     ]
 
@@ -484,10 +468,8 @@ def test_ai_avatar_create_posts_body():
                 "model": "kling-ai-avatar-pro",
                 "prompt": "a host greeting",
                 "source_image_url": "https://x/p.jpg",
-                "source_audio_url": "https://x/a.mp3",
-            },
-        ),
-    ]
+                "source_audio_url": "https://x/a.mp3"},
+        )]
     assert isinstance(result, AiAvatarResponse)
 
 
@@ -501,7 +483,7 @@ def test_ai_avatar_get_fetches_by_id():
 def test_ai_avatar_run_narrows_completed_type():
     fake = FakeHttp(
         {"id": "t1", "status": "pending"},
-        {"id": "t1", "status": "completed", "videos": [{"url": "https://x/a.mp4"}]},
+        {"id": "t1", "status": "completed", "usage": {"cost": 0.05}, "videos": [{"url": "https://x/a.mp4"}]},
     )
     client = KlingClient(api_key="k", http_client=fake)
     result = client.ai_avatar.run(
@@ -568,10 +550,8 @@ def test_image_to_video_create_posts_body():
             {
                 "model": "kling-v2.1-pro",
                 "prompt": "zoom out slowly",
-                "first_frame_image_url": "https://x/f.jpg",
-            },
-        ),
-    ]
+                "first_frame_image_url": "https://x/f.jpg"},
+        )]
     assert isinstance(result, ImageToVideoResponse)
 
 
@@ -585,7 +565,7 @@ def test_image_to_video_get_fetches_by_id():
 def test_image_to_video_run_narrows_completed_type():
     fake = FakeHttp(
         {"id": "t1", "status": "pending"},
-        {"id": "t1", "status": "completed", "videos": [{"url": "https://x/i.mp4"}]},
+        {"id": "t1", "status": "completed", "usage": {"cost": 0.05}, "videos": [{"url": "https://x/i.mp4"}]},
     )
     client = KlingClient(api_key="k", http_client=fake)
     result = client.image_to_video.run(
@@ -671,10 +651,8 @@ def test_image_to_video_v3_turbo_posts_body():
                 "prompt": "camera glides toward the lighthouse",
                 "first_frame_image_url": "https://x/lighthouse.jpg",
                 "duration_seconds": 7,
-                "output_resolution": "720p",
-            },
-        ),
-    ]
+                "output_resolution": "720p"},
+        )]
 
 
 def test_image_to_video_v3_turbo_rejects_unsupported_fields():
@@ -719,8 +697,7 @@ def test_image_to_video_v26_posts_mode_sound_and_final_frame_fields():
                 "mode": "pro",
                 "duration_seconds": 5,
                 "enable_sound": True,
-                "aspect_ratio": "16:9",
-            },
+                "aspect_ratio": "16:9"},
         )
     ]
 
@@ -752,8 +729,7 @@ def test_image_to_video_v3_omni_posts_resolution_sound_and_final_frame_fields():
                 "output_resolution": "4k",
                 "duration_seconds": 5,
                 "enable_sound": False,
-                "aspect_ratio": "9:16",
-            },
+                "aspect_ratio": "9:16"},
         )
     ]
 
@@ -779,8 +755,7 @@ def test_image_to_video_v26_rejects_sound_outside_pro_mode():
         (
             {"mode": "pro", "duration_seconds": 10},
             "last_frame_image_url requires duration_seconds 5 for kling-v2.6",
-        ),
-    ],
+        )],
 )
 def test_image_to_video_v26_rejects_invalid_final_frame_combinations(extra, message):
     client = KlingClient(api_key="k", http_client=FakeHttp())
@@ -871,8 +846,7 @@ def test_text_to_video_o1_rejects_missing_video_reference():
         "http://2130706433/reference.jpg",
         "http://127.1/reference.jpg",
         "http://0177.0.0.1/reference.jpg",
-        "http://0x7f000001/reference.jpg",
-    ],
+        "http://0x7f000001/reference.jpg"],
 )
 def test_text_to_video_o1_rejects_non_public_reference_media(reference_url):
     fake = FakeHttp()
@@ -908,10 +882,8 @@ def test_motion_control_create_posts_body():
             {
                 "model": "kling-3.0",
                 "source_image_url": "https://x/s.jpg",
-                "reference_video_url": "https://x/r.mp4",
-            },
-        ),
-    ]
+                "reference_video_url": "https://x/r.mp4"},
+        )]
     assert isinstance(result, MotionControlResponse)
 
 
@@ -934,8 +906,7 @@ def test_motion_control_create_posts_v26_body():
     ("missing", "message"),
     [
         ("output_resolution", "output_resolution is required"),
-        ("character_orientation", "character_orientation is required"),
-    ],
+        ("character_orientation", "character_orientation is required")],
 )
 def test_motion_control_v26_requires_model_fields(missing, message):
     fake = FakeHttp()
@@ -945,8 +916,7 @@ def test_motion_control_v26_requires_model_fields(missing, message):
         "source_image_url": "https://x/s.jpg",
         "reference_video_url": "https://x/r.mp4",
         "output_resolution": "720p",
-        "character_orientation": "video",
-    }
+        "character_orientation": "video"}
     del params[missing]
 
     with pytest.raises(ValidationError, match=message):
@@ -982,7 +952,7 @@ def test_motion_control_get_fetches_by_id():
 def test_motion_control_run_narrows_completed_type():
     fake = FakeHttp(
         {"id": "t1", "status": "pending"},
-        {"id": "t1", "status": "completed", "videos": [{"url": "https://x/m.mp4"}]},
+        {"id": "t1", "status": "completed", "usage": {"cost": 0.05}, "videos": [{"url": "https://x/m.mp4"}]},
     )
     client = KlingClient(api_key="k", http_client=fake)
     result = client.motion_control.run(
@@ -1058,8 +1028,7 @@ def test_text_to_video_accepts_reference_image_model():
         "model": "kling-v3-omni-reference",
         "prompt": "Keep the subject from the reference image",
         "reference_image_urls": ["https://cdn.runapi.ai/public/samples/image.jpg"],
-        "aspect_ratio": "16:9",
-    }
+        "aspect_ratio": "16:9"}
 
     client.text_to_video.create(**params)
     assert fake.calls == [("post", "/api/v1/kling/text_to_video", params)]
@@ -1070,15 +1039,14 @@ def test_edit_video_create_get_and_run_for_edit_model():
         {"id": "edit-create", "status": "processing"},
         {"id": "edit-get", "status": "processing"},
         {"id": "edit-run", "status": "processing"},
-        {"id": "edit-run", "status": "completed", "videos": [{"url": "https://file.runapi.ai/edit.mp4"}]},
+        {"id": "edit-run", "status": "completed", "usage": {"cost": 0.05}, "videos": [{"url": "https://file.runapi.ai/edit.mp4"}]},
     )
     client = KlingClient(api_key="k", http_client=fake)
     params = {
         "model": "kling-v3-omni-edit",
         "prompt": "Turn the source video into a watercolor scene",
         "source_video_url": "https://cdn.runapi.ai/public/samples/video.mp4",
-        "aspect_ratio": "auto",
-    }
+        "aspect_ratio": "auto"}
 
     client.edit_video.create(**params)
     client.edit_video.get("edit-get")
@@ -1088,8 +1056,7 @@ def test_edit_video_create_get_and_run_for_edit_model():
         ("post", "/api/v1/kling/edit_video", params),
         ("get", "/api/v1/kling/edit_video/edit-get", None),
         ("post", "/api/v1/kling/edit_video", params),
-        ("get", "/api/v1/kling/edit_video/edit-run", None),
-    ]
+        ("get", "/api/v1/kling/edit_video/edit-run", None)]
     assert result.status == "completed"
 
 
@@ -1102,8 +1069,7 @@ def test_edit_video_accepts_reference_model_and_requires_model():
         "source_video_url": "https://cdn.runapi.ai/public/samples/video.mp4",
         "reference_image_urls": ["https://cdn.runapi.ai/public/samples/image.jpg"],
         "aspect_ratio": "16:9",
-        "enable_sound": False,
-    }
+        "enable_sound": False}
 
     client.edit_video.create(**params)
     assert fake.calls == [("post", "/api/v1/kling/edit_video", params)]
