@@ -74,9 +74,6 @@ export class ImageToVideo {
 
 function validateV26Params(body: Record<string, unknown>): void {
   if (body.model !== V26_MODEL) return;
-  if (body.enable_sound === true && body.mode !== 'pro') {
-    throw new ValidationError(`enable_sound requires mode pro for ${V26_MODEL}`);
-  }
   if (!fieldPresent(body, 'last_frame_image_url')) return;
   if (body.mode !== 'pro') {
     throw new ValidationError(`last_frame_image_url requires mode pro for ${V26_MODEL}`);

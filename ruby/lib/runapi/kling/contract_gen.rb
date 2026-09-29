@@ -505,10 +505,28 @@ module RunApi
           },
           "forbidden" => ["output_resolution", "enable_sound", "reference_image_urls", "reference_video_url", "reference_video_type", "preserve_reference_video_audio"]
         }, {
+          "enum" => {
+            "enable_sound" => [false]
+          },
+          "when" => {
+            "mode" => "std",
+            "model" => "kling-v2.6"
+          }
+        }, {
           "when" => {
             "model" => "kling-v2.6"
           },
           "forbidden" => ["output_resolution", "negative_prompt", "cfg_scale", "reference_image_urls", "reference_video_url", "reference_video_type", "preserve_reference_video_audio"]
+        }, {
+          "enum" => {
+            "enable_sound" => [false]
+          },
+          "when" => {
+            "mode" => {
+              "present" => false
+            },
+            "model" => "kling-v2.6"
+          }
         }, {
           "when" => {
             "model" => "kling-v3-omni"
@@ -535,7 +553,8 @@ module RunApi
               "required" => true
             },
             "output_resolution" => {
-              "enum" => ["720p", "1080p"]
+              "enum" => ["720p", "1080p"],
+              "required" => true
             },
             "reference_video_url" => {
               "required" => true
@@ -761,6 +780,24 @@ module RunApi
             "model" => "kling-v2.6"
           },
           "forbidden" => ["output_resolution", "negative_prompt", "cfg_scale", "multi_shots", "multi_prompt", "first_frame_image_url", "last_frame_image_url", "kling_elements", "reference_image_urls", "reference_video_url", "reference_video_type", "preserve_reference_video_audio"]
+        }, {
+          "enum" => {
+            "enable_sound" => [false]
+          },
+          "when" => {
+            "mode" => "std",
+            "model" => "kling-v2.6"
+          }
+        }, {
+          "enum" => {
+            "enable_sound" => [false]
+          },
+          "when" => {
+            "mode" => {
+              "present" => false
+            },
+            "model" => "kling-v2.6"
+          }
         }, {
           "when" => {
             "model" => "kling-v3-omni"

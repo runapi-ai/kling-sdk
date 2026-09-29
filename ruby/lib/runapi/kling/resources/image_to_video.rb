@@ -77,11 +77,9 @@ module RunApi
         end
 
         def validate_v26_params!(params, last_frame_image_url)
-          mode = param(params, :mode) || "std"
-          if param(params, :enable_sound) == true && mode != "pro"
-            raise Core::ValidationError, "enable_sound requires mode pro for #{V26_MODEL}"
-          end
           return unless last_frame_image_url
+
+          mode = param(params, :mode) || "std"
 
           raise Core::ValidationError, "last_frame_image_url requires mode pro for #{V26_MODEL}" unless mode == "pro"
 

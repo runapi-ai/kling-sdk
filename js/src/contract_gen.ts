@@ -769,6 +769,17 @@ export const contract = {
         ]
       },
       {
+        "enum": {
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "mode": "std",
+          "model": "kling-v2.6"
+        }
+      },
+      {
         "when": {
           "model": "kling-v2.6"
         },
@@ -781,6 +792,19 @@ export const contract = {
           "reference_video_type",
           "preserve_reference_video_audio"
         ]
+      },
+      {
+        "enum": {
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "mode": {
+            "present": false
+          },
+          "model": "kling-v2.6"
+        }
       },
       {
         "when": {
@@ -839,7 +863,8 @@ export const contract = {
           "enum": [
             "720p",
             "1080p"
-          ]
+          ],
+          "required": true
         },
         "reference_video_url": {
           "required": true
@@ -1251,6 +1276,30 @@ export const contract = {
           "reference_video_type",
           "preserve_reference_video_audio"
         ]
+      },
+      {
+        "enum": {
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "mode": "std",
+          "model": "kling-v2.6"
+        }
+      },
+      {
+        "enum": {
+          "enable_sound": [
+            false
+          ]
+        },
+        "when": {
+          "mode": {
+            "present": false
+          },
+          "model": "kling-v2.6"
+        }
       },
       {
         "when": {

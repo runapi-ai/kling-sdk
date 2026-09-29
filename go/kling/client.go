@@ -140,9 +140,6 @@ func (r *TextToVideo) Create(ctx context.Context, params TextToVideoParams, opts
 	if err := core.ValidateParams(contractSchema["text-to-video"], body); err != nil {
 		return nil, err
 	}
-	if err := validateV26TextToVideoBody(body); err != nil {
-		return nil, err
-	}
 	if err := validateKlingO1References(body); err != nil {
 		return nil, err
 	}
@@ -266,22 +263,9 @@ func validateImageToVideoBody(body map[string]any) error {
 	return nil
 }
 
-func validateV26TextToVideoBody(body map[string]any) error {
-	if body["model"] != string(ModelV26T2V) {
-		return nil
-	}
-	if body["enable_sound"] == true && body["mode"] != "pro" {
-		return validationError("enable_sound requires mode pro for kling-v2.6")
-	}
-	return nil
-}
-
 func validateV26ImageToVideoBody(body map[string]any) error {
 	if body["model"] != string(ModelV26I2V) {
 		return nil
-	}
-	if body["enable_sound"] == true && body["mode"] != "pro" {
-		return validationError("enable_sound requires mode pro for kling-v2.6")
 	}
 	if !fieldPresent(body, "last_frame_image_url") {
 		return nil

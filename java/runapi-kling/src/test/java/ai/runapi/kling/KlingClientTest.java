@@ -207,7 +207,21 @@ class KlingClientTest {
                 .enableSound(true)
                 .build()));
 
-    assertEquals("enable_sound requires mode pro for kling-v2.6", error.getMessage());
+    assertEquals(
+        "enable_sound must be one of: false when mode is absent and model is kling-v2.6", error.getMessage());
+
+    ValidationException stdError = assertThrows(
+        ValidationException.class,
+        () -> client.textToVideo().create(
+            TextToVideoParams.builder()
+                .model(TextToVideoModel.KLING_V2_6)
+                .prompt("test")
+                .mode("std")
+                .enableSound(true)
+                .build()));
+
+    assertEquals(
+        "enable_sound must be one of: false when mode is std and model is kling-v2.6", stdError.getMessage());
     assertNull(transport.request);
   }
 
@@ -443,7 +457,21 @@ class KlingClientTest {
                 .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
                 .enableSound(true)
                 .build()));
-    assertEquals("enable_sound requires mode pro for kling-v2.6", soundError.getMessage());
+    assertEquals(
+        "enable_sound must be one of: false when mode is absent and model is kling-v2.6", soundError.getMessage());
+
+    ValidationException stdSoundError = assertThrows(
+        ValidationException.class,
+        () -> client.imageToVideo().create(
+            ImageToVideoParams.builder()
+                .model(ImageToVideoModel.KLING_V2_6)
+                .prompt("test")
+                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
+                .mode("std")
+                .enableSound(true)
+                .build()));
+    assertEquals(
+        "enable_sound must be one of: false when mode is std and model is kling-v2.6", stdSoundError.getMessage());
 
     ValidationException modeError = assertThrows(
         ValidationException.class,
@@ -666,6 +694,7 @@ class KlingClientTest {
                   .model(MotionControlModel.KLING_3_0)
                   .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
                   .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                  .outputResolution("720p")
                   .prompt("A small red cube on a plain white table, studio product photo")
                   .build()
       ));
@@ -677,6 +706,7 @@ class KlingClientTest {
                   .model(MotionControlModel.KLING_3_0)
                   .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
                   .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                  .outputResolution("720p")
                   .prompt("A small red cube on a plain white table, studio product photo")
                   .build(),
           RequestOptions.none()));
@@ -698,6 +728,7 @@ class KlingClientTest {
                   .model(MotionControlModel.KLING_3_0)
                   .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
                   .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                  .outputResolution("720p")
                   .prompt("A small red cube on a plain white table, studio product photo")
                   .build(),
           RequestOptions.builder().pollingInterval(Duration.ofMillis(1)).pollingMaxWait(Duration.ofSeconds(1)).build());
@@ -712,6 +743,7 @@ class KlingClientTest {
                   .model(MotionControlModel.KLING_3_0)
                   .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
                   .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
+                  .outputResolution("720p")
                   .prompt("A small red cube on a plain white table, studio product photo")
                   .build(),
           RequestOptions.builder().pollingInterval(Duration.ofMillis(1)).pollingMaxWait(Duration.ofSeconds(1)).build()));

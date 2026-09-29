@@ -143,7 +143,11 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
     it "rejects Kling 2.6 sound outside pro mode" do
       expect do
         text_to_video.create(model: "kling-v2.6", prompt: "test", enable_sound: true)
-      end.to raise_error(RunApi::Core::ValidationError, /enable_sound requires mode pro for kling-v2.6/)
+      end.to raise_error(RunApi::Core::ValidationError, "enable_sound must be one of: false when mode is absent and model is kling-v2.6")
+
+      expect do
+        text_to_video.create(model: "kling-v2.6", prompt: "test", mode: "std", enable_sound: true)
+      end.to raise_error(RunApi::Core::ValidationError, "enable_sound must be one of: false when mode is std and model is kling-v2.6")
     end
 
     it "passes through Kling O1 image and video references" do

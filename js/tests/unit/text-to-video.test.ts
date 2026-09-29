@@ -243,7 +243,15 @@ describe('TextToVideo', () => {
           prompt: 'A paper boat crossing a rain puddle',
           enable_sound: true,
         })
-      ).rejects.toThrow('enable_sound requires mode pro for kling-v2.6');
+      ).rejects.toThrow('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
+      await expect(
+        textToVideo.create({
+          model: 'kling-v2.6',
+          prompt: 'A paper boat crossing a rain puddle',
+          mode: 'std',
+          enable_sound: true,
+        })
+      ).rejects.toThrow('enable_sound must be one of: false when mode is std and model is kling-v2.6');
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
 

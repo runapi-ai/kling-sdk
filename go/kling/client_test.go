@@ -335,7 +335,15 @@ func TestTextToVideoRejectsV26SoundOutsideProMode(t *testing.T) {
 		Model:       ModelV26T2V,
 		Prompt:      "a paper boat crossing a rain puddle",
 		EnableSound: &trueVal})
-	if err == nil || !strings.Contains(err.Error(), "enable_sound requires mode pro for kling-v2.6") {
+	if err == nil || !strings.Contains(err.Error(), "enable_sound must be one of: false when mode is absent and model is kling-v2.6") {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	_, err = client.TextToVideo.Create(context.Background(), TextToVideoParams{
+		Model:       ModelV26T2V,
+		Prompt:      "a paper boat crossing a rain puddle",
+		Mode:        "std",
+		EnableSound: &trueVal})
+	if err == nil || !strings.Contains(err.Error(), "enable_sound must be one of: false when mode is std and model is kling-v2.6") {
 		t.Fatalf("unexpected error: %v", err)
 	}
 	if stub.body != nil {
@@ -660,7 +668,12 @@ func TestImageToVideoRejectsV26ConditionalFields(t *testing.T) {
 			name: "sound outside pro mode",
 			params: ImageToVideoParams{
 				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", EnableSound: &trueVal},
-			message: "enable_sound requires mode pro for kling-v2.6"},
+			message: "enable_sound must be one of: false when mode is absent and model is kling-v2.6"},
+		{
+			name: "sound in std mode",
+			params: ImageToVideoParams{
+				Model: ModelV26I2V, Prompt: "test", FirstFrameImageURL: "https://example.test/first.jpg", Mode: "std", EnableSound: &trueVal},
+			message: "enable_sound must be one of: false when mode is std and model is kling-v2.6"},
 		{
 			name: "last frame outside pro mode",
 			params: ImageToVideoParams{
@@ -857,7 +870,8 @@ func TestMotionControlCreateCompactsEmptyFields(t *testing.T) {
 	_, err := client.MotionControl.Create(context.Background(), MotionControlParams{
 		Model:             ModelKling30MotionControl,
 		SourceImageURL:    "https://cdn.runapi.ai/public/samples/portrait.jpg",
-		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4"})
+		ReferenceVideoURL: "https://cdn.runapi.ai/public/samples/video.mp4",
+		OutputResolution:  "720p"})
 	if err != nil {
 		t.Fatal(err)
 	}

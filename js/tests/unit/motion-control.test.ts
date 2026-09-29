@@ -216,6 +216,7 @@ describe('MotionControl', () => {
         model: 'kling-3.0',
         source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
         reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
+        output_resolution: '720p',
       });
 
       expect(result.status).toBe('completed');

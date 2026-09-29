@@ -83,9 +83,6 @@ public final class ImageToVideoResource extends KlingResource {
   }
 
   private static void validateV26Body(Map<String, Object> body) {
-    if (Boolean.TRUE.equals(body.get("enable_sound")) && !"pro".equals(body.get("mode"))) {
-      throw new ValidationException("enable_sound requires mode pro for kling-v2.6");
-    }
     if (!fieldPresent(body, "last_frame_image_url")) {
       return;
     }

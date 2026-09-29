@@ -365,10 +365,10 @@ interface MotionControlCommonParams {
   callback_url?: string;
 }
 
-/** Kling 3.0 motion transfer with optional orientation and background controls. */
+/** Kling 3.0 motion transfer with explicit resolution and optional orientation and background controls. */
 export interface Kling3MotionControlParams extends MotionControlCommonParams {
   model: (typeof modelValues.motionControl.KLING_3_0);
-  output_resolution?: '720p' | '1080p';
+  output_resolution: '720p' | '1080p';
   /** Whether the character faces the direction from the video or the image. */
   character_orientation?: 'video' | 'image';
   /** Whether the background comes from the video or the image. */

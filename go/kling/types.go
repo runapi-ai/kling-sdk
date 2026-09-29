@@ -250,7 +250,7 @@ type MotionControlParams struct {
 	SourceImageURL       string                        `json:"source_image_url" help:"required; subject image URL"`
 	ReferenceVideoURL    string                        `json:"reference_video_url" help:"required; reference motion video URL; kling-v2.6 allows 3-10 seconds with image orientation or 3-30 seconds with video orientation"`
 	Prompt               string                        `json:"prompt,omitempty" help:"optional; description prompt"`
-	OutputResolution     MotionControlOutputResolution `json:"output_resolution,omitempty" help:"required for kling-v2.6; optional for kling-3.0; output resolution"`
+	OutputResolution     MotionControlOutputResolution `json:"output_resolution,omitempty" help:"required; output resolution"`
 	CharacterOrientation string                        `json:"character_orientation,omitempty" help:"required for kling-v2.6; optional for kling-3.0; character orientation"`
 	BackgroundSource     string                        `json:"background_source,omitempty" help:"optional for kling-3.0; not supported by kling-v2.6; background source"`
 	CallbackURL          string                        `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`

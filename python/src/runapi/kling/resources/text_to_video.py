@@ -15,7 +15,6 @@ from ..types import (
 )
 from .o1_reference_validation import validate_kling_o1_references
 
-V26_MODEL = "kling-v2.6"
 V3_TURBO_MODEL = "kling-v3-turbo-text-to-video"
 V3_TURBO_UNSUPPORTED_FIELDS = (
     "enable_sound",
@@ -76,7 +75,6 @@ class TextToVideo(Resource):
     def _validate_params(self, params: Dict[str, Any]) -> None:
         self._reject_unsupported_v3_turbo_fields(params)
         self._validate_contract(CONTRACT["text-to-video"], params)
-        self._validate_v26_params(params)
         validate_kling_o1_references(params)
 
         # Bespoke cross-field rules the contract cannot express.
@@ -92,14 +90,6 @@ class TextToVideo(Resource):
         else:
             if not params.get("prompt"):
                 raise ValidationError("prompt is required")
-
-    def _validate_v26_params(self, params: Dict[str, Any]) -> None:
-        if (
-            params.get("model") == V26_MODEL
-            and params.get("enable_sound") is True
-            and params.get("mode") != "pro"
-        ):
-            raise ValidationError(f"enable_sound requires mode pro for {V26_MODEL}")
 
     def _reject_unsupported_v3_turbo_fields(self, params: Dict[str, Any]) -> None:
         if params.get("model") != V3_TURBO_MODEL:

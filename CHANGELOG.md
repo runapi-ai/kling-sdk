@@ -1,5 +1,27 @@
 # Changelog
 
+## [js/v0.4.0](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.4.0), [ruby/v0.4.0](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.4.0), [go/v0.4.0](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.4.0), [python/v0.4.0](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.4.0) - 2026-09-29
+
+### Changed
+- Require output_resolution for kling-3.0 motion_control, matching the API, which rejects requests that omit it.
+  Migration: Pass output_resolution (720p or 1080p) explicitly on kling-3.0 motion_control requests.
+- Reject enable_sound without pro mode for kling-v2.6 text-to-video and image-to-video through generated contract rules, matching the API.
+  Migration: Set mode to pro when enabling sound on kling-v2.6.
+- Record the server default duration, resolution, and sound settings of Kling text-to-video and image-to-video models in generated contract metadata.
+- Enforce the kling-v2.6 sound-mode rule only through the generated contract rules; the rejection and its message are unchanged.
+
+## [java/v0.2.1](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.2.1) - 2026-09-29
+
+### Changed
+- Require output_resolution for kling-3.0 motion_control, matching the API, which rejects requests that omit it.
+  Migration: Pass output_resolution (720p or 1080p) explicitly on kling-3.0 motion_control requests.
+- Reject enable_sound without pro mode for kling-v2.6 text-to-video and image-to-video through generated contract rules, matching the API.
+  Migration: Set mode to pro when enabling sound on kling-v2.6.
+- Record the server default duration, resolution, and sound settings of Kling text-to-video and image-to-video models in generated contract metadata.
+- Reject enable_sound without pro mode for kling-v2.6 text-to-video and image-to-video through the generated contract rules, reporting the generated contract rule message (for example "enable_sound must be one of: false when mode is std and model is kling-v2.6") instead of "enable_sound requires mode pro for kling-v2.6".
+  Migration: Match on ValidationException rather than the old message text; set mode to pro when enabling sound on kling-v2.6.
+
+
 ## [js/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.3.6), [ruby/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.3.6), [go/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.3.6), [python/v0.3.6](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.3.6) - 2026-09-28
 
 ### Added

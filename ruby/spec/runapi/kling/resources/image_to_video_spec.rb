@@ -76,7 +76,17 @@ RSpec.describe RunApi::Kling::Resources::ImageToVideo do
         first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
         enable_sound: true
       )
-    end.to raise_error(RunApi::Core::ValidationError, /enable_sound requires mode pro for kling-v2.6/)
+    end.to raise_error(RunApi::Core::ValidationError, "enable_sound must be one of: false when mode is absent and model is kling-v2.6")
+
+    expect do
+      resource.create(
+        model: "kling-v2.6",
+        prompt: "test",
+        first_frame_image_url: "https://cdn.runapi.ai/public/samples/image-to-video.jpg",
+        mode: "std",
+        enable_sound: true
+      )
+    end.to raise_error(RunApi::Core::ValidationError, "enable_sound must be one of: false when mode is std and model is kling-v2.6")
   end
 
   it "rejects Kling 2.6 final frames outside pro five-second requests" do

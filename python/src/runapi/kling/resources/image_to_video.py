@@ -96,12 +96,9 @@ class ImageToVideo(Resource):
     def _validate_v26_params(
         self, params: Dict[str, Any], last_frame_image_url: Any
     ) -> None:
-        mode = params.get("mode") or "std"
-        if params.get("enable_sound") is True and mode != "pro":
-            raise ValidationError(f"enable_sound requires mode pro for {V26_MODEL}")
         if not last_frame_image_url:
             return
-        if mode != "pro":
+        if (params.get("mode") or "std") != "pro":
             raise ValidationError(f"last_frame_image_url requires mode pro for {V26_MODEL}")
         if params.get("duration_seconds", 5) != 5:
             raise ValidationError(

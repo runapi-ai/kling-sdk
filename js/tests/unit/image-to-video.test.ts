@@ -150,7 +150,16 @@ describe('ImageToVideo', () => {
           first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
           enable_sound: true,
         })
-      ).rejects.toThrow('enable_sound requires mode pro for kling-v2.6');
+      ).rejects.toThrow('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
+      await expect(
+        imageToVideo.create({
+          model: 'kling-v2.6',
+          prompt: 'Camera follows the cyclist through fog',
+          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
+          mode: 'std',
+          enable_sound: true,
+        })
+      ).rejects.toThrow('enable_sound must be one of: false when mode is std and model is kling-v2.6');
       expect(mockHttp.request).not.toHaveBeenCalled();
     });
 

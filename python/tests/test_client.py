@@ -390,10 +390,17 @@ def test_text_to_video_v26_rejects_sound_outside_pro_mode():
     client = KlingClient(api_key="k", http_client=fake)
 
     with pytest.raises(
-        ValidationError, match="enable_sound requires mode pro for kling-v2.6"
+        ValidationError, match="enable_sound must be one of: false when .*model is kling-v2.6"
     ):
         client.text_to_video.create(
             model="kling-v2.6", prompt="test", enable_sound=True
+        )
+    with pytest.raises(
+        ValidationError,
+        match="enable_sound must be one of: false when mode is std and model is kling-v2.6",
+    ):
+        client.text_to_video.create(
+            model="kling-v2.6", prompt="test", mode="std", enable_sound=True
         )
     assert fake.calls == []
 
@@ -738,12 +745,23 @@ def test_image_to_video_v26_rejects_sound_outside_pro_mode():
     client = KlingClient(api_key="k", http_client=FakeHttp())
 
     with pytest.raises(
-        ValidationError, match="enable_sound requires mode pro for kling-v2.6"
+        ValidationError, match="enable_sound must be one of: false when .*model is kling-v2.6"
     ):
         client.image_to_video.create(
             model="kling-v2.6",
             prompt="test",
             first_frame_image_url="https://x/first.jpg",
+            enable_sound=True,
+        )
+    with pytest.raises(
+        ValidationError,
+        match="enable_sound must be one of: false when mode is std and model is kling-v2.6",
+    ):
+        client.image_to_video.create(
+            model="kling-v2.6",
+            prompt="test",
+            first_frame_image_url="https://x/first.jpg",
+            mode="std",
             enable_sound=True,
         )
 
@@ -874,6 +892,7 @@ def test_motion_control_create_posts_body():
         model="kling-3.0",
         source_image_url="https://x/s.jpg",
         reference_video_url="https://x/r.mp4",
+        output_resolution="720p",
     )
     assert fake.calls == [
         (
@@ -882,9 +901,22 @@ def test_motion_control_create_posts_body():
             {
                 "model": "kling-3.0",
                 "source_image_url": "https://x/s.jpg",
-                "reference_video_url": "https://x/r.mp4"},
+                "reference_video_url": "https://x/r.mp4",
+                "output_resolution": "720p"},
         )]
     assert isinstance(result, MotionControlResponse)
+
+
+def test_motion_control_kling_3_requires_output_resolution():
+    fake = FakeHttp()
+    client = KlingClient(api_key="k", http_client=fake)
+    with pytest.raises(ValidationError, match="output_resolution is required"):
+        client.motion_control.create(
+            model="kling-3.0",
+            source_image_url="https://x/s.jpg",
+            reference_video_url="https://x/r.mp4",
+        )
+    assert fake.calls == []
 
 
 def test_motion_control_create_posts_v26_body():
@@ -959,6 +991,7 @@ def test_motion_control_run_narrows_completed_type():
         model="kling-3.0",
         source_image_url="https://x/s.jpg",
         reference_video_url="https://x/r.mp4",
+        output_resolution="720p",
     )
     assert isinstance(result, CompletedMotionControlResponse)
     assert result.videos[0].url == "https://x/m.mp4"
@@ -992,14 +1025,16 @@ def test_motion_control_requires_source_image_url():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(ValidationError, match="source_image_url is required"):
         client.motion_control.create(
-            model="kling-3.0", reference_video_url="https://x/r.mp4"
+            model="kling-3.0", reference_video_url="https://x/r.mp4", output_resolution="720p"
         )
 
 
 def test_motion_control_requires_reference_video_url():
     client = KlingClient(api_key="k", http_client=FakeHttp())
     with pytest.raises(ValidationError, match="reference_video_url is required"):
-        client.motion_control.create(model="kling-3.0", source_image_url="https://x/s.jpg")
+        client.motion_control.create(
+            model="kling-3.0", source_image_url="https://x/s.jpg", output_resolution="720p"
+        )
 
 
 def test_text_to_video_non_numeric_duration_raises_validation_error():
