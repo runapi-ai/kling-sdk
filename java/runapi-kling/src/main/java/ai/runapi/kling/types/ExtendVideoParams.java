@@ -11,7 +11,7 @@ public final class ExtendVideoParams {
   private final String callbackUrl;
 
   private ExtendVideoParams(Builder builder) {
-    this.sourceTaskId = KlingParamUtils.requireNonBlank(builder.sourceTaskId, "sourceTaskId");
+    this.sourceTaskId = builder.sourceTaskId;
     this.mode = builder.mode;
     this.prompt = builder.prompt;
     this.callbackUrl = builder.callbackUrl;
@@ -43,25 +43,22 @@ public final class ExtendVideoParams {
     private Builder() {}
 
     public Builder sourceTaskId(String value) {
-      this.sourceTaskId = KlingParamUtils.requireNonBlank(value, "sourceTaskId");
+      this.sourceTaskId = value;
       return this;
     }
 
     public Builder mode(String value) {
-      if (value != null && !"std".equals(value) && !"pro".equals(value)) {
-        throw new IllegalArgumentException("mode must be std or pro");
-      }
       this.mode = value;
       return this;
     }
 
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 
     public Builder callbackUrl(String value) {
-      this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      this.callbackUrl = value;
       return this;
     }
 

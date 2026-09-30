@@ -10,8 +10,8 @@ public final class MultiPromptItem {
   private final Integer durationSeconds;
 
   private MultiPromptItem(Builder builder) {
-    this.prompt = KlingParamUtils.requireNonBlank(builder.prompt, "prompt");
-    this.durationSeconds = java.util.Objects.requireNonNull(builder.durationSeconds, "durationSeconds");
+    this.prompt = builder.prompt;
+    this.durationSeconds = builder.durationSeconds;
   }
 
   /** Creates a new MultiPromptItem builder. */
@@ -45,7 +45,7 @@ public final class MultiPromptItem {
 
     /** Sets the text prompt. */
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 

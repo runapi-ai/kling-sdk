@@ -15,7 +15,7 @@ public final class KlingElement {
   private final Integer endTime;
 
   private KlingElement(Builder builder) {
-    this.name = KlingParamUtils.requireNonBlank(builder.name, "name");
+    this.name = builder.name;
     this.description = builder.description;
     this.elementInputUrls = KlingParamUtils.strings(builder.elementInputUrls);
     this.elementInputVideoUrls = KlingParamUtils.strings(builder.elementInputVideoUrls);
@@ -90,13 +90,13 @@ public final class KlingElement {
 
     /** Sets the item name. */
     public Builder name(String value) {
-      this.name = KlingParamUtils.requireNonBlank(value, "name");
+      this.name = value;
       return this;
     }
 
     /** Sets the item description. */
     public Builder description(String value) {
-      this.description = KlingParamUtils.requireNonBlank(value, "description");
+      this.description = value;
       return this;
     }
 

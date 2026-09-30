@@ -24,28 +24,6 @@ RSpec.describe RunApi::Kling::Resources::MotionControl do
     expect(result.id).to eq("task-motion")
   end
 
-  it "rejects invalid output_resolution" do
-    expect do
-      resource.create(
-        model: "kling-3.0",
-        source_image_url: "https://cdn.runapi.ai/public/samples/portrait.jpg",
-        reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
-        output_resolution: "4k"
-      )
-    end.to raise_error(RunApi::Core::ValidationError, /output_resolution must be one of: 720p, 1080p/)
-  end
-
-  it "rejects provider background_source values" do
-    expect do
-      resource.create(
-        model: "kling-3.0",
-        source_image_url: "https://cdn.runapi.ai/public/samples/portrait.jpg",
-        reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
-        background_source: "input_video"
-      )
-    end.to raise_error(RunApi::Core::ValidationError, /background_source must be one of: video, image/)
-  end
-
   it "POSTs Kling 2.6 motion-control params" do
     params = {
       model: "kling-v2.6",
@@ -58,29 +36,5 @@ RSpec.describe RunApi::Kling::Resources::MotionControl do
       .and_return("id" => "task-motion-v26")
 
     expect(resource.create(**params).id).to eq("task-motion-v26")
-  end
-
-  it "requires Kling 2.6 output_resolution" do
-    expect do
-      resource.create(
-        model: "kling-v2.6",
-        source_image_url: "https://cdn.runapi.ai/public/samples/portrait.jpg",
-        reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
-        character_orientation: "video"
-      )
-    end.to raise_error(RunApi::Core::ValidationError, /output_resolution is required/)
-  end
-
-  it "rejects background_source for Kling 2.6" do
-    expect do
-      resource.create(
-        model: "kling-v2.6",
-        source_image_url: "https://cdn.runapi.ai/public/samples/portrait.jpg",
-        reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
-        output_resolution: "720p",
-        character_orientation: "video",
-        background_source: "video"
-      )
-    end.to raise_error(RunApi::Core::ValidationError, /background_source is not allowed when model is kling-v2.6/)
   end
 end

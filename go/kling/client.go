@@ -8,7 +8,6 @@ package kling
 
 import (
 	"context"
-	"strings"
 
 	"github.com/runapi-ai/core-sdk/go/base"
 	"github.com/runapi-ai/core-sdk/go/core"
@@ -16,41 +15,23 @@ import (
 )
 
 const (
-	textToVideoPath      = "/api/v1/kling/text_to_video"
-	imageToVideoPath     = "/api/v1/kling/image_to_video"
-	aiAvatarPath         = "/api/v1/kling/ai_avatar"
-	motionControlPath    = "/api/v1/kling/motion_control"
-	extendVideoPath      = "/api/v1/kling/extend_video"
-	editVideoPath        = "/api/v1/kling/edit_video"
+	textToVideoPath   = "/api/v1/kling/text_to_video"
+	imageToVideoPath  = "/api/v1/kling/image_to_video"
+	aiAvatarPath      = "/api/v1/kling/ai_avatar"
+	motionControlPath = "/api/v1/kling/motion_control"
+	extendVideoPath   = "/api/v1/kling/extend_video"
+	editVideoPath     = "/api/v1/kling/edit_video"
 )
-
-var v3TurboTextToVideoUnsupportedFields = []string{
-	"enable_sound",
-	"negative_prompt",
-	"cfg_scale",
-	"multi_shots",
-	"multi_prompt",
-	"first_frame_image_url",
-	"last_frame_image_url",
-	"kling_elements",
-}
-
-var v3TurboImageToVideoUnsupportedFields = []string{
-	"aspect_ratio",
-	"negative_prompt",
-	"cfg_scale",
-	"last_frame_image_url",
-}
 
 // Client provides Kling video generation, AI avatar lip-sync, and motion control.
 type Client struct {
 	base.Base
-	TextToVideo      *TextToVideo
-	ImageToVideo     *ImageToVideo
-	AiAvatar         *AiAvatar
-	MotionControl    *MotionControl
-	ExtendVideo      *ExtendVideo
-	EditVideo        *EditVideo
+	TextToVideo   *TextToVideo
+	ImageToVideo  *ImageToVideo
+	AiAvatar      *AiAvatar
+	MotionControl *MotionControl
+	ExtendVideo   *ExtendVideo
+	EditVideo     *EditVideo
 }
 
 // NewClient creates a Kling client with the given options.
@@ -69,13 +50,13 @@ func NewClient(opts ...option.ClientOption) (*Client, error) {
 // NewClientWithHTTP creates a Kling client with a pre-configured HTTP transport.
 func NewClientWithHTTP(httpClient core.HTTPClient) *Client {
 	return &Client{
-		Base:             base.New(httpClient),
-		TextToVideo:      &TextToVideo{http: httpClient},
-		ImageToVideo:     &ImageToVideo{http: httpClient},
-		AiAvatar:         &AiAvatar{http: httpClient},
-		MotionControl:    &MotionControl{http: httpClient},
-		ExtendVideo:      &ExtendVideo{http: httpClient},
-		EditVideo:        &EditVideo{http: httpClient},
+		Base:          base.New(httpClient),
+		TextToVideo:   &TextToVideo{http: httpClient},
+		ImageToVideo:  &ImageToVideo{http: httpClient},
+		AiAvatar:      &AiAvatar{http: httpClient},
+		MotionControl: &MotionControl{http: httpClient},
+		ExtendVideo:   &ExtendVideo{http: httpClient},
+		EditVideo:     &EditVideo{http: httpClient},
 	}
 }
 
@@ -85,9 +66,6 @@ type ExtendVideo struct{ http core.HTTPClient }
 func (r *ExtendVideo) Create(ctx context.Context, params ExtendVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
-	if err := core.ValidateParams(contractSchema["extend-video"], body); err != nil {
-		return nil, err
-	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, extendVideoPath, body, requestOptions)
 }
 
@@ -108,9 +86,6 @@ type EditVideo struct{ http core.HTTPClient }
 func (r *EditVideo) Create(ctx context.Context, params EditVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
-	if err := core.ValidateParams(contractSchema["edit-video"], body); err != nil {
-		return nil, err
-	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, editVideoPath, body, requestOptions)
 }
 
@@ -134,15 +109,6 @@ type TextToVideo struct{ http core.HTTPClient }
 func (r *TextToVideo) Create(ctx context.Context, params TextToVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
-	if err := validateTextToVideoBody(body); err != nil {
-		return nil, err
-	}
-	if err := core.ValidateParams(contractSchema["text-to-video"], body); err != nil {
-		return nil, err
-	}
-	if err := validateKlingO1References(body); err != nil {
-		return nil, err
-	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, textToVideoPath, body, requestOptions)
 }
 
@@ -165,18 +131,6 @@ type ImageToVideo struct{ http core.HTTPClient }
 func (r *ImageToVideo) Create(ctx context.Context, params ImageToVideoParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
-	if err := validateImageToVideoBody(body); err != nil {
-		return nil, err
-	}
-	if err := core.ValidateParams(contractSchema["image-to-video"], body); err != nil {
-		return nil, err
-	}
-	if err := validateV26ImageToVideoBody(body); err != nil {
-		return nil, err
-	}
-	if err := validateKlingO1References(body); err != nil {
-		return nil, err
-	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, imageToVideoPath, body, requestOptions)
 }
 
@@ -199,9 +153,6 @@ type AiAvatar struct{ http core.HTTPClient }
 func (r *AiAvatar) Create(ctx context.Context, params AiAvatarParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
-	if err := core.ValidateParams(contractSchema["avatar"], body); err != nil {
-		return nil, err
-	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, aiAvatarPath, body, requestOptions)
 }
 
@@ -225,9 +176,6 @@ type MotionControl struct{ http core.HTTPClient }
 func (r *MotionControl) Create(ctx context.Context, params MotionControlParams, opts ...option.RequestOption) (*core.TaskCreateResponse, error) {
 	requestOptions, _ := option.ResolveRequestOptions(opts...)
 	body := core.CompactParams(params)
-	if err := core.ValidateParams(contractSchema["motion-control"], body); err != nil {
-		return nil, err
-	}
 	return core.PostJSON[core.TaskCreateResponse](ctx, r.http, motionControlPath, body, requestOptions)
 }
 
@@ -241,89 +189,4 @@ func (r *MotionControl) Get(ctx context.Context, id string, opts ...option.Reque
 func (r *MotionControl) Run(ctx context.Context, params MotionControlParams, opts ...option.RequestOption) (*MotionControlResponse, error) {
 	_, pollingOptions := option.ResolveRequestOptions(opts...)
 	return core.RunAsync(ctx, func(ctx context.Context) (*core.TaskCreateResponse, error) { return r.Create(ctx, params, opts...) }, func(ctx context.Context, id string) (*MotionControlResponse, error) { return r.Get(ctx, id, opts...) }, pollingOptions)
-}
-
-func validateTextToVideoBody(body map[string]any) error {
-	if body["model"] != string(ModelV3TurboT2V) {
-		return nil
-	}
-	return rejectUnsupportedFields(body, v3TurboTextToVideoUnsupportedFields, string(ModelV3TurboT2V))
-}
-
-func validateImageToVideoBody(body map[string]any) error {
-	if body["model"] == string(ModelV3TurboI2V) {
-		return rejectUnsupportedFields(body, v3TurboImageToVideoUnsupportedFields, string(ModelV3TurboI2V))
-	}
-	if body["model"] != string(ModelV3OmniI2V) || !fieldPresent(body, "last_frame_image_url") {
-		return nil
-	}
-	if duration, ok := body["duration_seconds"]; ok && duration != float64(5) {
-		return core.NewError(core.ErrValidation, "last_frame_image_url requires duration_seconds 5 for kling-v3-omni", 400, "", nil, nil)
-	}
-	return nil
-}
-
-func validateV26ImageToVideoBody(body map[string]any) error {
-	if body["model"] != string(ModelV26I2V) {
-		return nil
-	}
-	if !fieldPresent(body, "last_frame_image_url") {
-		return nil
-	}
-	if body["mode"] != "pro" {
-		return validationError("last_frame_image_url requires mode pro for kling-v2.6")
-	}
-	if duration, ok := body["duration_seconds"]; ok && duration != float64(5) {
-		return validationError("last_frame_image_url requires duration_seconds 5 for kling-v2.6")
-	}
-	return nil
-}
-
-func rejectUnsupportedFields(body map[string]any, fields []string, model string) error {
-	for _, field := range fields {
-		if fieldPresent(body, field) {
-			return validationError(field + " is not supported by " + model)
-		}
-	}
-	return nil
-}
-
-func validationError(message string) error {
-	return core.NewError(core.ErrValidation, message, 400, "", nil, nil)
-}
-
-func fieldPresent(params map[string]any, field string) bool {
-	value, ok := params[field]
-	if !ok {
-		return false
-	}
-	if b, isBool := value.(bool); isBool && !b {
-		return true
-	}
-	if arr, isArray := value.([]any); isArray {
-		for _, item := range arr {
-			if presentValue(item) {
-				return true
-			}
-		}
-		return false
-	}
-	return presentValue(value)
-}
-
-func presentValue(value any) bool {
-	switch v := value.(type) {
-	case nil:
-		return false
-	case bool:
-		return v
-	case string:
-		return strings.TrimSpace(v) != ""
-	case []any:
-		return len(v) > 0
-	case map[string]any:
-		return len(v) > 0
-	default:
-		return true
-	}
 }

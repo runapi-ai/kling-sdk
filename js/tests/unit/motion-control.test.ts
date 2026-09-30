@@ -103,38 +103,6 @@ describe('MotionControl', () => {
       );
     });
 
-    it.each(['output_resolution', 'character_orientation'] as const)(
-      'should require %s for Kling 2.6',
-      async (field) => {
-        const motionControl = new MotionControl(mockHttp);
-        const params: Record<string, unknown> = {
-          model: 'kling-v2.6',
-          source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-          reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
-          output_resolution: '720p',
-          character_orientation: 'video',
-        };
-        delete params[field];
-
-        await expect(motionControl.create(params as never)).rejects.toThrow(`${field} is required`);
-        expect(mockHttp.request).not.toHaveBeenCalled();
-      }
-    );
-
-    it('should reject background_source for Kling 2.6', async () => {
-      const motionControl = new MotionControl(mockHttp);
-
-      await expect(motionControl.create({
-        model: 'kling-v2.6',
-        source_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-        reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
-        output_resolution: '720p',
-        character_orientation: 'video',
-        background_source: 'video',
-      } as never)).rejects.toThrow('background_source is not allowed when model is kling-v2.6');
-      expect(mockHttp.request).not.toHaveBeenCalled();
-    });
-
   });
 
   describe('get', () => {

@@ -97,20 +97,6 @@ describe('ImageToVideo', () => {
       );
     });
 
-    it('rejects unsupported V3 Turbo image-to-video fields', async () => {
-      const imageToVideo = new ImageToVideo(mockHttp);
-
-      await expect(
-        imageToVideo.create({
-          model: 'kling-v3-turbo-image-to-video',
-          prompt: 'Camera glides toward the lighthouse',
-          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-        } as never)
-      ).rejects.toThrow('last_frame_image_url is not supported by kling-v3-turbo-image-to-video');
-      expect(mockHttp.request).not.toHaveBeenCalled();
-    });
-
     it('sends Kling 2.6 image-to-video mode, sound, and final frame fields', async () => {
       vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-v26-i2v' });
 
@@ -138,47 +124,6 @@ describe('ImageToVideo', () => {
           aspect_ratio: '16:9',
         },
       });
-    });
-
-    it('rejects Kling 2.6 sound outside pro mode', async () => {
-      const imageToVideo = new ImageToVideo(mockHttp);
-
-      await expect(
-        imageToVideo.create({
-          model: 'kling-v2.6',
-          prompt: 'Camera follows the cyclist through fog',
-          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-          enable_sound: true,
-        })
-      ).rejects.toThrow('enable_sound must be one of: false when mode is absent and model is kling-v2.6');
-      await expect(
-        imageToVideo.create({
-          model: 'kling-v2.6',
-          prompt: 'Camera follows the cyclist through fog',
-          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-          mode: 'std',
-          enable_sound: true,
-        })
-      ).rejects.toThrow('enable_sound must be one of: false when mode is std and model is kling-v2.6');
-      expect(mockHttp.request).not.toHaveBeenCalled();
-    });
-
-    it('rejects Kling 2.6 final frames outside pro five-second requests', async () => {
-      const imageToVideo = new ImageToVideo(mockHttp);
-      const baseParams = {
-        model: 'kling-v2.6' as const,
-        prompt: 'Camera follows the cyclist through fog',
-        first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-        last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-      };
-
-      await expect(imageToVideo.create(baseParams)).rejects.toThrow(
-        'last_frame_image_url requires mode pro for kling-v2.6'
-      );
-      await expect(
-        imageToVideo.create({ ...baseParams, mode: 'pro', duration_seconds: 10 })
-      ).rejects.toThrow('last_frame_image_url requires duration_seconds 5 for kling-v2.6');
-      expect(mockHttp.request).not.toHaveBeenCalled();
     });
 
     it('sends Kling V3 Omni image-to-video resolution, sound, and final frame fields', async () => {
@@ -210,21 +155,6 @@ describe('ImageToVideo', () => {
       });
     });
 
-    it('rejects Kling V3 Omni final frames outside five-second requests', async () => {
-      const imageToVideo = new ImageToVideo(mockHttp);
-
-      await expect(
-        imageToVideo.create({
-          model: 'kling-v3-omni',
-          prompt: 'Camera follows the cyclist through fog',
-          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/portrait.jpg',
-          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/image.jpg',
-          duration_seconds: 7,
-        })
-      ).rejects.toThrow('last_frame_image_url requires duration_seconds 5 for kling-v3-omni');
-      expect(mockHttp.request).not.toHaveBeenCalled();
-    });
-
     it('sends Kling O1 first-frame and reference-image fields', async () => {
       vi.mocked(mockHttp.request).mockResolvedValueOnce({ id: 'task-o1-i2v' });
 
@@ -248,40 +178,6 @@ describe('ImageToVideo', () => {
           duration_seconds: 5,
         },
       });
-    });
-
-    it('rejects Kling O1 tail frames combined with reference media', async () => {
-      const imageToVideo = new ImageToVideo(mockHttp);
-
-      await expect(
-        imageToVideo.create({
-          model: 'kling-o1',
-          prompt: 'Move from the opening frame toward <<<image_1>>>',
-          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-          last_frame_image_url: 'https://cdn.runapi.ai/public/samples/last-frame.jpg',
-          reference_image_urls: ['https://cdn.runapi.ai/public/samples/portrait.jpg'],
-        })
-      ).rejects.toThrow(
-        'last_frame_image_url cannot be combined with reference_image_urls or reference_video_url'
-      );
-      expect(mockHttp.request).not.toHaveBeenCalled();
-    });
-
-    it('rejects Kling O1 base video references combined with frame inputs', async () => {
-      const imageToVideo = new ImageToVideo(mockHttp);
-
-      await expect(
-        imageToVideo.create({
-          model: 'kling-o1',
-          prompt: 'Use <<<video_1>>> as the base',
-          first_frame_image_url: 'https://cdn.runapi.ai/public/samples/image-to-video.jpg',
-          reference_video_url: 'https://cdn.runapi.ai/public/samples/video.mp4',
-          reference_video_type: 'base',
-        })
-      ).rejects.toThrow(
-        'reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url'
-      );
-      expect(mockHttp.request).not.toHaveBeenCalled();
     });
 
   });

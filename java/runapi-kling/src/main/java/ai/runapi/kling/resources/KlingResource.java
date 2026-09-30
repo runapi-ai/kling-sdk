@@ -3,7 +3,6 @@ package ai.runapi.kling.resources;
 import ai.runapi.core.ApiRequestExecutor;
 import ai.runapi.core.ClientOptions;
 import ai.runapi.core.RequestOptions;
-import ai.runapi.core.contract.ContractValidator;
 import ai.runapi.core.http.HttpMethod;
 import ai.runapi.core.http.HttpRequest;
 import ai.runapi.core.http.HttpTransport;
@@ -31,23 +30,6 @@ abstract class KlingResource {
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(body, "body");
     Objects.requireNonNull(requestOptions, "requestOptions");
-    validateBody(action, body);
-    ContractValidator.validate(action, body);
-    return executor.send(
-        HttpRequest.builder(HttpMethod.POST, endpoint).body(new JsonRequestBody(body)).options(requestOptions).build(),
-        TaskCreateResponse.class);
-  }
-
-  final TaskCreateResponse createTaskWithContractModel(
-      String action, Map<String, Object> body, String model, RequestOptions requestOptions) {
-    Objects.requireNonNull(action, "action");
-    Objects.requireNonNull(body, "body");
-    Objects.requireNonNull(model, "model");
-    Objects.requireNonNull(requestOptions, "requestOptions");
-    validateBody(action, body);
-    Map<String, Object> contractBody = new java.util.LinkedHashMap<String, Object>(body);
-    contractBody.put("model", model);
-    ContractValidator.validate(action, contractBody);
     return executor.send(
         HttpRequest.builder(HttpMethod.POST, endpoint).body(new JsonRequestBody(body)).options(requestOptions).build(),
         TaskCreateResponse.class);
@@ -57,8 +39,6 @@ abstract class KlingResource {
     Objects.requireNonNull(action, "action");
     Objects.requireNonNull(body, "body");
     Objects.requireNonNull(requestOptions, "requestOptions");
-    validateBody(action, body);
-    ContractValidator.validate(action, body);
     return executor.send(
         HttpRequest.builder(HttpMethod.POST, endpoint).body(new JsonRequestBody(body)).options(requestOptions).build(),
         responseType);
@@ -88,31 +68,12 @@ abstract class KlingResource {
     return Json.mapper().convertValue(response, completedType);
   }
 
-  final <T extends TaskResponse, C extends T> C runTaskWithContractModel(
-      String action,
-      Map<String, Object> body,
-      String model,
-      RequestOptions requestOptions,
-      Class<T> responseType,
-      Class<C> completedType) {
-    TaskCreateResponse created = createTaskWithContractModel(action, body, model, requestOptions);
-    String id = requireNonBlank(created.getId(), "id");
-    T response = Poller.pollUntilComplete(
-        () -> getTask(id, requestOptions, responseType),
-        pollingInterval(requestOptions),
-        pollingMaxWait(requestOptions));
-    return Json.mapper().convertValue(response, completedType);
-  }
-
   private static String requireNonBlank(String value, String name) {
     String checked = Objects.requireNonNull(value, name).trim();
     if (checked.isEmpty()) {
       throw new IllegalArgumentException(name + " must not be blank");
     }
     return checked;
-  }
-
-  protected void validateBody(String action, Map<String, Object> body) {
   }
 
   private Duration pollingInterval(RequestOptions requestOptions) {

@@ -40,14 +40,4 @@ RSpec.describe RunApi::Kling::Resources::EditVideo do
 
     expect(resource.run(**params).status).to eq("completed")
   end
-
-  it "requires a caller-supplied model" do
-    expect do
-      resource.create(
-        prompt: "Turn the source video into a watercolor scene",
-        source_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
-        aspect_ratio: "auto"
-      )
-    end.to raise_error(RunApi::Core::ValidationError, /model must be one of/)
-  end
 end

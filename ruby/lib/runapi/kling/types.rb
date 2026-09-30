@@ -2,15 +2,8 @@
 
 module RunApi
   module Kling
-    # Type definitions and constants for Kling video generation.
+    # Type definitions for Kling video generation.
     module Types
-      # Per-shot duration range in multi-shot mode (seconds). Bespoke constant for
-      # the multi_prompt[] nested-array validation, which the contract cannot express.
-      MULTI_PROMPT_DURATION_RANGE = (1..12)
-
-      # Maximum character length for each multi-shot prompt segment.
-      MULTI_PROMPT_MAX_LENGTH = 500
-
       # A generated video file with a download URL.
       class Video < RunApi::Core::BaseModel
         optional :url, String

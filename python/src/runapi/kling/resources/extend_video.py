@@ -6,8 +6,6 @@ from typing import Any, Optional
 
 from runapi.core import RequestOptions, Resource
 
-from ..contract_gen import CONTRACT
-
 
 class ExtendVideo(Resource):
     """Continue a completed Kling V2.5 Turbo video task."""
@@ -20,7 +18,6 @@ class ExtendVideo(Resource):
 
     def create(self, options: Optional[RequestOptions] = None, **params: Any) -> Any:
         compacted = self._compact_params(params)
-        self._validate_contract(CONTRACT["extend-video"], compacted)
         return self._request("post", self.ENDPOINT, body=compacted, options=options)
 
     def get(self, id: str, options: Optional[RequestOptions] = None) -> Any:

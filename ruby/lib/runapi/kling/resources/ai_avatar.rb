@@ -32,7 +32,6 @@ module RunApi
         # @return [RunApi::Kling::Types::AiAvatarResponse] task creation result with id
         def create(options: nil, **params)
           params = compact_params(params)
-          validate_params!(params)
           request(:post, ENDPOINT, body: params, options: options)
         end
 
@@ -42,12 +41,6 @@ module RunApi
         # @return [RunApi::Kling::Types::AiAvatarResponse] current task status
         def get(id, options: nil)
           request(:get, "#{ENDPOINT}/#{id}", options: options)
-        end
-
-        private
-
-        def validate_params!(params)
-          validate_contract!(CONTRACT["avatar"], params)
         end
       end
     end

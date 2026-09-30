@@ -140,16 +140,6 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
       expect(result.id).to eq("task-v26-t2v")
     end
 
-    it "rejects Kling 2.6 sound outside pro mode" do
-      expect do
-        text_to_video.create(model: "kling-v2.6", prompt: "test", enable_sound: true)
-      end.to raise_error(RunApi::Core::ValidationError, "enable_sound must be one of: false when mode is absent and model is kling-v2.6")
-
-      expect do
-        text_to_video.create(model: "kling-v2.6", prompt: "test", mode: "std", enable_sound: true)
-      end.to raise_error(RunApi::Core::ValidationError, "enable_sound must be one of: false when mode is std and model is kling-v2.6")
-    end
-
     it "passes through Kling O1 image and video references" do
       params = {
         model: "kling-o1",
@@ -164,47 +154,6 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
         .and_return("id" => "task-o1")
 
       expect(text_to_video.create(**params).id).to eq("task-o1")
-    end
-
-    it "rejects Kling O1 references without matching prompt markers" do
-      expect do
-        text_to_video.create(
-          model: "kling-o1",
-          prompt: "Keep the same subject",
-          reference_image_urls: ["https://cdn.runapi.ai/public/samples/portrait.jpg"]
-        )
-      end.to raise_error(
-        RunApi::Core::ValidationError,
-        /prompt must reference reference_image_urls\[0\] as <<<image_1>>>/
-      )
-    end
-
-    it "rejects Kling O1 video markers without a reference video" do
-      expect do
-        text_to_video.create(model: "kling-o1", prompt: "Follow <<<video_1>>>")
-      end.to raise_error(RunApi::Core::ValidationError, /prompt references missing video_1/)
-    end
-
-    it "rejects non-HTTP Kling O1 reference media" do
-      [
-        "mailto:reference@example.com.png",
-        "http://localhost/reference.jpg",
-        "http://127.0.0.1/reference.jpg",
-        "http://169.254.169.254/reference.jpg",
-        "http://[::ffff:127.0.0.1]/reference.jpg",
-        "http://2130706433/reference.jpg",
-        "http://127.1/reference.jpg",
-        "http://0177.0.0.1/reference.jpg",
-        "http://0x7f000001/reference.jpg"
-      ].each do |reference_url|
-        expect do
-          text_to_video.create(
-            model: "kling-o1",
-            prompt: "Use <<<image_1>>>",
-            reference_image_urls: [reference_url]
-          )
-        end.to raise_error(RunApi::Core::ValidationError, /must be a public HTTP or HTTPS URL/)
-      end
     end
 
     it "accepts Kling V3 Omni resolution and sound fields" do
@@ -223,154 +172,17 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
       expect(result.id).to eq("task-v3-omni-t2v")
     end
 
-    it "rejects unsupported V3 Turbo text-to-video fields" do
-      expect do
-        text_to_video.create(
-          model: "kling-v3-turbo-text-to-video",
-          prompt: "a quiet city street after rain",
-          enable_sound: false
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /enable_sound is not supported by kling-v3-turbo-text-to-video/)
-    end
-
-    it "raises ValidationError when model is missing" do
-      expect { text_to_video.create(prompt: "test") }
-        .to raise_error(RunApi::Core::ValidationError, /model must be one of:/)
-    end
-
-    it "raises ValidationError for invalid model" do
-      expect { text_to_video.create(model: "kling-2.0", prompt: "test") }
-        .to raise_error(RunApi::Core::ValidationError, /model must be one of:/)
-    end
-
-    it "raises ValidationError when prompt is missing in single-shot mode" do
-      expect { text_to_video.create(model: "kling-3.0") }
-        .to raise_error(RunApi::Core::ValidationError, /prompt is required/)
-    end
-
-    it "raises ValidationError for invalid output_resolution" do
-      expect { text_to_video.create(model: "kling-3.0", prompt: "test", output_resolution: "ultra") }
-        .to raise_error(RunApi::Core::ValidationError, /output_resolution must be one of: 720p, 1080p, 4k/)
-    end
-
-    it "raises ValidationError for invalid aspect_ratio" do
-      expect { text_to_video.create(model: "kling-3.0", prompt: "test", aspect_ratio: "4:3") }
-        .to raise_error(RunApi::Core::ValidationError, %r{aspect_ratio must be one of: 16:9, 9:16, 1:1})
-    end
-
-    it "raises ValidationError for out-of-range duration_seconds" do
-      expect { text_to_video.create(model: "kling-3.0", prompt: "test", duration_seconds: 20) }
-        .to raise_error(RunApi::Core::ValidationError, /duration_seconds must be one of: 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15/)
-    end
-
-    it "raises ValidationError for invalid V2.1 duration_seconds" do
-      expect { text_to_video.create(model: "kling-v2.1-master-text-to-video", prompt: "test", duration_seconds: 7) }
-        .to raise_error(RunApi::Core::ValidationError, /duration_seconds must be one of: 5, 10/)
-    end
-  end
-
-  describe "#create (multi-shot)" do
-    let(:valid_multi_prompt) do
-      [
-        {prompt: "a dog running", duration_seconds: 3},
-        {prompt: "a cat watching", duration_seconds: 3}
-      ]
-    end
-
-    it "accepts a valid multi-shot request" do
-      params = {
-        model: "kling-3.0",
-        multi_shots: true,
-        enable_sound: true,
-        duration_seconds: 6,
-        output_resolution: "1080p",
-        multi_prompt: valid_multi_prompt
-      }
-      expect(http).to receive(:request).with(:post, endpoint, body: params)
-        .and_return("id" => "task-multi")
-
-      result = text_to_video.create(**params)
-      expect(result.id).to eq("task-multi")
-    end
-
-    it "raises ValidationError when enable_sound is not true" do
-      expect do
-        text_to_video.create(
-          model: "kling-3.0",
-          multi_shots: true,
-          enable_sound: false,
-          multi_prompt: valid_multi_prompt
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /enable_sound must be true when multi_shots is true/)
-    end
-
-    it "raises ValidationError when multi_prompt is missing" do
-      expect do
-        text_to_video.create(
-          model: "kling-3.0",
-          multi_shots: true,
-          enable_sound: true
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /multi_prompt must be a non-empty array/)
-    end
-
-    it "raises ValidationError when multi_prompt is empty" do
-      expect do
-        text_to_video.create(
-          model: "kling-3.0",
-          multi_shots: true,
-          enable_sound: true,
-          multi_prompt: []
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /multi_prompt must be a non-empty array/)
-    end
-
-    it "raises ValidationError when a shot prompt exceeds 500 chars" do
-      long_prompt = "a" * 501
-      expect do
-        text_to_video.create(
-          model: "kling-3.0",
-          multi_shots: true,
-          enable_sound: true,
-          multi_prompt: [{prompt: long_prompt, duration_seconds: 3}]
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /exceeds 500 characters/)
-    end
-
-    it "raises ValidationError when a shot duration_seconds is out of range" do
-      expect do
-        text_to_video.create(
-          model: "kling-3.0",
-          multi_shots: true,
-          enable_sound: true,
-          multi_prompt: [{prompt: "test", duration_seconds: 15}]
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /duration_seconds must be between 1 and 12/)
-    end
-
     it "does not require top-level prompt when multi_shots is true" do
       params = {
         model: "kling-3.0",
         multi_shots: true,
         enable_sound: true,
-        multi_prompt: valid_multi_prompt
+        multi_prompt: [{prompt: "a dog running", duration_seconds: 3}, {prompt: "a cat watching", duration_seconds: 3}]
       }
       expect(http).to receive(:request).with(:post, endpoint, body: params)
         .and_return("id" => "task-no-prompt")
 
       expect { text_to_video.create(**params) }.not_to raise_error
-    end
-
-    it "rejects last_frame_image_url in multi-shot mode" do
-      expect do
-        text_to_video.create(
-          model: "kling-3.0",
-          multi_shots: true,
-          enable_sound: true,
-          multi_prompt: valid_multi_prompt,
-          last_frame_image_url: "https://cdn.runapi.ai/public/samples/last-frame.jpg"
-        )
-      end.to raise_error(RunApi::Core::ValidationError, /last_frame_image_url is not supported/)
     end
   end
 

@@ -11,7 +11,6 @@ import ai.runapi.kling.types.TextToVideoResponse;
 /** Extend Video operations. */
 public final class ExtendVideoResource extends KlingResource {
   public static final String ENDPOINT = "/api/v1/kling/extend_video";
-  private static final String CONTRACT_MODEL = "kling-v2.5-turbo-text-to-video-pro";
 
   public ExtendVideoResource(HttpTransport transport, ClientOptions options) {
     super(transport, options, ENDPOINT);
@@ -22,7 +21,7 @@ public final class ExtendVideoResource extends KlingResource {
   }
 
   public TaskCreateResponse create(ExtendVideoParams params, RequestOptions options) {
-    return createTaskWithContractModel(params.action(), params.toMap(), CONTRACT_MODEL, options);
+    return createTask(params.action(), params.toMap(), options);
   }
 
   public TextToVideoResponse get(String id) {
@@ -38,8 +37,8 @@ public final class ExtendVideoResource extends KlingResource {
   }
 
   public CompletedTextToVideoResponse run(ExtendVideoParams params, RequestOptions options) {
-    return runTaskWithContractModel(
-        params.action(), params.toMap(), CONTRACT_MODEL, options,
+    return runTask(
+        params.action(), params.toMap(), options,
         TextToVideoResponse.class, CompletedTextToVideoResponse.class);
   }
 }

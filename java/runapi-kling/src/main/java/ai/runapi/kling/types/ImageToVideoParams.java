@@ -24,9 +24,9 @@ public final class ImageToVideoParams {
   private final Boolean preserveReferenceVideoAudio;
 
   private ImageToVideoParams(Builder builder) {
-    this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
-    this.prompt = KlingParamUtils.requireNonBlank(builder.prompt, "prompt");
-    this.firstFrameImageUrl = KlingParamUtils.requireNonBlank(builder.firstFrameImageUrl, "firstFrameImageUrl");
+    this.model = builder.model;
+    this.prompt = builder.prompt;
+    this.firstFrameImageUrl = builder.firstFrameImageUrl;
     this.callbackUrl = builder.callbackUrl;
     this.mode = builder.mode;
     this.enableSound = builder.enableSound;
@@ -105,32 +105,32 @@ public final class ImageToVideoParams {
 
     /** Sets the model slug using a string value. */
     public Builder model(String value) {
-      this.model = KlingParamUtils.requireNonBlankTrim(value, "model");
+      this.model = value;
       return this;
     }
 
 
     /** Sets the text prompt. */
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 
     /** Sets the first frame image URL. */
     public Builder firstFrameImageUrl(String value) {
-      this.firstFrameImageUrl = KlingParamUtils.requireNonBlank(value, "firstFrameImageUrl");
+      this.firstFrameImageUrl = value;
       return this;
     }
 
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
-      this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      this.callbackUrl = value;
       return this;
     }
 
     /** Sets the generation mode (std or pro) for supported models. */
     public Builder mode(String value) {
-      this.mode = KlingParamUtils.requireNonBlank(value, "mode");
+      this.mode = value;
       return this;
     }
 
@@ -148,13 +148,13 @@ public final class ImageToVideoParams {
 
     /** Sets the output resolution. */
     public Builder outputResolution(String value) {
-      this.outputResolution = KlingParamUtils.requireNonBlank(value, "outputResolution");
+      this.outputResolution = value;
       return this;
     }
 
     /** Sets the negative prompt describing what to avoid. */
     public Builder negativePrompt(String value) {
-      this.negativePrompt = KlingParamUtils.requireNonBlank(value, "negativePrompt");
+      this.negativePrompt = value;
       return this;
     }
 
@@ -166,13 +166,13 @@ public final class ImageToVideoParams {
 
     /** Sets the last frame image URL. Kling O1 cannot combine it with reference image or video fields. */
     public Builder lastFrameImageUrl(String value) {
-      this.lastFrameImageUrl = KlingParamUtils.requireNonBlank(value, "lastFrameImageUrl");
+      this.lastFrameImageUrl = value;
       return this;
     }
 
     /** Sets the output aspect ratio. */
     public Builder aspectRatio(String value) {
-      this.aspectRatio = KlingParamUtils.requireNonBlank(value, "aspectRatio");
+      this.aspectRatio = value;
       return this;
     }
 
@@ -184,13 +184,13 @@ public final class ImageToVideoParams {
 
     /** Sets the reference video URL. Kling O1 cannot combine it with a last frame. */
     public Builder referenceVideoUrl(String value) {
-      this.referenceVideoUrl = KlingParamUtils.requireNonBlank(value, "referenceVideoUrl");
+      this.referenceVideoUrl = value;
       return this;
     }
 
     /** Sets whether the reference video is a base edit or feature reference. */
     public Builder referenceVideoType(String value) {
-      this.referenceVideoType = KlingParamUtils.requireNonBlank(value, "referenceVideoType");
+      this.referenceVideoType = value;
       return this;
     }
 

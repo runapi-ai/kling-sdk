@@ -3,7 +3,6 @@ package ai.runapi.kling;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -134,24 +133,6 @@ class KlingClientTest {
   }
 
   @Test
-  void createRejectsV3TurboTextToVideoUnsupportedFields() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3\",\"status\":\"processing\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.textToVideo().create(
-            TextToVideoParams.builder()
-                .model(TextToVideoModel.KLING_V3_TURBO_TEXT_TO_VIDEO)
-                .prompt("A quiet city street after rain")
-                .enableSound(false)
-                .build()));
-
-    assertEquals("enable_sound is not supported by kling-v3-turbo-text-to-video", error.getMessage());
-    assertNull(transport.request);
-  }
-
-  @Test
   void createSendsV26TextToVideoFields() throws Exception {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v26\",\"status\":\"processing\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
@@ -194,38 +175,6 @@ class KlingClientTest {
   }
 
   @Test
-  void createRejectsV26TextToVideoSoundOutsideProMode() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v26\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.textToVideo().create(
-            TextToVideoParams.builder()
-                .model(TextToVideoModel.KLING_V2_6)
-                .prompt("test")
-                .enableSound(true)
-                .build()));
-
-    assertEquals(
-        "enable_sound must be one of: false when mode is absent and model is kling-v2.6", error.getMessage());
-
-    ValidationException stdError = assertThrows(
-        ValidationException.class,
-        () -> client.textToVideo().create(
-            TextToVideoParams.builder()
-                .model(TextToVideoModel.KLING_V2_6)
-                .prompt("test")
-                .mode("std")
-                .enableSound(true)
-                .build()));
-
-    assertEquals(
-        "enable_sound must be one of: false when mode is std and model is kling-v2.6", stdError.getMessage());
-    assertNull(transport.request);
-  }
-
-  @Test
   void createSendsO1TextToVideoReferences() throws Exception {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\",\"status\":\"processing\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
@@ -250,114 +199,6 @@ class KlingClientTest {
   }
 
   @Test
-  void createRejectsO1PromptMissingImageMarker() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.textToVideo().create(
-            TextToVideoParams.builder()
-                .model(TextToVideoModel.KLING_O1)
-                .prompt("Keep the same subject")
-                .referenceImageUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/portrait.jpg"))
-                .build()));
-
-    assertEquals("prompt must reference reference_image_urls[0] as <<<image_1>>>", error.getMessage());
-    assertNull(transport.request);
-  }
-
-  @Test
-  void createRejectsO1BaseVideoWithFrameInput() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_O1)
-                .prompt("Use <<<video_1>>> as the base")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
-                .referenceVideoType("base")
-                .build()));
-
-    assertEquals(
-        "reference_video_type base cannot be combined with first_frame_image_url or last_frame_image_url",
-        error.getMessage());
-    assertNull(transport.request);
-  }
-
-  @Test
-  void createRejectsO1TailFrameWithReferenceMedia() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_O1)
-                .prompt("Move toward <<<image_1>>>")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
-                .referenceImageUrls(Arrays.asList("https://cdn.runapi.ai/public/samples/portrait.jpg"))
-                .build()));
-
-    assertEquals(
-        "last_frame_image_url cannot be combined with reference_image_urls or reference_video_url",
-        error.getMessage());
-    assertNull(transport.request);
-  }
-
-  @Test
-  void createRejectsO1MissingVideoReference() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.textToVideo().create(
-            TextToVideoParams.builder()
-                .model(TextToVideoModel.KLING_O1)
-                .prompt("Follow <<<video_1>>>")
-                .build()));
-
-    assertEquals("prompt references missing video_1", error.getMessage());
-    assertNull(transport.request);
-  }
-
-  @Test
-  void createRejectsNonPublicO1ReferenceMedia() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_o1\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    for (String referenceUrl : Arrays.asList(
-        "file:///etc/passwd.jpg",
-        "http://localhost/reference.jpg",
-        "http://127.0.0.1/reference.jpg",
-        "http://169.254.169.254/reference.jpg",
-        "http://[::ffff:127.0.0.1]/reference.jpg",
-        "http://2130706433/reference.jpg",
-        "http://127.1/reference.jpg",
-        "http://0177.0.0.1/reference.jpg",
-        "http://0x7f000001/reference.jpg")) {
-      ValidationException error = assertThrows(
-          ValidationException.class,
-          () -> client.textToVideo().create(
-              TextToVideoParams.builder()
-                  .model(TextToVideoModel.KLING_O1)
-                  .prompt("Use <<<image_1>>>")
-                  .referenceImageUrls(Arrays.asList(referenceUrl))
-                  .build()));
-
-      assertEquals("reference_image_urls[0] must be a public HTTP or HTTPS URL", error.getMessage());
-      assertNull(transport.request);
-    }
-  }
-
-  @Test
   void createSendsV3TurboImageToVideoShape() throws Exception {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_i2v\",\"status\":\"processing\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
@@ -375,25 +216,6 @@ class KlingClientTest {
     assertEquals("kling-v3-turbo-image-to-video", body.get("model").asText());
     assertEquals("https://cdn.runapi.ai/public/samples/image-to-video.jpg", body.get("first_frame_image_url").asText());
     assertEquals("720p", body.get("output_resolution").asText());
-  }
-
-  @Test
-  void createRejectsV3TurboImageToVideoUnsupportedFields() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3_i2v\",\"status\":\"processing\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_V3_TURBO_IMAGE_TO_VIDEO)
-                .prompt("Camera glides toward the lighthouse")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
-                .build()));
-
-    assertEquals("last_frame_image_url is not supported by kling-v3-turbo-image-to-video", error.getMessage());
-    assertNull(transport.request);
   }
 
   @Test
@@ -442,80 +264,6 @@ class KlingClientTest {
     assertEquals("4k", body.get("output_resolution").asText());
     assertFalse(body.get("enable_sound").asBoolean());
     assertEquals("https://cdn.runapi.ai/public/samples/image.jpg", body.get("last_frame_image_url").asText());
-  }
-
-  @Test
-  void createRejectsInvalidV26ImageToVideoConditions() {
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(new CapturingTransport("{\"id\":\"task\"}")).build();
-
-    ValidationException soundError = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_V2_6)
-                .prompt("test")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .enableSound(true)
-                .build()));
-    assertEquals(
-        "enable_sound must be one of: false when mode is absent and model is kling-v2.6", soundError.getMessage());
-
-    ValidationException stdSoundError = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_V2_6)
-                .prompt("test")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .mode("std")
-                .enableSound(true)
-                .build()));
-    assertEquals(
-        "enable_sound must be one of: false when mode is std and model is kling-v2.6", stdSoundError.getMessage());
-
-    ValidationException modeError = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_V2_6)
-                .prompt("test")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
-                .build()));
-    assertEquals("last_frame_image_url requires mode pro for kling-v2.6", modeError.getMessage());
-
-    ValidationException durationError = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_V2_6)
-                .prompt("test")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/image-to-video.jpg")
-                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/last-frame.jpg")
-                .mode("pro")
-                .durationSeconds(10)
-                .build()));
-    assertEquals("last_frame_image_url requires duration_seconds 5 for kling-v2.6", durationError.getMessage());
-  }
-
-  @Test
-  void createRejectsV3OmniFinalFrameOutsideFiveSeconds() {
-    CapturingTransport transport = new CapturingTransport("{\"id\":\"task\"}");
-    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
-
-    ValidationException error = assertThrows(
-        ValidationException.class,
-        () -> client.imageToVideo().create(
-            ImageToVideoParams.builder()
-                .model(ImageToVideoModel.KLING_V3_OMNI)
-                .prompt("test")
-                .firstFrameImageUrl("https://cdn.runapi.ai/public/samples/portrait.jpg")
-                .lastFrameImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
-                .durationSeconds(7)
-                .build()));
-
-    assertEquals("last_frame_image_url requires duration_seconds 5 for kling-v3-omni", error.getMessage());
-    assertNull(transport.request);
   }
 
   @Test
@@ -750,7 +498,7 @@ class KlingClientTest {
     }
 
     @Test
-    void createsV26MotionControlAndValidatesConditionalFields() throws Exception {
+    void createsV26MotionControlRequest() throws Exception {
       CapturingTransport transport = new CapturingTransport("{\"id\":\"task_motion_v26\",\"status\":\"processing\"}");
       KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
 
@@ -767,30 +515,6 @@ class KlingClientTest {
       assertEquals("kling-v2.6", body.get("model").asText());
       assertEquals("1080p", body.get("output_resolution").asText());
       assertEquals("image", body.get("character_orientation").asText());
-
-      ValidationException missing = assertThrows(
-          ValidationException.class,
-          () -> client.motionControl().create(
-              MotionControlParams.builder()
-                  .model(MotionControlModel.KLING_V2_6)
-                  .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
-                  .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
-                  .characterOrientation("video")
-                  .build()));
-      assertEquals("output_resolution is required", missing.getMessage());
-
-      ValidationException forbidden = assertThrows(
-          ValidationException.class,
-          () -> client.motionControl().create(
-              MotionControlParams.builder()
-                  .model(MotionControlModel.KLING_V2_6)
-                  .sourceImageUrl("https://cdn.runapi.ai/public/samples/image.jpg")
-                  .referenceVideoUrl("https://cdn.runapi.ai/public/samples/video.mp4")
-                  .outputResolution("720p")
-                  .characterOrientation("video")
-                  .backgroundSource("video")
-                  .build()));
-      assertEquals("background_source is not allowed when model is kling-v2.6", forbidden.getMessage());
     }
 
     @Test

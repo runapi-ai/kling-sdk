@@ -18,8 +18,8 @@ public final class EditVideoParams {
   private final String callbackUrl;
 
   private EditVideoParams(Builder builder) {
-    this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
-    this.prompt = KlingParamUtils.requireNonBlank(builder.prompt, "prompt");
+    this.model = builder.model;
+    this.prompt = builder.prompt;
     this.sourceVideoUrl = builder.sourceVideoUrl;
     this.sourceTaskId = builder.sourceTaskId;
     this.referenceImageUrls = KlingParamUtils.strings(builder.referenceImageUrls);
@@ -79,25 +79,25 @@ public final class EditVideoParams {
 
     /** Sets the model slug using a string value. */
     public Builder model(String value) {
-      this.model = KlingParamUtils.requireNonBlankTrim(value, "model");
+      this.model = value;
       return this;
     }
 
     /** Sets the video description. */
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 
     /** Sets a caller-owned source video URL. */
     public Builder sourceVideoUrl(String value) {
-      this.sourceVideoUrl = KlingParamUtils.requireNonBlank(value, "sourceVideoUrl");
+      this.sourceVideoUrl = value;
       return this;
     }
 
     /** Sets a completed compatible task ID. */
     public Builder sourceTaskId(String value) {
-      this.sourceTaskId = KlingParamUtils.requireNonBlank(value, "sourceTaskId");
+      this.sourceTaskId = value;
       return this;
     }
 
@@ -115,13 +115,13 @@ public final class EditVideoParams {
 
     /** Sets the output resolution. */
     public Builder outputResolution(String value) {
-      this.outputResolution = KlingParamUtils.requireNonBlank(value, "outputResolution");
+      this.outputResolution = value;
       return this;
     }
 
     /** Sets the output aspect ratio. */
     public Builder aspectRatio(String value) {
-      this.aspectRatio = KlingParamUtils.requireNonBlank(value, "aspectRatio");
+      this.aspectRatio = value;
       return this;
     }
 
@@ -133,7 +133,7 @@ public final class EditVideoParams {
 
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
-      this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      this.callbackUrl = value;
       return this;
     }
 

@@ -28,7 +28,7 @@ public final class TextToVideoParams {
   private final Boolean preserveReferenceVideoAudio;
 
   private TextToVideoParams(Builder builder) {
-    this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
+    this.model = builder.model;
     this.prompt = builder.prompt;
     this.callbackUrl = builder.callbackUrl;
     this.mode = builder.mode;
@@ -39,10 +39,10 @@ public final class TextToVideoParams {
     this.negativePrompt = builder.negativePrompt;
     this.cfgScale = builder.cfgScale;
     this.multiShots = builder.multiShots;
-    this.multiPrompt = KlingParamUtils.list(builder.multiPrompt, "multiPrompt");
+    this.multiPrompt = KlingParamUtils.list(builder.multiPrompt);
     this.firstFrameImageUrl = builder.firstFrameImageUrl;
     this.lastFrameImageUrl = builder.lastFrameImageUrl;
-    this.klingElements = KlingParamUtils.list(builder.klingElements, "klingElements");
+    this.klingElements = KlingParamUtils.list(builder.klingElements);
     this.referenceImageUrls = KlingParamUtils.strings(builder.referenceImageUrls);
     this.referenceVideoUrl = builder.referenceVideoUrl;
     this.referenceVideoType = builder.referenceVideoType;
@@ -90,7 +90,7 @@ public final class TextToVideoParams {
     }
     List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
     for (MultiPromptItem item : values) {
-      result.add(item.toMap());
+      result.add(item == null ? null : item.toMap());
     }
     return java.util.Collections.unmodifiableList(result);
   }
@@ -101,7 +101,7 @@ public final class TextToVideoParams {
     }
     List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
     for (KlingElement item : values) {
-      result.add(item.toMap());
+      result.add(item == null ? null : item.toMap());
     }
     return java.util.Collections.unmodifiableList(result);
   }
@@ -138,26 +138,26 @@ public final class TextToVideoParams {
 
     /** Sets the model slug using a string value. */
     public Builder model(String value) {
-      this.model = KlingParamUtils.requireNonBlankTrim(value, "model");
+      this.model = value;
       return this;
     }
 
 
     /** Sets the text prompt. */
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
-      this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      this.callbackUrl = value;
       return this;
     }
 
     /** Sets the generation mode (std or pro) for supported models. */
     public Builder mode(String value) {
-      this.mode = KlingParamUtils.requireNonBlank(value, "mode");
+      this.mode = value;
       return this;
     }
 
@@ -175,19 +175,19 @@ public final class TextToVideoParams {
 
     /** Sets the output aspect ratio. */
     public Builder aspectRatio(String value) {
-      this.aspectRatio = KlingParamUtils.requireNonBlank(value, "aspectRatio");
+      this.aspectRatio = value;
       return this;
     }
 
     /** Sets the output resolution. */
     public Builder outputResolution(String value) {
-      this.outputResolution = KlingParamUtils.requireNonBlank(value, "outputResolution");
+      this.outputResolution = value;
       return this;
     }
 
     /** Sets the negative prompt describing what to avoid. */
     public Builder negativePrompt(String value) {
-      this.negativePrompt = KlingParamUtils.requireNonBlank(value, "negativePrompt");
+      this.negativePrompt = value;
       return this;
     }
 
@@ -211,13 +211,13 @@ public final class TextToVideoParams {
 
     /** Sets the first frame image URL. */
     public Builder firstFrameImageUrl(String value) {
-      this.firstFrameImageUrl = KlingParamUtils.requireNonBlank(value, "firstFrameImageUrl");
+      this.firstFrameImageUrl = value;
       return this;
     }
 
     /** Sets the last frame image URL. */
     public Builder lastFrameImageUrl(String value) {
-      this.lastFrameImageUrl = KlingParamUtils.requireNonBlank(value, "lastFrameImageUrl");
+      this.lastFrameImageUrl = value;
       return this;
     }
 
@@ -235,13 +235,13 @@ public final class TextToVideoParams {
 
     /** Sets the reference video URL. */
     public Builder referenceVideoUrl(String value) {
-      this.referenceVideoUrl = KlingParamUtils.requireNonBlank(value, "referenceVideoUrl");
+      this.referenceVideoUrl = value;
       return this;
     }
 
     /** Sets whether the reference video is a base edit or feature reference. */
     public Builder referenceVideoType(String value) {
-      this.referenceVideoType = KlingParamUtils.requireNonBlank(value, "referenceVideoType");
+      this.referenceVideoType = value;
       return this;
     }
 

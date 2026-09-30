@@ -6,7 +6,6 @@ from typing import Any, Optional
 
 from runapi.core import RequestOptions, Resource
 
-from ..contract_gen import CONTRACT
 from ..types import CompletedTextToVideoResponse, TextToVideoResponse
 
 
@@ -25,7 +24,6 @@ class EditVideo(Resource):
     def create(self, options: Optional[RequestOptions] = None, **params: Any) -> Any:
         """Create an edit-video task with a caller-supplied model."""
         compacted = self._compact_params(params)
-        self._validate_contract(CONTRACT["edit-video"], compacted)
         return self._request("post", self.ENDPOINT, body=compacted, options=options)
 
     def get(self, id: str, options: Optional[RequestOptions] = None) -> Any:

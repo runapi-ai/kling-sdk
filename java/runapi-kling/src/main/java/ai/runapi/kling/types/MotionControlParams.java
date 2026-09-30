@@ -16,9 +16,9 @@ public final class MotionControlParams {
   private final String callbackUrl;
 
   private MotionControlParams(Builder builder) {
-    this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
-    this.sourceImageUrl = KlingParamUtils.requireNonBlank(builder.sourceImageUrl, "sourceImageUrl");
-    this.referenceVideoUrl = KlingParamUtils.requireNonBlank(builder.referenceVideoUrl, "referenceVideoUrl");
+    this.model = builder.model;
+    this.sourceImageUrl = builder.sourceImageUrl;
+    this.referenceVideoUrl = builder.referenceVideoUrl;
     this.prompt = builder.prompt;
     this.outputResolution = builder.outputResolution;
     this.characterOrientation = builder.characterOrientation;
@@ -73,50 +73,50 @@ public final class MotionControlParams {
 
     /** Sets the model slug using a string value. */
     public Builder model(String value) {
-      this.model = KlingParamUtils.requireNonBlankTrim(value, "model");
+      this.model = value;
       return this;
     }
 
 
     /** Sets the source image URL. */
     public Builder sourceImageUrl(String value) {
-      this.sourceImageUrl = KlingParamUtils.requireNonBlank(value, "sourceImageUrl");
+      this.sourceImageUrl = value;
       return this;
     }
 
     /** Sets the reference video URL. */
     public Builder referenceVideoUrl(String value) {
-      this.referenceVideoUrl = KlingParamUtils.requireNonBlank(value, "referenceVideoUrl");
+      this.referenceVideoUrl = value;
       return this;
     }
 
     /** Sets the text prompt. */
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 
     /** Sets the output resolution. */
     public Builder outputResolution(String value) {
-      this.outputResolution = KlingParamUtils.requireNonBlank(value, "outputResolution");
+      this.outputResolution = value;
       return this;
     }
 
     /** Sets the character orientation. */
     public Builder characterOrientation(String value) {
-      this.characterOrientation = KlingParamUtils.requireNonBlank(value, "characterOrientation");
+      this.characterOrientation = value;
       return this;
     }
 
     /** Sets the background source. */
     public Builder backgroundSource(String value) {
-      this.backgroundSource = KlingParamUtils.requireNonBlank(value, "backgroundSource");
+      this.backgroundSource = value;
       return this;
     }
 
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
-      this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      this.callbackUrl = value;
       return this;
     }
 

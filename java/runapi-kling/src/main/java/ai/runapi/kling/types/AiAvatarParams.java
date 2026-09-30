@@ -13,10 +13,10 @@ public final class AiAvatarParams {
   private final String callbackUrl;
 
   private AiAvatarParams(Builder builder) {
-    this.model = KlingParamUtils.requireNonBlankTrim(builder.model, "model");
-    this.sourceImageUrl = KlingParamUtils.requireNonBlank(builder.sourceImageUrl, "sourceImageUrl");
-    this.sourceAudioUrl = KlingParamUtils.requireNonBlank(builder.sourceAudioUrl, "sourceAudioUrl");
-    this.prompt = KlingParamUtils.requireNonBlank(builder.prompt, "prompt");
+    this.model = builder.model;
+    this.sourceImageUrl = builder.sourceImageUrl;
+    this.sourceAudioUrl = builder.sourceAudioUrl;
+    this.prompt = builder.prompt;
     this.callbackUrl = builder.callbackUrl;
   }
 
@@ -61,32 +61,32 @@ public final class AiAvatarParams {
 
     /** Sets the model slug using a string value. */
     public Builder model(String value) {
-      this.model = KlingParamUtils.requireNonBlankTrim(value, "model");
+      this.model = value;
       return this;
     }
 
 
     /** Sets the source image URL. */
     public Builder sourceImageUrl(String value) {
-      this.sourceImageUrl = KlingParamUtils.requireNonBlank(value, "sourceImageUrl");
+      this.sourceImageUrl = value;
       return this;
     }
 
     /** Sets the source audio URL. */
     public Builder sourceAudioUrl(String value) {
-      this.sourceAudioUrl = KlingParamUtils.requireNonBlank(value, "sourceAudioUrl");
+      this.sourceAudioUrl = value;
       return this;
     }
 
     /** Sets the text prompt. */
     public Builder prompt(String value) {
-      this.prompt = KlingParamUtils.requireNonBlank(value, "prompt");
+      this.prompt = value;
       return this;
     }
 
     /** Sets the webhook URL for task completion notifications. */
     public Builder callbackUrl(String value) {
-      this.callbackUrl = KlingParamUtils.requireNonBlank(value, "callbackUrl");
+      this.callbackUrl = value;
       return this;
     }
 

@@ -34,21 +34,4 @@ RSpec.describe RunApi::Kling::Resources::AiAvatar do
     result = resource.create(**params)
     expect(result.id).to eq("task-avatar-v1")
   end
-
-  it "requires source_image_url" do
-    expect do
-      resource.create(model: "kling-ai-avatar-v1-pro", source_audio_url: "https://cdn.runapi.ai/public/samples/music.mp3", prompt: "test")
-    end.to raise_error(RunApi::Core::ValidationError, /source_image_url is required/)
-  end
-
-  it "rejects invalid models" do
-    expect do
-      resource.create(
-        model: "kling-ai-avatar-invalid",
-        source_image_url: "https://cdn.runapi.ai/public/samples/portrait.jpg",
-        source_audio_url: "https://cdn.runapi.ai/public/samples/music.mp3",
-        prompt: "test"
-      )
-    end.to raise_error(RunApi::Core::ValidationError, /model must be one of:/)
-  end
 end

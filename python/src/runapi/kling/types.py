@@ -1,14 +1,8 @@
-"""Kling model lists, enums, and response models."""
+"""Kling response models."""
 
 from __future__ import annotations
 
 from runapi.core import BaseModel, TaskResponse, optional, required
-
-# Bespoke constants for the multi_prompt[] nested-array validation, which the
-# generated contract cannot express.
-MULTI_PROMPT_DURATION_RANGE = range(1, 13)
-
-MULTI_PROMPT_MAX_LENGTH = 500
 
 
 class Video(BaseModel):
