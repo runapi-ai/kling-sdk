@@ -26,6 +26,10 @@ The Kling API SDK packages JavaScript, Python, Ruby, Go, Java, and PHP clients f
 
 Kling is listed in the RunAPI model catalog at https://runapi.ai/models/kling. Variant pages below carry pricing, rate-limit, and commercial-usage details. The public `kling-sdk` repository groups the non-PHP language packages, examples, CI, and release tags for this model. The PHP package is released from a split Composer repository.
 
+## Retired avatar IDs
+
+`kling-ai-avatar-v1-pro` and `kling-v1-avatar-standard` were retired on 2026-10-14. Valid new requests using these IDs return HTTP 410 before task creation or balance deduction. They do not map to replacement IDs. Historical avatar tasks remain queryable with `aiAvatar.get(id)`. The current `kling-ai-avatar-pro` and `kling-ai-avatar-standard` models remain available.
+
 ## Install
 
 ```bash
@@ -39,7 +43,7 @@ Gradle:
 
 ```kotlin
 dependencies {
-  implementation("ai.runapi:runapi-kling:0.3.0")
+  implementation("ai.runapi:runapi-kling:0.4.0")
 }
 ```
 
@@ -49,7 +53,7 @@ Maven:
 <dependency>
   <groupId>ai.runapi</groupId>
   <artifactId>runapi-kling</artifactId>
-  <version>0.3.0</version>
+  <version>0.4.0</version>
 </dependency>
 ```
 
@@ -57,7 +61,7 @@ Use the Java BOM when installing multiple RunAPI Java modules:
 
 ```kotlin
 dependencies {
-  implementation(platform("ai.runapi:runapi-bom:0.9.0"))
+  implementation(platform("ai.runapi:runapi-bom:0.10.0"))
   implementation("ai.runapi:runapi-kling")
 }
 ```
@@ -97,9 +101,17 @@ CompletedTextToVideoResponse result = client.textToVideo().run(
 
 Java packages target Java 8 bytecode and are tested on Java 8, 11, 17, and 21. Each model artifact depends on `ai.runapi:runapi-core`, so application code normally installs only `ai.runapi:runapi-kling`.
 
+## Kling 3.0 multi-shot
+
+Set `multi_shots: true` and choose `shot_type: "custom"` or `"automatic"`. The server defaults to `custom` only for multi-shot requests. Single-shot requests omit `shot_type`. Sound is optional.
+
+Custom storyboards require 1-6 `multi_prompt` entries with integer shot durations from 1-12 seconds. Their sum must equal `duration_seconds`, which accepts 3-15 and defaults to 5. Each shot prompt allows 500 effective characters, with each named `@element` reference counting as 37 characters. Automatic storyboarding requires one `prompt` and omits `multi_prompt`.
+
+[Pricing](https://runapi.ai/models/kling/3.0)
+
 ## Kling 2.6
 
-Use `kling-v2.6` for text-to-video, image-to-video, or motion-control requests. Sound requires `mode: "pro"`; an image-to-video final frame additionally requires a five-second request. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation, and it does not accept `background_source`.
+Use `kling-v2.6` for text-to-video, image-to-video, or motion-control requests. Sound requires `mode: "pro"`; an image-to-video final frame additionally requires a five-second request. Motion control requires `source_image_url`, `output_resolution`, and `character_orientation`; its `reference_video_url` may be 3-10 seconds for image orientation or 3-30 seconds for video orientation.
 
 ```typescript
 const result = await client.imageToVideo.run({
@@ -195,8 +207,8 @@ Use the most specific Kling variant page for pricing, rate limits, and commercia
 - [V3 Turbo image to video](https://runapi.ai/models/kling/v3-turbo-image-to-video)
 - [AI avatar pro](https://runapi.ai/models/kling/ai-avatar-pro)
 - [AI avatar standard](https://runapi.ai/models/kling/ai-avatar-standard)
-- [AI avatar v1 pro](https://runapi.ai/models/kling/ai-avatar-v1-pro)
-- [V1 avatar standard](https://runapi.ai/models/kling/v1-avatar-standard)
+- [AI avatar v1 pro (retired; historical reference)](https://runapi.ai/models/kling/ai-avatar-v1-pro)
+- [V1 avatar standard (retired; historical reference)](https://runapi.ai/models/kling/v1-avatar-standard)
 - [V2.1 pro](https://runapi.ai/models/kling/v2.1-pro)
 - [V2.1 standard](https://runapi.ai/models/kling/v2.1-standard)
 - [V2.1 master text to video](https://runapi.ai/models/kling/v2.1-master-text-to-video)

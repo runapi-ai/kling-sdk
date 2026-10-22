@@ -113,6 +113,18 @@ class KlingClientTest {
   }
 
   @Test
+  void createSendsAutomaticStoryboard() throws Exception {
+    CapturingTransport transport = new CapturingTransport("{\"id\":\"task_auto\"}");
+    KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();
+    client.textToVideo().create(TextToVideoParams.builder().model("kling-3.0")
+        .multiShots(true).shotType("automatic").prompt("A sunrise").build());
+    JsonNode body = bodyJson(transport.request);
+    assertEquals("automatic", body.get("shot_type").asText());
+    assertEquals(true, body.get("multi_shots").asBoolean());
+    assertEquals(false, body.has("multi_prompt"));
+  }
+
+  @Test
   void createSendsV3TurboTextToVideoShape() throws Exception {
     CapturingTransport transport = new CapturingTransport("{\"id\":\"task_v3\",\"status\":\"processing\"}");
     KlingClient client = KlingClient.builder().apiKey("sk-test").transport(transport).build();

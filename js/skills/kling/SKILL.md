@@ -23,6 +23,8 @@ metadata:
 
 # Kling on RunAPI
 
+Retired versions below are historical references only. Do not select them for a new request.
+
 ## Choose route
 
 - For a one-off artifact or result, use the registered `kling` service in the `runapi` CLI. If the installed command catalog does not list it, stop and report the missing service instead of inventing a command.
@@ -49,6 +51,11 @@ Create `request.json` as valid JSON using only fields accepted by the discovered
 Traverse nested objects and arrays before execution. Close every relationship stated by the discovered contract, including uniqueness constraints and cross-references between nested values.
 
 For a discovered local media input, including file-typed fields and top-level media URL fields, put an agent-readable local file path directly in `request.json`. The CLI consumes file fields as declared and uploads local paths in top-level media URL fields. Use `runapi files create` only when the user needs a reusable URL, provides Base64, or the discovered contract explicitly requires a separate upload.
+
+Semantic invariants:
+- For Kling 3.0 multi-shot, use `multi_shots: true`. `shot_type` accepts `custom` or `automatic` and defaults to `custom` only in multi-shot mode. Omit `shot_type` for single-shot requests.
+- Custom storyboards require 1-6 `multi_prompt` shots with integer durations from 1-12 seconds. Their sum must equal the total `duration_seconds` from 3-15, default 5. Each shot prompt allows 500 effective characters, with each named `@element` reference counting as 37.
+- Automatic storyboarding requires `prompt` and omits `multi_prompt`. `enable_sound` is optional for multi-shot requests.
 
 Validate the file before sending it:
 
@@ -115,9 +122,7 @@ Use this route only for application or production-code integration. Open the cur
 - `kling-3.0`: https://runapi.ai/models/kling/3.0.md
 - `kling-ai-avatar-pro`: https://runapi.ai/models/kling/ai-avatar-pro.md
 - `kling-ai-avatar-standard`: https://runapi.ai/models/kling/ai-avatar-standard.md
-- `kling-ai-avatar-v1-pro`: https://runapi.ai/models/kling/ai-avatar-v1-pro.md
 - `kling-o1`: https://runapi.ai/models/kling/o1.md
-- `kling-v1-avatar-standard`: https://runapi.ai/models/kling/v1-avatar-standard.md
 - `kling-v2.1-master-image-to-video`: https://runapi.ai/models/kling/v2.1-master-image-to-video.md
 - `kling-v2.1-master-text-to-video`: https://runapi.ai/models/kling/v2.1-master-text-to-video.md
 - `kling-v2.1-pro`: https://runapi.ai/models/kling/v2.1-pro.md
@@ -130,3 +135,11 @@ Use this route only for application or production-code integration. Open the cur
 - `kling-v3-omni-reference`: https://runapi.ai/models/kling/v3-omni-reference.md
 - `kling-v3-turbo-image-to-video`: https://runapi.ai/models/kling/v3-turbo-image-to-video.md
 - `kling-v3-turbo-text-to-video`: https://runapi.ai/models/kling/v3-turbo-text-to-video.md
+
+## Retired references
+- `kling-ai-avatar-v1-pro` (retired 2026-10-14): https://runapi.ai/models/kling/ai-avatar-v1-pro.md
+  This model ID is not mapped to another model.
+- `kling-v1-avatar-standard` (retired 2026-10-14): https://runapi.ai/models/kling/v1-avatar-standard.md
+  This model ID is not mapped to another model.
+
+New requests for these versions return HTTP 410 before task creation or balance deduction. Existing task IDs remain queryable through the task-status API. Do not retry task creation with a retired model ID.

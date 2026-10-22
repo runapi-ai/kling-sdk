@@ -5,6 +5,9 @@ module RunApi
     module Resources
       # Kling text-to-video resource.
       # Generate videos from text prompts.
+      # Kling 3.0 multi_shots uses custom or automatic shot_type with optional sound.
+      # Custom uses multi_prompt; automatic uses prompt. The server defaults to
+      # custom only in multi-shot mode; single-shot requests omit shot_type.
       class TextToVideo
         include RunApi::Core::ResourceHelpers
 

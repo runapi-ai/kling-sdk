@@ -25,9 +25,7 @@ export const modelValues = {
   },
   "avatar": {
     "KLING_AI_AVATAR_PRO": "kling-ai-avatar-pro",
-    "KLING_AI_AVATAR_STANDARD": "kling-ai-avatar-standard",
-    "KLING_AI_AVATAR_V1_PRO": "kling-ai-avatar-v1-pro",
-    "KLING_V1_AVATAR_STANDARD": "kling-v1-avatar-standard"
+    "KLING_AI_AVATAR_STANDARD": "kling-ai-avatar-standard"
   },
   "motionControl": {
     "KLING_3_0": "kling-3.0",

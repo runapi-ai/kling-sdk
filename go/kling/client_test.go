@@ -133,6 +133,7 @@ func TestTextToVideoCreateMultiShot(t *testing.T) {
 	_, err := client.TextToVideo.Create(context.Background(), TextToVideoParams{
 		Model:            ModelKling30,
 		MultiShots:       &trueVal,
+		ShotType:         "custom",
 		EnableSound:      &trueVal,
 		DurationSeconds:  6,
 		OutputResolution: TextToVideoOutputResolution1080p,
@@ -145,6 +146,9 @@ func TestTextToVideoCreateMultiShot(t *testing.T) {
 	body := stub.body.(map[string]any)
 	if body["multi_shots"] != true {
 		t.Fatalf("expected multi_shots true, got: %v", body["multi_shots"])
+	}
+	if body["shot_type"] != "custom" {
+		t.Fatalf("unexpected shot_type: %v", body["shot_type"])
 	}
 	shots, ok := body["multi_prompt"].([]any)
 	if !ok || len(shots) != 2 {
@@ -378,11 +382,11 @@ func TestAiAvatarCreateCompactsEmptyFields(t *testing.T) {
 	}
 }
 
-func TestAiAvatarCreateV1ProModel(t *testing.T) {
+func TestAiAvatarCreateProModel(t *testing.T) {
 	stub := &stubHTTPClient{}
 	client := NewClientWithHTTP(stub)
 	_, err := client.AiAvatar.Create(context.Background(), AiAvatarParams{
-		Model:          ModelAiAvatarV1Pro,
+		Model:          ModelAiAvatarPro,
 		SourceImageURL: "https://cdn.runapi.ai/public/samples/portrait.jpg",
 		SourceAudioURL: "https://cdn.runapi.ai/public/samples/music.mp3",
 		Prompt:         "a person speaking naturally"})
@@ -390,7 +394,7 @@ func TestAiAvatarCreateV1ProModel(t *testing.T) {
 		t.Fatal(err)
 	}
 	body := stub.body.(map[string]any)
-	if body["model"] != "kling-ai-avatar-v1-pro" {
+	if body["model"] != "kling-ai-avatar-pro" {
 		t.Fatalf("unexpected model: %v", body["model"])
 	}
 }
@@ -652,7 +656,6 @@ func TestMotionControlCreateWithAllOptions(t *testing.T) {
 		Prompt:               "a person dancing",
 		OutputResolution:     "720p",
 		CharacterOrientation: "video",
-		BackgroundSource:     "video",
 		CallbackURL:          "https://your-domain.com/webhook"})
 	if err != nil {
 		t.Fatal(err)
@@ -660,9 +663,6 @@ func TestMotionControlCreateWithAllOptions(t *testing.T) {
 	body := stub.body.(map[string]any)
 	if body["character_orientation"] != "video" {
 		t.Fatalf("unexpected character_orientation: %v", body["character_orientation"])
-	}
-	if body["background_source"] != "video" {
-		t.Fatalf("unexpected background_source: %v", body["background_source"])
 	}
 	if body["output_resolution"] != "720p" {
 		t.Fatalf("unexpected output_resolution: %v", body["output_resolution"])
@@ -695,9 +695,6 @@ func TestMotionControlCreateCompactsEmptyFields(t *testing.T) {
 	}
 	if _, ok := body["character_orientation"]; ok {
 		t.Fatal("expected empty character_orientation to be compacted away")
-	}
-	if _, ok := body["background_source"]; ok {
-		t.Fatal("expected empty background_source to be compacted away")
 	}
 }
 

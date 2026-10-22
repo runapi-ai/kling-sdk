@@ -12,7 +12,6 @@ public final class MotionControlParams {
   private final String prompt;
   private final String outputResolution;
   private final String characterOrientation;
-  private final String backgroundSource;
   private final String callbackUrl;
 
   private MotionControlParams(Builder builder) {
@@ -22,7 +21,6 @@ public final class MotionControlParams {
     this.prompt = builder.prompt;
     this.outputResolution = builder.outputResolution;
     this.characterOrientation = builder.characterOrientation;
-    this.backgroundSource = builder.backgroundSource;
     this.callbackUrl = builder.callbackUrl;
   }
 
@@ -45,7 +43,6 @@ public final class MotionControlParams {
     raw.put("prompt", KlingParamUtils.wireValue(prompt));
     raw.put("output_resolution", KlingParamUtils.wireValue(outputResolution));
     raw.put("character_orientation", KlingParamUtils.wireValue(characterOrientation));
-    raw.put("background_source", KlingParamUtils.wireValue(backgroundSource));
     raw.put("callback_url", KlingParamUtils.wireValue(callbackUrl));
     return KlingParamUtils.compact(raw);
   }
@@ -60,7 +57,6 @@ public final class MotionControlParams {
     private String prompt;
     private String outputResolution;
     private String characterOrientation;
-    private String backgroundSource;
     private String callbackUrl;
 
     private Builder() {}
@@ -105,12 +101,6 @@ public final class MotionControlParams {
     /** Sets the character orientation. */
     public Builder characterOrientation(String value) {
       this.characterOrientation = value;
-      return this;
-    }
-
-    /** Sets the background source. */
-    public Builder backgroundSource(String value) {
-      this.backgroundSource = value;
       return this;
     }
 

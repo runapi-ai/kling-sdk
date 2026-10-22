@@ -117,7 +117,7 @@ type KlingElement struct {
 // sound generation, and Kling elements. V2.x models support NegativePrompt and CfgScale instead.
 type TextToVideoParams struct {
 	Model            TextToVideoModel                 `json:"model" help:"required; model slug"`
-	Prompt           string                           `json:"prompt,omitempty" help:"required unless multi_shots; video description"`
+	Prompt           string                           `json:"prompt,omitempty" help:"required except custom multi-shot; video description"`
 	CallbackURL      string                           `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 	Mode             string                           `json:"mode,omitempty" help:"optional; std or pro; defaults to std"`
 	EnableSound      *bool                            `json:"enable_sound,omitempty" help:"optional; enable sound generation"`
@@ -129,7 +129,8 @@ type TextToVideoParams struct {
 	CfgScale       *float64 `json:"cfg_scale,omitempty" help:"optional; guidance scale for V2.1/V2.5 models"`
 
 	MultiShots         *bool             `json:"multi_shots,omitempty" help:"optional; true to enable multi-shot generation"`
-	MultiPrompt        []MultiPromptItem `json:"multi_prompt,omitempty" help:"optional; prompt segments for multi-shot mode"`
+	ShotType           string            `json:"shot_type,omitempty" help:"optional; custom or automatic; defaults to custom only when multi_shots is true"`
+	MultiPrompt        []MultiPromptItem `json:"multi_prompt,omitempty" help:"required in custom multi-shot; 1-6 shots, durations 1-12 seconds summing to total duration"`
 	FirstFrameImageURL string            `json:"first_frame_image_url,omitempty" help:"optional; first frame image URL for Kling 3.0"`
 	LastFrameImageURL  string            `json:"last_frame_image_url,omitempty" help:"optional; last frame image URL for Kling 3.0 single-shot mode"`
 
@@ -221,10 +222,6 @@ const (
 	ModelAiAvatarPro AiAvatarModel = generatedAvatarModelKlingAiAvatarPro
 	// ModelAiAvatarStandard is faster with slightly less refined lip sync than Pro.
 	ModelAiAvatarStandard AiAvatarModel = generatedAvatarModelKlingAiAvatarStandard
-	// ModelAiAvatarV1Pro is the V1-generation pro avatar model.
-	ModelAiAvatarV1Pro AiAvatarModel = generatedAvatarModelKlingAiAvatarV1Pro
-	// ModelV1AvatarStandard is the V1-generation standard avatar model.
-	ModelV1AvatarStandard AiAvatarModel = generatedAvatarModelKlingV1AvatarStandard
 )
 
 // AiAvatarParams configures AI avatar generation, which lip-syncs a face image to an audio track.
@@ -252,7 +249,6 @@ type MotionControlParams struct {
 	Prompt               string                        `json:"prompt,omitempty" help:"optional; description prompt"`
 	OutputResolution     MotionControlOutputResolution `json:"output_resolution,omitempty" help:"required; output resolution"`
 	CharacterOrientation string                        `json:"character_orientation,omitempty" help:"required for kling-v2.6; optional for kling-3.0; character orientation"`
-	BackgroundSource     string                        `json:"background_source,omitempty" help:"optional for kling-3.0; not supported by kling-v2.6; background source"`
 	CallbackURL          string                        `json:"callback_url,omitempty" help:"optional; webhook URL for async notifications"`
 }
 

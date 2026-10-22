@@ -1,5 +1,17 @@
 # Changelog
 
+## [js/v0.6.0](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.6.0), [go/v0.6.0](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.6.0), [java/v0.4.0](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.4.0), [python/v0.5.1](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.5.1), [ruby/v0.5.1](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.5.1) - 2026-10-22
+
+### Added
+- Add custom and automatic shot_type storyboarding with optional sound and custom shot duration constraints.
+
+### Removed
+- Remove retired model choices from creation metadata and document historical task lookup.
+  Migration: Retired models return HTTP 410 for new requests. Query existing task IDs with the original task endpoint; no automatic replacement is applied.
+- Remove the background_source motion-control parameter, which the API no longer accepts.
+  Migration: Drop background_source from motion-control requests; the API returns 400 when it is sent.
+
+
 ## [js/v0.5.0](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.5.0), [ruby/v0.5.0](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.5.0), [go/v0.5.0](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.5.0), [python/v0.5.0](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.5.0), [java/v0.3.0](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.3.0) - 2026-09-30
 
 ### Changed

@@ -15,7 +15,12 @@ V3_TURBO_MODEL = "kling-v3-turbo-text-to-video"
 
 
 class TextToVideo(Resource):
-    """Generate videos from text prompts with Kling models."""
+    """Generate videos from text prompts with Kling models.
+
+    Kling 3.0 multi_shots supports custom or automatic shot_type. Custom
+    storyboards use multi_prompt; automatic storyboards use prompt. Sound is
+    optional. The server applies the custom default only in multi-shot mode.
+    """
 
     ENDPOINT = "/api/v1/kling/text_to_video"
 

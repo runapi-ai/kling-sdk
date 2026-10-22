@@ -54,7 +54,6 @@ describe('MotionControl', () => {
         prompt: 'A person dancing',
         output_resolution: '720p',
         character_orientation: 'video',
-        background_source: 'video',
         callback_url: 'https://your-domain.com/webhook',
       });
 
@@ -69,7 +68,6 @@ describe('MotionControl', () => {
             prompt: 'A person dancing',
             output_resolution: '720p',
             character_orientation: 'video',
-            background_source: 'video',
             callback_url: 'https://your-domain.com/webhook',
           },
         }

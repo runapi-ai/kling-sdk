@@ -570,3 +570,11 @@ def test_edit_video_create_get_and_run_for_edit_model():
         ("post", "/api/v1/kling/edit_video", params),
         ("get", "/api/v1/kling/edit_video/edit-run", None)]
     assert result.status == "completed"
+
+
+def test_custom_multi_shot_forwards_storyboard_without_sound():
+    fake = FakeHttp({"id": "multi", "status": "pending"})
+    client = KlingClient(api_key="k", http_client=fake)
+    params = {"model": "kling-3.0", "multi_shots": True, "shot_type": "custom", "enable_sound": False, "duration_seconds": 5, "multi_prompt": [{"prompt": "A sunrise", "duration_seconds": 5}]}
+    client.text_to_video.create(**params)
+    assert fake.calls == [("post", "/api/v1/kling/text_to_video", params)]

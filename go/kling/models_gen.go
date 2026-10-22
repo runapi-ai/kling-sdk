@@ -21,8 +21,6 @@ const (
 	generatedEditVideoModelKlingV3OmniReference            EditVideoModel     = "kling-v3-omni-reference"
 	generatedAvatarModelKlingAiAvatarPro                   AiAvatarModel      = "kling-ai-avatar-pro"
 	generatedAvatarModelKlingAiAvatarStandard              AiAvatarModel      = "kling-ai-avatar-standard"
-	generatedAvatarModelKlingAiAvatarV1Pro                 AiAvatarModel      = "kling-ai-avatar-v1-pro"
-	generatedAvatarModelKlingV1AvatarStandard              AiAvatarModel      = "kling-v1-avatar-standard"
 	generatedMotionControlModelKling30                     MotionControlModel = "kling-3.0"
 	generatedMotionControlModelKlingV26                    MotionControlModel = "kling-v2.6"
 )

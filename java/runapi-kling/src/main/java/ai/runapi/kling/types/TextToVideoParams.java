@@ -18,6 +18,7 @@ public final class TextToVideoParams {
   private final String negativePrompt;
   private final Double cfgScale;
   private final Boolean multiShots;
+  private final String shotType;
   private final List<MultiPromptItem> multiPrompt;
   private final String firstFrameImageUrl;
   private final String lastFrameImageUrl;
@@ -39,6 +40,7 @@ public final class TextToVideoParams {
     this.negativePrompt = builder.negativePrompt;
     this.cfgScale = builder.cfgScale;
     this.multiShots = builder.multiShots;
+    this.shotType = builder.shotType;
     this.multiPrompt = KlingParamUtils.list(builder.multiPrompt);
     this.firstFrameImageUrl = builder.firstFrameImageUrl;
     this.lastFrameImageUrl = builder.lastFrameImageUrl;
@@ -73,6 +75,7 @@ public final class TextToVideoParams {
     raw.put("negative_prompt", KlingParamUtils.wireValue(negativePrompt));
     raw.put("cfg_scale", KlingParamUtils.wireValue(cfgScale));
     raw.put("multi_shots", KlingParamUtils.wireValue(multiShots));
+    raw.put("shot_type", KlingParamUtils.wireValue(shotType));
     raw.put("multi_prompt", multiPromptToMaps(multiPrompt));
     raw.put("first_frame_image_url", KlingParamUtils.wireValue(firstFrameImageUrl));
     raw.put("last_frame_image_url", KlingParamUtils.wireValue(lastFrameImageUrl));
@@ -119,6 +122,7 @@ public final class TextToVideoParams {
     private String negativePrompt;
     private Double cfgScale;
     private Boolean multiShots;
+    private String shotType;
     private List<MultiPromptItem> multiPrompt;
     private String firstFrameImageUrl;
     private String lastFrameImageUrl;
@@ -200,6 +204,12 @@ public final class TextToVideoParams {
     /** Sets the multi-shot mode toggle. */
     public Builder multiShots(boolean value) {
       this.multiShots = value;
+      return this;
+    }
+
+    /** Sets custom or automatic storyboarding; defaults to custom only in multi-shot mode. */
+    public Builder shotType(String value) {
+      this.shotType = value;
       return this;
     }
 

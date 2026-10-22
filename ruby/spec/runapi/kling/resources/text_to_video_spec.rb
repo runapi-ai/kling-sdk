@@ -172,11 +172,12 @@ RSpec.describe RunApi::Kling::Resources::TextToVideo do
       expect(result.id).to eq("task-v3-omni-t2v")
     end
 
-    it "does not require top-level prompt when multi_shots is true" do
+    it "sends custom multi-shot without top-level prompt or sound" do
       params = {
         model: "kling-3.0",
         multi_shots: true,
-        enable_sound: true,
+        shot_type: "custom",
+        enable_sound: false,
         multi_prompt: [{prompt: "a dog running", duration_seconds: 3}, {prompt: "a cat watching", duration_seconds: 3}]
       }
       expect(http).to receive(:request).with(:post, endpoint, body: params)

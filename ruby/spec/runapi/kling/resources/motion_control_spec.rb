@@ -14,8 +14,7 @@ RSpec.describe RunApi::Kling::Resources::MotionControl do
       reference_video_url: "https://cdn.runapi.ai/public/samples/video.mp4",
       prompt: "a person dancing",
       output_resolution: "1080p",
-      character_orientation: "video",
-      background_source: "video"
+      character_orientation: "video"
     }
     expect(http).to receive(:request).with(:post, endpoint, body: params)
       .and_return("id" => "task-motion")
