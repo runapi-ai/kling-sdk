@@ -1,5 +1,12 @@
 # Changelog
 
+## [js/v0.6.1](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.6.1) - 2026-10-28
+
+### Changed
+- Update development test tooling to Vitest 3 with Vite 6.
+- Update development test tooling to Vitest 4.1.11 with Vite 6.4.4.
+
+
 ## [js/v0.6.0](https://github.com/runapi-ai/kling-sdk/releases/tag/js%2Fv0.6.0), [go/v0.6.0](https://github.com/runapi-ai/kling-sdk/releases/tag/go%2Fv0.6.0), [java/v0.4.0](https://github.com/runapi-ai/kling-sdk/releases/tag/java%2Fv0.4.0), [python/v0.5.1](https://github.com/runapi-ai/kling-sdk/releases/tag/python%2Fv0.5.1), [ruby/v0.5.1](https://github.com/runapi-ai/kling-sdk/releases/tag/ruby%2Fv0.5.1) - 2026-10-22
 
 ### Added
